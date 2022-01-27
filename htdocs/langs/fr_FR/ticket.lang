@@ -241,6 +241,8 @@ TicketNotNotifyTiersAtCreate=Ne pas notifier l'entreprise à la création
 Unread=Non lu
 TicketNotCreatedFromPublicInterface=Non disponible. Le ticket n’a pas été créé à partir de l'interface publique.
 ErrorTicketRefRequired=La référence du ticket est requise
+TicketsDelayForFirstResponseTooLong=Trop de temps écoulé sans réponse depuis l'ouverture du ticket.
+TicketsDelayFromLastResponseTooLong=Trop de temps écoulé depuis la dernière réponse sur ce ticket.
 
 #
 # Logs
