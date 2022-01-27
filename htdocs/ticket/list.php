@@ -1016,7 +1016,7 @@ while ($i < min($num, $limit)) {
 
 				// display a warning on untreated tickets
 				$is_open = ($object->fk_statut['index'] != Ticket::STATUS_CLOSED && $object->fk_statut['index'] != Ticket::STATUS_CANCELED );
-				$should_show_warning = (!empty($conf->global->TICKET_DELAY_FROM_LAST_RESPONSE) || !empty($conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE));
+				$should_show_warning = (!empty($conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE) || !empty($conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE));
 				if ($is_open && $should_show_warning) {
 					$now = dol_now();
 					$last_msg_date =  $db->jdate($obj->last_msg_date);
@@ -1026,11 +1026,11 @@ while ($i < min($num, $limit)) {
 						$creation_date =  $db->jdate($obj->datec);
 						$hour_diff_creation = ($now - $creation_date) / 3600 ;
 						if ($hour_diff_creation > $conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE) {
-							print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayForFirstResponseTooLong', $conf->global->TICKET_DELAY_FOR_FIRST_RESPONSE), 'warning', 'style="color: red;"', false, 0, 0, '', '');
+							print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayForFirstResponseTooLong', $conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE), 'warning', 'style="color: red;"', false, 0, 0, '', '');
 						}
 					} 
-					else if (!empty($conf->global->TICKET_DELAY_FROM_LAST_RESPONSE) && $hour_diff > $conf->global->TICKET_DELAY_FROM_LAST_RESPONSE) {
-						print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayFromLastResponseTooLong', $conf->global->TICKET_DELAY_FROM_LAST_RESPONSE), 'warning');
+					else if (!empty($conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE) && $hour_diff > $conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE) {
+						print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayFromLastResponseTooLong', $conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE), 'warning');
 					}
 				}
 			} else {	// Example: key=fk_soc, obj->key=123 val=array('type'=>'integer', ...
