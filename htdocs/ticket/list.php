@@ -322,8 +322,6 @@ if (empty($reshook)) {
 $form = new Form($db);
 $formTicket = new FormTicket($db);
 
-$now = dol_now();
-
 $user_temp = new User($db);
 $socstatic = new Societe($db);
 
@@ -337,6 +335,8 @@ $sql = 'SELECT ';
 foreach ($object->fields as $key => $val) {
 	$sql .= 't.'.$key.', ';
 }
+// creation date from last message
+$sql .= 'a.last_msg_date, ';
 // Add fields from extrafields
 if (!empty($extrafields->attributes[$object->table_element]['label'])) {
 	foreach ($extrafields->attributes[$object->table_element]['label'] as $key => $val) {
@@ -353,6 +353,9 @@ if (isset($extrafields->attributes[$object->table_element]['label']) && is_array
 	$sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 }
 $sql .= " LEFT JOIN ".MAIN_DB_PREFIX."societe as s ON (t.fk_soc = s.rowid)";
+$sql .= " LEFT JOIN
+	(SELECT MAX(datep) as last_msg_date, fk_element FROM ".MAIN_DB_PREFIX."actioncomm WHERE (code LIKE '%TICKET_MSG%') AND NOT (fk_user_author = 0)  GROUP BY fk_element)
+	as a ON (t.rowid = a.fk_element)";
 $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 if ($socid > 0) {
 	$sql .= " AND t.fk_soc = ".((int) $socid);
@@ -541,6 +544,7 @@ if ($projectid > 0 || $project_ref) {
 		$projectid = $projectstat->id;
 		$projectstat->fetch_thirdparty();
 
+		// save $object into $savobject.
 		$savobject = $object;
 		$object = $projectstat;
 
@@ -931,6 +935,7 @@ while ($i < min($num, $limit)) {
 	// Show here line of result
 	print '<tr class="oddeven">';
 	foreach ($object->fields as $key => $val) {
+
 		$cssforfield = '';
 		if (in_array($val['type'], array('date', 'datetime', 'timestamp'))) {
 			$cssforfield .= ($cssforfield ? ' ' : '').'center';
@@ -1006,6 +1011,28 @@ while ($i < min($num, $limit)) {
 				}
 			} elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) {
 				print $object->showOutputField($val, $key, $db->jdate($obj->$key), '');
+			} elseif ($key == 'ref'){
+				print $object->showOutputField($val, $key, $obj->$key, '');
+
+				// display a warning on untreated tickets
+				$is_open = ($object->fk_statut['index'] != Ticket::STATUS_CLOSED && $object->fk_statut['index'] != Ticket::STATUS_CANCELED );
+				$should_show_warning = (!empty($conf->global->TICKET_DELAY_FROM_LAST_RESPONSE) || !empty($conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE));
+				if ($is_open && $should_show_warning) {
+					$now = dol_now();
+					$last_msg_date =  $db->jdate($obj->last_msg_date);
+					$hour_diff = ($now - $last_msg_date) / 3600 ;
+
+					if (!empty($conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE && $last_msg_date == 0)){
+						$creation_date =  $db->jdate($obj->datec);
+						$hour_diff_creation = ($now - $creation_date) / 3600 ;
+						if ($hour_diff_creation > $conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE) {
+							print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayForFirstResponseTooLong', $conf->global->TICKET_DELAY_FOR_FIRST_RESPONSE), 'warning', 'style="color: red;"', false, 0, 0, '', '');
+						}
+					} 
+					else if (!empty($conf->global->TICKET_DELAY_FROM_LAST_RESPONSE) && $hour_diff > $conf->global->TICKET_DELAY_FROM_LAST_RESPONSE) {
+						print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayFromLastResponseTooLong', $conf->global->TICKET_DELAY_FROM_LAST_RESPONSE), 'warning');
+					}
+				}
 			} else {	// Example: key=fk_soc, obj->key=123 val=array('type'=>'integer', ...
 				$tmp = explode(':', $val['type']);
 				if ($tmp[0] == 'integer' && !empty($tmp[1]) && class_exists($tmp[1])) {
