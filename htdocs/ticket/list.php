@@ -1012,7 +1012,7 @@ while ($i < min($num, $limit)) {
 			} elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) {
 				print $object->showOutputField($val, $key, $db->jdate($obj->$key), '');
 			} elseif ($key == 'ref'){
-				print $object->showOutputField($val, $key, $obj->$key, '');
+				print $object->showOutputField($val, $key, $obj->$key, '') ;
 
 				// display a warning on untreated tickets
 				$is_open = ($object->fk_statut['index'] != Ticket::STATUS_CLOSED && $object->fk_statut['index'] != Ticket::STATUS_CANCELED );
@@ -1022,14 +1022,14 @@ while ($i < min($num, $limit)) {
 					$last_msg_date =  $db->jdate($obj->last_msg_date);
 					$hour_diff = ($now - $last_msg_date) / 3600 ;
 
-					if (!empty($conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE && $last_msg_date == 0)){
+					if (!empty($conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE && $last_msg_date == 0)) {
 						$creation_date =  $db->jdate($obj->datec);
 						$hour_diff_creation = ($now - $creation_date) / 3600 ;
 						if ($hour_diff_creation > $conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE) {
 							print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayForFirstResponseTooLong', $conf->global->TICKET_DELAY_BEFORE_FIRST_RESPONSE), 'warning', 'style="color: red;"', false, 0, 0, '', '');
 						}
-					} 
-					else if (!empty($conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE) && $hour_diff > $conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE) {
+					}
+					elseif (!empty($conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE) && $hour_diff > $conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE) {
 						print " " . img_picto($langs->trans('Late') . ' : ' . $langs->trans('TicketsDelayFromLastResponseTooLong', $conf->global->TICKET_DELAY_SINCE_LAST_RESPONSE), 'warning');
 					}
 				}
