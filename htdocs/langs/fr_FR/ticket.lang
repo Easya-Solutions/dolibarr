@@ -136,6 +136,11 @@ TicketsPublicNotificationNewMessage=Envoyer un ou des emails lorsqu’un nouveau
 TicketsPublicNotificationNewMessageHelp=Envoyer un (des) courriel(s) lorsqu’un nouveau message est ajouté à partir de l’interface publique (à l’utilisateur désigné ou au courriel de notification  (mise à jour) et/ou au courriel de notification)
 TicketPublicNotificationNewMessageDefaultEmail=Emails de notifications à (mise à jour)
 TicketPublicNotificationNewMessageDefaultEmailHelp=Envoyez un email à cette adresse email pour chaque nouveau message de notifications si le ticket n'a pas d'utilisateur assigné ou si l'utilisateur n'a pas d'email connu.
+TicketsDelayBeforeFirstAnswer=Délai de réponse avant d'afficher une icône d' avertissement
+TicketsDelayBeforeFirstAnswerHelp= Temps en heures. Si un ticket n'a reçu aucune réponse après ce délai, une icône rouge est affichée dans la vue en liste.
+TicketsDelayBetweenAnswers=Délai entre deux réponses avant d'afficher une icône d' avertissement
+TicketsDelayBetweenAnswersHelp= Temps en heures. Si un ticket auquel on a répondu n'a aucune réponse suivante après ce délai, une icône noire est affichée dans la vue en liste.
+
 #
 # Index & list page
 #
