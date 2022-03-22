@@ -597,7 +597,7 @@ class Reception extends CommonObject
 					if (!empty($obj->remise_percent) && empty($conf->global->STOCK_EXCLUDE_DISCOUNT_FOR_PMP)) {
 						$up_ht_disc = price2num($up_ht_disc * (100 - $obj->remise_percent) / 100, 'MU');
 					}
-					
+
 					if (empty($obj->batch)) {
 						// line without batch detail
 
