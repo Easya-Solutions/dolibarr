@@ -404,6 +404,7 @@ NoJournalDefined=No journal defined
 Binded=Lines bound
 ToBind=Lines to bind
 UseMenuToSetBindindManualy=Lines not yet bound, use menu <a href="%s">%s</a> to make the binding manually
+ErrorLetteringAlreadyDone=Lettering "%s" already set on piece number "%s"
 
 ## Import
 ImportAccountingEntries=Accounting entries
