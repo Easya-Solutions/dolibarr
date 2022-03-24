@@ -432,13 +432,15 @@ if (getDolGlobalInt('ACCOUNTING_ENABLE_LETTERING')) {
 			$error++;
 			$lettering->errors[] = $db->lasterror();
 		}
-		if ($db->num_rows($resql) > 0) {
-			$error++;
-			while ($obj = $db->fetch_object($resql)) {
-				$lettering->errors[] = $langs->trans('ErrorLetteringAlreadyDone', $obj->lettering_code, $obj->piece_num);
+		if (!$error) {
+			if ($db->num_rows($resql) > 0) {
+				$error++;
+				while ($obj = $db->fetch_object($resql)) {
+					$lettering->errors[] = $langs->trans('ErrorLetteringAlreadyDone', $obj->lettering_code, $obj->piece_num);
+				}
 			}
+			$db->free($resql);
 		}
-		$db->free($resql);
 
 		if (!$error) {
 			$result = $lettering->updateLettering($toselect);
