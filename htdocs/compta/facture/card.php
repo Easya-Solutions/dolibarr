@@ -599,8 +599,6 @@ if (empty($reshook)) {
 		$object->fetch($id);
 		$object->fetch_thirdparty();
 
-		// Check parameters
-
 		// Check for mandatory fields in invoice
 		$array_to_check = array('REF_CLIENT'=>'RefCustomer');
 		foreach ($array_to_check as $key => $val) {
