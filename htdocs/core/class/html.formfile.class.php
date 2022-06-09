@@ -850,6 +850,8 @@ class FormFile
 
 					// Show file name with link to download
 					$out .= '<td class="minwidth200 tdoverflowmax300">';
+					$out .= $this->showPreview($file, $modulepart, $relativepath, 0, $param);
+
 					$out .= '<a class="documentdownload paddingright" href="'.$documenturl.'?modulepart='.$modulepart.'&amp;file='.urlencode($relativepath).($param ? '&'.$param : '').'"';
 
 					$mime = dol_mimetype($relativepath, '', 0);
@@ -858,9 +860,8 @@ class FormFile
 					}
 					$out .= '>';
 					$out .= img_mime($file["name"], $langs->trans("File").': '.$file["name"]);
-					$out .= dol_trunc($file["name"], 150);
+					$out .= dol_trunc($file["name"], 40);
 					$out .= '</a>'."\n";
-					$out .= $this->showPreview($file, $modulepart, $relativepath, 0, $param);
 					$out .= '</td>';
 
 					// Show file size
@@ -1307,6 +1308,11 @@ class FormFile
 					// File name
 					print '<td class="minwith200">';
 
+					// Preview link
+					if (!$editline) {
+						print $this->showPreview($file, $modulepart, $filepath, 0, '&entity='.(!empty($object->entity) ? $object->entity : $conf->entity));
+					}
+
 					// Show file name with link to download
 					//print "XX".$file['name'];	//$file['name'] must be utf8
 					print '<a class="paddingright" href="'.DOL_URL_ROOT.'/document.php?modulepart='.$modulepart;
@@ -1337,10 +1343,6 @@ class FormFile
 						$filenametoshow = preg_replace('/\.noexe$/', '', $file['name']);
 						print dol_escape_htmltag(dol_trunc($filenametoshow, 200));
 						print '</a>';
-					}
-					// Preview link
-					if (!$editline) {
-						print $this->showPreview($file, $modulepart, $filepath, 0, '&entity='.(!empty($object->entity) ? $object->entity : $conf->entity));
 					}
 
 					print "</td>\n";
@@ -1832,6 +1834,8 @@ class FormFile
 				// Check if document source has external module part, if it the case use it for module part on document.php
 				print '<td>';
 				//print "XX".$file['name']; //$file['name'] must be utf8
+				print $this->showPreview($file, $modulepart, $file['relativename']);
+
 				print '<a href="'.DOL_URL_ROOT.'/document.php?modulepart='.urlencode($modulepart);
 				if ($forcedownload) {
 					print '&attachment=1';
@@ -1842,8 +1846,6 @@ class FormFile
 				print '</a>';
 
 				//print $this->getDocumentsLink($modulepart, $modulesubdir, $filedir, '^'.preg_quote($file['name'],'/').'$');
-
-				print $this->showPreview($file, $modulepart, $file['relativename']);
 
 				print "</td>\n";
 
