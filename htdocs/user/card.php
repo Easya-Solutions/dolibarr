@@ -255,6 +255,7 @@ if (empty($reshook)) {
 			$object->email = preg_replace('/\s+/', '', GETPOST("email", 'alphanohtml'));
 			$object->job = GETPOST("job", 'alphanohtml');
 			$object->signature = GETPOST("signature", 'restricthtml');
+			$object->accountancy_code_user_general = GETPOST("accountancy_code_user_general", 'alphanohtml');
 			$object->accountancy_code = GETPOST("accountancy_code", 'alphanohtml');
 			$object->note = GETPOST("note", 'restricthtml');
 			$object->note_private = GETPOST("note", 'restricthtml');
@@ -416,6 +417,7 @@ if (empty($reshook)) {
 				$object->email = preg_replace('/\s+/', '', GETPOST("email", 'alphanohtml'));
 				$object->job = GETPOST("job", 'alphanohtml');
 				$object->signature = GETPOST("signature", 'restricthtml');
+				$object->accountancy_code_user_general = GETPOST("accountancy_code_user_general", 'alphanohtml');
 				$object->accountancy_code = GETPOST("accountancy_code", 'alphanohtml');
 				$object->openid = GETPOST("openid", 'alphanohtml');
 				$object->fk_user = GETPOST("fk_user", 'int') > 0 ? GETPOST("fk_user", 'int') : 0;
@@ -1117,7 +1119,14 @@ if ($action == 'create' || $action == 'adduserldap') {
 
 	// Accountancy code
 	if (!empty($conf->accounting->enabled)) {
-		print '<tr><td>'.$langs->trans("AccountancyCode").'</td>';
+		$langs->load("compta");
+
+		print '<tr><td>'.$langs->trans("UserAccountancyCodeGeneral").'</td>';
+		print '<td>';
+		print '<input type="text" name="accountancy_code_user_general" value="'.dol_escape_htmltag(GETPOST('accountancy_code_user_general', 'alphanohtml')).'">';
+		print '</td></tr>';
+
+		print '<tr><td>'.$langs->trans("UserAccountancyCode").'</td>';
 		print '<td>';
 		print '<input type="text" name="accountancy_code" value="'.dol_escape_htmltag(GETPOST('accountancy_code', 'alphanohtml')).'">';
 		print '</td></tr>';
@@ -1571,7 +1580,12 @@ if ($action == 'create' || $action == 'adduserldap') {
 
 			// Accountancy code
 			if (!empty($conf->accounting->enabled)) {
-				print '<tr><td>'.$langs->trans("AccountancyCode").'</td>';
+				$langs->load("compta");
+
+				print '<tr><td>'.$langs->trans("UserAccountancyCodeGeneral").'</td>';
+				print '<td>'.$object->accountancy_code_user_general.'</td></tr>';
+
+				print '<tr><td>'.$langs->trans("UserAccountancyCode").'</td>';
 				print '<td>'.$object->accountancy_code.'</td></tr>';
 			}
 
@@ -2461,8 +2475,22 @@ if ($action == 'create' || $action == 'adduserldap') {
 
 			// Accountancy code
 			if (!empty($conf->accounting->enabled)) {
+				$langs->load("compta");
+
 				print "<tr>";
-				print '<td class="titlefieldcreate">'.$langs->trans("AccountancyCode").'</td>';
+				print '<td class="titlefieldcreate">'.$langs->trans("UserAccountancyCodeGeneral").'</td>';
+				print '<td>';
+				if ($caneditfield) {
+					print '<input type="text" class="flat maxwidth300" name="accountancy_code_user_general" value="'.$object->accountancy_code_user_general.'">';
+				} else {
+					print '<input type="hidden" name="accountancy_code_user_general" value="'.$object->accountancy_code_user_general.'">';
+					print $object->accountancy_code_user_general;
+				}
+				print '</td>';
+				print "</tr>";
+
+				print "<tr>";
+				print '<td class="titlefieldcreate">'.$langs->trans("UserAccountancyCode").'</td>';
 				print '<td>';
 				if ($caneditfield) {
 					print '<input type="text" class="flat maxwidth300" name="accountancy_code" value="'.$object->accountancy_code.'">';
