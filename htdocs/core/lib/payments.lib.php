@@ -363,7 +363,7 @@ function getOnlinePaymentUrl($mode, $type, $ref = '', $amount = '9.99', $freetag
 
 
 /**
- * Show footer of company in HTML pages
+ * Show footer of payment in HTML pages
  *
  * @param   Societe		$fromcompany	Third party
  * @param   Translate	$langs			Output language
@@ -376,59 +376,9 @@ function htmlPrintOnlinePaymentFooter($fromcompany, $langs, $addformmessage = 0,
 {
 	global $conf;
 
-	// Juridical status
-	$line1 = "";
-	if ($fromcompany->forme_juridique_code) {
-		$line1 .= ($line1 ? " - " : "").getFormeJuridiqueLabel($fromcompany->forme_juridique_code);
-	}
-	// Capital
-	if ($fromcompany->capital) {
-		if (is_numeric($fromcompany->capital) && $fromcompany->capital > 0)	$line1 .= ($line1 ? ' - ' : '').$langs->transnoentities('CapitalOf', price($fromcompany->capital, 0, $langs, 0, 0, 0, $conf->currency));
-		else																$line1 .= ($line1 ? ' - ' : '').$langs->transnoentities('CapitalOf', $fromcompany->capital).' '.$langs->transnoentities('Currency'.$conf->currency);
-	}
-	// Second line of company infos
-	// Prof Id 1
-	if ($fromcompany->idprof1 && ($fromcompany->country_code != 'FR' || !$fromcompany->idprof2)) {
-		$field = $langs->transcountrynoentities("ProfId1", $fromcompany->country_code);
-		if (preg_match('/\((.*)\)/i', $field, $reg)) {
-			$field = $reg[1];
-		}
-		$tmpID	= dol_print_profids($langs->convToOutputCharset($fromcompany->idprof1), '1', $fromcompany->country_code);
-		$line2	.= ($line2 ? ' - ' : '').$field.' : '.$tmpID;
-	}
-	// Prof Id 2
-	if ($fromcompany->idprof2) {
-		$field = $langs->transcountrynoentities("ProfId2", $fromcompany->country_code);
-		if (preg_match('/\((.*)\)/i', $field, $reg)) {
-			$field = $reg[1];
-		}
-		$tmpID	= dol_print_profids($langs->convToOutputCharset($fromcompany->idprof2), '2', $fromcompany->country_code);
-		$line2	.= ($line2 ? ' - ' : '').$field.' : '.$tmpID;
-	}
-
-	// Prof Id 3
-	if ($fromcompany->idprof3) {
-		$field = $langs->transcountrynoentities("ProfId3", $fromcompany->country_code);
-		if (preg_match('/\((.*)\)/i', $field, $reg)) {
-			$field = $reg[1];
-		}
-		$tmpID	= dol_print_profids($langs->convToOutputCharset($fromcompany->idprof3), '3', $fromcompany->country_code);
-		$line2	.= ($line2 ? ' - ' : '').$field.' : '.$tmpID;
-	}
-	// Prof Id 4
-	if ($fromcompany->idprof4) {
-		$field = $langs->transcountrynoentities("ProfId4", $fromcompany->country_code);
-		if (preg_match('/\((.*)\)/i', $field, $reg)) {
-			$field = $reg[1];
-		}
-		$tmpID	= dol_print_profids($langs->convToOutputCharset($fromcompany->idprof4), '4', $fromcompany->country_code);
-		$line2	.= ($line2 ? ' - ' : '').$field.' : '.$tmpID;
-	}
-	// IntraCommunautary VAT
-	if ($fromcompany->tva_intra != '') {
-		$tmpID	= dol_print_profids($langs->convToOutputCharset($fromcompany->tva_intra), 'VAT', $fromcompany->country_code);
-		$line2	.= ($line2 ? ' - ' : '').$langs->transnoentities('VATIntraShort').' : '.$tmpID;
-	}
+	$lineList = htmlPrintOnlineCompanyFooter($fromcompany, $langs);
+	$line1 = $lineList[0];
+	$line2 = $lineList[1];
 
 	print '<br>';
 

@@ -47,7 +47,6 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/ticket.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/security.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
-require_once DOL_DOCUMENT_ROOT.'/core/lib/payments.lib.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array("companies", "other", "ticket"));
@@ -727,7 +726,7 @@ if ($action == "view_ticketlist") {
 print "</div>";
 
 // End of page
-htmlPrintOnlinePaymentFooter($mysoc, $langs, 0, $suffix, $object);
+htmlPrintOnlineTicketFooter($mysoc, $langs);
 
 llxFooter('', 'public');
 
