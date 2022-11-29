@@ -56,17 +56,17 @@ if (preg_match('/set_([a-z0-9_\-]+)/i', $action, $reg)) {
 
 	// If constant is for a unique choice, delete other choices
 	if (in_array($code, array('STOCK_CALCULATE_ON_BILL', 'STOCK_CALCULATE_ON_VALIDATE_ORDER', 'STOCK_CALCULATE_ON_SHIPMENT', 'STOCK_CALCULATE_ON_SHIPMENT_CLOSE'))) {
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_BILL', $conf->entity);
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_VALIDATE_ORDER', $conf->entity);
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_SHIPMENT', $conf->entity);
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_SHIPMENT_CLOSE', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_BILL', 0, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_VALIDATE_ORDER', 0, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_SHIPMENT', 0, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_SHIPMENT_CLOSE', 0, 'chaine', 0, '', $conf->entity);
 	}
 	if (in_array($code, array('STOCK_CALCULATE_ON_SUPPLIER_BILL', 'STOCK_CALCULATE_ON_SUPPLIER_VALIDATE_ORDER', 'STOCK_CALCULATE_ON_RECEPTION', 'STOCK_CALCULATE_ON_RECEPTION_CLOSE', 'STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER'))) {
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_SUPPLIER_BILL', $conf->entity);
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_SUPPLIER_VALIDATE_ORDER', $conf->entity);
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_RECEPTION', $conf->entity);
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_RECEPTION_CLOSE', $conf->entity);
-		dolibarr_del_const($db, 'STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_SUPPLIER_BILL', 0, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_SUPPLIER_VALIDATE_ORDER', 0, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_RECEPTION', 0, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_RECEPTION_CLOSE', 0, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER', 0, 'chaine', 0, '', $conf->entity);
 	}
 
 	if (dolibarr_set_const($db, $code, 1, 'chaine', 0, '', $conf->entity) > 0) {
@@ -79,7 +79,7 @@ if (preg_match('/set_([a-z0-9_\-]+)/i', $action, $reg)) {
 
 if (preg_match('/del_([a-z0-9_\-]+)/i', $action, $reg)) {
 	$code = $reg[1];
-	if (dolibarr_del_const($db, $code, $conf->entity) > 0) {
+	if (dolibarr_set_const($db, $code, 0, 'chaine', 0, '', $conf->entity) > 0) {
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
 	} else {
