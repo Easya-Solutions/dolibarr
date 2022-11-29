@@ -87,13 +87,13 @@ if ($action == 'update') {
 	$report_include_varpay = GETPOST('ACCOUNTING_REPORTS_INCLUDE_VARPAY', 'alpha');
 	if (!empty($report_include_varpay)) {
 		if ($report_include_varpay == 'yes') {
-			if (!dolibarr_set_const($db, 'ACCOUNTING_REPORTS_INCLUDE_VARPAY', 1, 'chaine', 0, '', $conf->entity)) {
+			if (dolibarr_set_const($db, 'ACCOUNTING_REPORTS_INCLUDE_VARPAY', 1, 'chaine', 0, '', $conf->entity) < 0) {
 				$error++;
 			}
 		}
 	}
 	if ($report_include_varpay == 'no') {
-		if (!dolibarr_del_const($db, 'ACCOUNTING_REPORTS_INCLUDE_VARPAY', $conf->entity)) {
+		if (dolibarr_set_const($db, 'ACCOUNTING_REPORTS_INCLUDE_VARPAY', 0, 'chaine', 0, '', $conf->entity) < 0) {
 			$error++;
 		}
 	}
@@ -101,13 +101,13 @@ if ($action == 'update') {
 	$report_include_loan = GETPOST('ACCOUNTING_REPORTS_INCLUDE_LOAN', 'alpha');
 	if (!empty($report_include_loan)) {
 		if ($report_include_loan == 'yes') {
-			if (!dolibarr_set_const($db, 'ACCOUNTING_REPORTS_INCLUDE_LOAN', 1, 'chaine', 0, '', $conf->entity)) {
+			if (dolibarr_set_const($db, 'ACCOUNTING_REPORTS_INCLUDE_LOAN', 1, 'chaine', 0, '', $conf->entity) < 0) {
 				$error++;
 			}
 		}
 	}
 	if ($report_include_loan == 'no') {
-		if (!dolibarr_del_const($db, 'ACCOUNTING_REPORTS_INCLUDE_LOAN', $conf->entity)) {
+		if (dolibarr_set_const($db, 'ACCOUNTING_REPORTS_INCLUDE_LOAN', 0, 'chaine', 0, '', $conf->entity) < 0) {
 			$error++;
 		}
 	}
