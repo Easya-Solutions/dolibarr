@@ -72,13 +72,13 @@ if ($action == 'update') {
 
 	if (!empty($conf->projet->enabled)) {
 		if (GETPOST('PDF_SHOW_PROJECT_REF_OR_LABEL') == 'no') {
-			dolibarr_del_const($db, "PDF_SHOW_PROJECT", $conf->entity);
-			dolibarr_del_const($db, "PDF_SHOW_PROJECT_TITLE", $conf->entity);
+			dolibarr_set_const($db, "PDF_SHOW_PROJECT", 0, 'chaine', 0, '', $conf->entity);
+			dolibarr_set_const($db, "PDF_SHOW_PROJECT_TITLE", 0, 'chaine', 0, '', $conf->entity);
 		} elseif (GETPOST('PDF_SHOW_PROJECT_REF_OR_LABEL') == 'showprojectref') {
 			dolibarr_set_const($db, "PDF_SHOW_PROJECT", GETPOST("PDF_SHOW_PROJECT_REF_OR_LABEL"), 'chaine', 0, '', $conf->entity);
-			dolibarr_del_const($db, "PDF_SHOW_PROJECT_TITLE", $conf->entity);
+			dolibarr_set_const($db, "PDF_SHOW_PROJECT_TITLE", 0, 'chaine', 0, '', $conf->entity);
 		} elseif (GETPOST('PDF_SHOW_PROJECT_REF_OR_LABEL') == 'showprojectlabel') {
-			dolibarr_del_const($db, "PDF_SHOW_PROJECT", $conf->entity);
+			dolibarr_set_const($db, "PDF_SHOW_PROJECT", 0, 'chaine', 0, '', $conf->entity);
 			dolibarr_set_const($db, "PDF_SHOW_PROJECT_TITLE", GETPOST("PDF_SHOW_PROJECT_REF_OR_LABEL"), 'chaine', 0, '', $conf->entity);
 		}
 	}
