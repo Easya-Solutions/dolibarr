@@ -104,7 +104,7 @@ if ($action == 'activate_encrypt') {
 	//On n'autorise pas l'annulation de l'encryption car les mots de passe ne peuvent pas etre decodes
 	//Do not allow "disable encryption" as passwords cannot be decrypted
 	if ($allow_disable_encryption) {
-		dolibarr_del_const($db, "DATABASE_PWD_ENCRYPTED", $conf->entity);
+		dolibarr_set_const($db, "DATABASE_PWD_ENCRYPTED", 0, 'chaine', 0, '', $conf->entity);
 	}
 	header("Location: security.php");
 	exit;
@@ -141,7 +141,7 @@ if ($action == 'activate_MAIN_SECURITY_DISABLEFORGETPASSLINK') {
 	header("Location: security.php");
 	exit;
 } elseif ($action == 'disable_MAIN_SECURITY_DISABLEFORGETPASSLINK') {
-	dolibarr_del_const($db, "MAIN_SECURITY_DISABLEFORGETPASSLINK", $conf->entity);
+	dolibarr_set_const($db, "MAIN_SECURITY_DISABLEFORGETPASSLINK", 0, 'chaine', 0, '', $conf->entity);
 	header("Location: security.php");
 	exit;
 }
