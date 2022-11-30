@@ -214,7 +214,7 @@ if ($action == 'updateMask') {
 	}
 } elseif (preg_match('/del_(.*)/', $action, $reg)) {
 	$code = $reg[1];
-	$res = dolibarr_del_const($db, $code, $conf->entity);
+	$res = dolibarr_set_const($db, $code, 0, 'chaine', 0, '', $conf->entity);
 
 	if (!($res > 0)) {
 		$error++;
