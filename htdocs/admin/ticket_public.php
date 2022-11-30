@@ -170,13 +170,13 @@ if ($action == 'setTICKET_ENABLE_PUBLIC_INTERFACE') {
 
 	if (!$error) {
 		if ($code == 'TICKET_EMAIL_MUST_EXISTS') {
-			$res = dolibarr_del_const($db, 'TICKET_CREATE_THIRD_PARTY_WITH_CONTACT_IF_NOT_EXIST', $conf->entity);
+			$res = dolibarr_set_const($db, 'TICKET_CREATE_THIRD_PARTY_WITH_CONTACT_IF_NOT_EXIST', 0, 'chaine', 0, '', $conf->entity);
 			if (!($res > 0)) {
 				$error++;
 				$errors[] = $db->lasterror();
 			}
 		} elseif ($code == 'TICKET_CREATE_THIRD_PARTY_WITH_CONTACT_IF_NOT_EXIST') {
-			$res = dolibarr_del_const($db, 'TICKET_EMAIL_MUST_EXISTS', $conf->entity);
+			$res = dolibarr_set_const($db, 'TICKET_EMAIL_MUST_EXISTS', 0, 'chaine', 0, '', $conf->entity);
 			if (!($res > 0)) {
 				$error++;
 				$errors[] = $db->lasterror();
@@ -192,7 +192,7 @@ if ($action == 'setTICKET_ENABLE_PUBLIC_INTERFACE') {
 	}
 } elseif (preg_match('/del_(.*)/', $action, $reg)) {
 	$code = $reg[1];
-	$res = dolibarr_del_const($db, $code, $conf->entity);
+	$res = dolibarr_set_const($db, $code, 0, 'chaine', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
 		$errors[] = $db->lasterror();
