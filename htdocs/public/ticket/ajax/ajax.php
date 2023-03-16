@@ -58,6 +58,18 @@ $id = GETPOST('id', 'int');
 $email = GETPOST('email', 'custom', 0, 'FILTER_VALIDATE_EMAIL');
 
 
+if (!isModEnabled('ticket')) {
+	accessforbidden('', 0, 0, 1);
+}
+
+if (empty($conf->global->TICKET_CREATE_THIRD_PARTY_WITH_CONTACT_IF_NOT_EXIST)) {
+	accessforbidden('', 0, 0, 1);
+}
+
+
+/*
+
+
 /*
  * View
  */
