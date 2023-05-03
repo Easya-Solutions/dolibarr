@@ -586,3 +586,6 @@ UPDATE llx_product set stockable_product = 0 WHERE fk_product_type = 1;
 
 -- Rename const to add customer categories on not customer/prospect third-party if enabled
 UPDATE llx_const SET name = 'THIRDPARTY_CAN_HAVE_CUSTOMER_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT' WHERE name = 'THIRDPARTY_CAN_HAVE_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT_SUPPLIER';
+
+-- Add VAT by region
+ALTER TABLE llx_c_departements ADD COLUMN fk_tva integer DEFAULT NULL AFTER nom;

@@ -2189,7 +2189,26 @@ if (empty($reshook)) {
 				$pu_ttc = $datapriceofproduct['pu_ttc'];
 				$price_min = $datapriceofproduct['price_min'];
 				$price_min_ttc = (isset($datapriceofproduct['price_min_ttc'])) ? $datapriceofproduct['price_min_ttc'] : null;
-				$price_base_type = empty($datapriceofproduct['price_base_type']) ? 'HT' : $datapriceofproduct['price_base_type'];
+				$price_base_type = $datapriceofproduct['price_base_type'];
+
+				// Force VAT if a rate is defined on state dictionary
+				$state_id = $object->thirdparty->state_id;
+
+				$sql = "SELECT d.rowid, t.taux as vat_default";
+				$sql .= " FROM ".MAIN_DB_PREFIX."c_departements as d";
+				$sql .= " ,".MAIN_DB_PREFIX."c_tva as t";
+				$sql .= " WHERE d.fk_tva = t.rowid";
+				$sql .= " AND d.rowid = ".((int) $state_id);
+
+				$resql = $db->query($sql);
+				if ($resql) {
+					if ($db->num_rows($resql)) {
+						$objvat = $db->fetch_object($resql);
+					}
+				}
+
+				$tva_tx = isset($objvat->vat_default) ? $objvat->vat_default : $datapriceofproduct['tva_tx'];
+				$tva_npr = $datapriceofproduct['tva_npr'];
 
 				//$tva_tx = $datapriceofproduct['tva_tx'];
 				//$tva_npr = $datapriceofproduct['tva_npr'];
