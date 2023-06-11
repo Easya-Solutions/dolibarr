@@ -109,7 +109,7 @@ function product_prepare_head($object)
 		$h++;
 	}
 
-	if ($object->isProduct() || ($object->isService() && !empty($conf->global->STOCK_SUPPORTS_SERVICES))) {    // If physical product we can stock (or service with option)
+	if (($object->isProduct() || ($object->isService() && !empty($conf->global->STOCK_SUPPORTS_SERVICES))) && $object->not_managed_in_stock == Product::ENABLED_STOCK) {    // If physical product we can stock (or service with option)
 		if (!empty($conf->stock->enabled) && $user->rights->stock->lire) {
 			$head[$h][0] = DOL_URL_ROOT."/product/stock/product.php?id=".$object->id;
 			$head[$h][1] = $langs->trans("Stock");
