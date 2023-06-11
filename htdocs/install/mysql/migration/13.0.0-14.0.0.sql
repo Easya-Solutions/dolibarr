@@ -794,3 +794,6 @@ ALTER TABLE llx_product ADD COLUMN fk_default_workstation integer DEFAULT NULL;
 INSERT INTO llx_c_action_trigger (code,label,description,elementtype,rang) values ('COMPANY_RIB_CREATE','Third party payment information created','Executed when a third party payment information is created','societe',1);
 INSERT INTO llx_c_action_trigger (code,label,description,elementtype,rang) values ('COMPANY_RIB_MODIFY','Third party payment information updated','Executed when a third party payment information is updated','societe',1);
 INSERT INTO llx_c_action_trigger (code,label,description,elementtype,rang) values ('COMPANY_RIB_DELETE','Third party payment information deleted','Executed when a third party payment information is deleted','societe',1);
+
+-- Product/service not managed in stock
+ALTER TABLE llx_product ADD COLUMN not_managed_in_stock integer DEFAULT NULL;
