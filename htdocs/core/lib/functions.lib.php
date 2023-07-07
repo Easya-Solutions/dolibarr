@@ -7174,11 +7174,24 @@ function getCommonSubstitutionArray($outputlangs, $onlykey = 0, $exclude = null,
 				$substitutionarray['__PROJECT_ID__'] = (is_object($object->project) ? $object->project->id : '');
 				$substitutionarray['__PROJECT_REF__'] = (is_object($object->project) ? $object->project->ref : '');
 				$substitutionarray['__PROJECT_NAME__'] = (is_object($object->project) ? $object->project->title : '');
-			}
-			if (is_object($object->projet)) {	// Deprecated, for backward compatibility
+			} elseif (is_object($object->projet)) {	// Deprecated, for backward compatibility
 				$substitutionarray['__PROJECT_ID__'] = (is_object($object->projet) ? $object->projet->id : '');
 				$substitutionarray['__PROJECT_REF__'] = (is_object($object->projet) ? $object->projet->ref : '');
 				$substitutionarray['__PROJECT_NAME__'] = (is_object($object->projet) ? $object->projet->title : '');
+			} else {
+				// can substitute variables for project : uses lazy load in "make_substitutions" method
+				$project_id = 0;
+				if ($object->fk_project > 0) {
+					$project_id = $object->fk_project;
+				} elseif ($object->fk_projet > 0) {
+					$project_id = $object->fk_project;
+				}
+				if ($project_id > 0) {
+					// path:class:method:id
+					$substitutionarray['__PROJECT_ID__@lazyload'] = '/projet/class/project.class.php:Project:fetchAndSetSubstitution:' . $project_id;
+					$substitutionarray['__PROJECT_REF__@lazyload'] = '/projet/class/project.class.php:Project:fetchAndSetSubstitution:' . $project_id;
+					$substitutionarray['__PROJECT_NAME__@lazyload'] = '/projet/class/project.class.php:Project:fetchAndSetSubstitution:' . $project_id;
+				}
 			}
 			if (is_object($object) && $object->element == 'project') {
 				$substitutionarray['__PROJECT_NAME__'] = $object->title;
@@ -7425,7 +7438,7 @@ function getCommonSubstitutionArray($outputlangs, $onlykey = 0, $exclude = null,
  */
 function make_substitutions($text, $substitutionarray, $outputlangs = null, $converttextinhtmlifnecessary = 0)
 {
-	global $conf, $langs;
+	global $conf, $db, $langs;
 
 	if (!is_array($substitutionarray)) {
 		return 'ErrorBadParameterSubstitutionArrayWhenCalling_make_substitutions';
@@ -7504,6 +7517,7 @@ function make_substitutions($text, $substitutionarray, $outputlangs = null, $con
 	}
 
 	// Make substitition for array $substitutionarray
+	$memory_object_list = array();
 	foreach ($substitutionarray as $key => $value) {
 		if (!isset($value)) {
 			continue; // If value is null, it same than not having substitution key at all into array, we do not replace.
@@ -7511,6 +7525,49 @@ function make_substitutions($text, $substitutionarray, $outputlangs = null, $con
 
 		if ($key == '__USER_SIGNATURE__' && (!empty($conf->global->MAIN_MAIL_DO_NOT_USE_SIGN))) {
 			$value = ''; // Protection
+		}
+
+		// lazy load
+		$lazy_load_arr = array();
+		if (preg_match('/(__[A-Z\_]+__)@lazyload$/', $key, $lazy_load_arr)) {
+			if (isset($lazy_load_arr[1]) && !empty($lazy_load_arr[1])) {
+				$param_arr = explode(':', $value);
+				// path:class:method:id
+				if (count($param_arr) == 4) {
+					$path = $param_arr[0];
+					$class = $param_arr[1];
+					$method = $param_arr[2];
+					$id = (int) $param_arr[3];
+
+					// load object in memory
+					if (!isset($memory_object_list[$class])) {
+						if (dol_is_file(DOL_DOCUMENT_ROOT . $path)) {
+							require_once DOL_DOCUMENT_ROOT . $path;
+							if (class_exists($class)) {
+								$memory_object_list[$class] = array(
+									'tmp_object' => new $class($db),
+									'list' => array(),
+								);
+							}
+						}
+					}
+
+					// fetch object and set substitution
+					if (isset($memory_object_list[$class]) && isset($memory_object_list[$class]['tmp_object']) && isset($memory_object_list[$class]['list']) && is_object($memory_object_list[$class]['tmp_object'])) {
+						if (method_exists($class, $method)) {
+							$key = $lazy_load_arr[1];
+							$tmp_object = $memory_object_list[$class]['tmp_object'];
+							if (!isset($memory_object_list[$class]['list'][$id])) {
+								$value = $tmp_object->$method($id, $key);
+								$memory_object_list[$class]['list'][$id] = $tmp_object;
+							} else {
+								$loaded_object = $memory_object_list[$class]['list'][$id];
+								$value = $tmp_object->$method($id, $key, $loaded_object);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if (empty($converttextinhtmlifnecessary)) {
