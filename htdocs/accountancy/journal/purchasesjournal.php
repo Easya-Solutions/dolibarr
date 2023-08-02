@@ -164,6 +164,7 @@ $sql .= " ORDER BY f.datef";
 
 dol_syslog('accountancy/journal/purchasesjournal.php', LOG_DEBUG);
 $result = $db->query($sql);
+$tab_round = array(); // array with rounded amounts
 if ($result) {
 	$tabfac = array();
 	$tabht = array();
@@ -177,6 +178,7 @@ if ($result) {
 	$tabrctva = array();
 	$tabrclocaltax1 = array();
 	$tabrclocaltax2 = array();
+	$tab_round['tabht'] = array();
 
 	$num = $db->num_rows($result);
 
@@ -244,6 +246,12 @@ if ($result) {
 		if (!isset($tablocaltax2[$obj->rowid][$compta_localtax2])) {
 			$tablocaltax2[$obj->rowid][$compta_localtax2] = 0;
 		}
+		if (!isset($tab_round['tabht'][$obj->rowid])) {
+			$tab_round['tabht'][$obj->rowid] = array();
+		}
+		if (!isset($tab_round['tabht'][$obj->rowid][$compta_prod])) {
+			$tab_round['tabht'][$obj->rowid][$compta_prod] = 0;
+		}
 
 		// VAT Reverse charge
 		if (($mysoc->country_code == 'FR' || !empty($conf->global->ACCOUNTING_FORCE_ENABLE_VAT_REVERSE_CHARGE)) && $obj->vat_reverse_charge == 1 && in_array($obj->country_code, $country_code_in_EEC)) {
@@ -307,12 +315,37 @@ if ($result) {
 				'accountancy_code_supplier_general' => $accountancy_code_supplier_general,
 				'code_compta_fournisseur' => $compta_soc
 			);
+		$tab_round['tabht'][$obj->rowid][$compta_prod] += price2num($obj->total_ht, 'MT');
 
 		$i++;
 	}
 } else {
 	dol_print_error($db);
 }
+
+// Fix amount precision -- Begin
+$has_amount_round = false;
+$force_fix_amount = (int) GETPOST('force_fix_amount', 'int');
+$tab_list = array('tabht');
+foreach ($tab_list as $tab_name) {
+	if (!empty(${$tab_name}) && !empty($tab_round[$tab_name])) {
+		foreach (${$tab_name} as $invoice_id => $accountancy_tab) {
+			foreach ($accountancy_tab as $compta_prod => $amount) {
+				if (isset($tab_round[$tab_name][$invoice_id]) && isset($tab_round[$tab_name][$invoice_id][$compta_prod])) {
+					$amount_round = $tab_round[$tab_name][$invoice_id][$compta_prod];
+					if (price2num($amount_round) != price2num($amount)) {
+						$has_amount_round = true;
+						if ($force_fix_amount == 1) {
+							${$tab_name}[$invoice_id][$compta_prod] = $amount_round;
+							dol_syslog('Fix a rounded value for invoice id=' . $invoice_id . ', accountancy code=' . $compta_prod . ', tab=' . $tab_name . ' amount=' . $amount . ' : set to amount_round=' . $amount_round, LOG_WARNING);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+// Fix amount precision -- End
 
 $errorforinvoice = array();
 
@@ -906,7 +939,12 @@ if (empty($action) || $action == 'view') {
 		print '<input type="button" class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("SomeMandatoryStepsOfSetupWereNotDone")).'" value="'.$langs->trans("WriteBookKeeping").'" />';
 	} else {
 		if ($in_bookkeeping == 'notyet') {
-			print '<input type="button" class="butAction" name="writebookkeeping" value="'.$langs->trans("WriteBookKeeping").'" onclick="writebookkeeping();" />';
+			if ($has_amount_round === true) {
+				$warning_text = dol_escape_htmltag($langs->trans('BookKeepingHasSomeAmountRound'));
+				print info_admin($warning_text, 0, 0, 'warning');
+				print '<input type="button" class="butAction" name="refresh_fix_amount" value="'.$langs->trans('BookKeepingRefreshFixAmount').'" onclick="refresh_fix_amount();" />';
+			}
+			print '<input type="button" class="butAction" name="writebookkeeping" value="'.$langs->trans("WriteBookKeeping").'" onclick="writebookkeeping('.dol_escape_js($force_fix_amount).');" />';
 		} else {
 			print '<a href="#" class="butActionRefused classfortooltip" name="writebookkeeping">'.$langs->trans("WriteBookKeeping").'</a>';
 		}
@@ -921,9 +959,17 @@ if (empty($action) || $action == 'view') {
 			$("div.fiche form input[type=\"submit\"]").click();
 			$("div.fiche form input[name=\"action\"]").val("");
 		}
-		function writebookkeeping() {
+		function writebookkeeping(force_fix_amount) {
 			console.log("click on writebookkeeping");
 			$("div.fiche form input[name=\"action\"]").val("writebookkeeping");
+            if (force_fix_amount == 1) {
+            	$("div.fiche form").append("<input type=\"hidden\" name=\"force_fix_amount\" value=\"1\" />");
+            }
+			$("div.fiche form input[type=\"submit\"]").click();
+			$("div.fiche form input[name=\"action\"]").val("");
+		}
+        function refresh_fix_amount() {
+            $("div.fiche form").append("<input type=\"hidden\" name=\"force_fix_amount\" value=\"1\" />");
 			$("div.fiche form input[type=\"submit\"]").click();
 			$("div.fiche form input[name=\"action\"]").val("");
 		}

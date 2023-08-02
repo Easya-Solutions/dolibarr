@@ -125,6 +125,7 @@ ExpenseReportsVentilation=Liaison notes de frais
 CreateMvts=Créer nouvelle transaction
 UpdateMvts=Modification d'une transaction
 ValidTransaction=Valider la transaction
+BookKeepingRefreshFixAmount=Rafraîchir en arrondissant les montants
 WriteBookKeeping=Enregistrer les écritures en comptabilité
 Bookkeeping=Grand livre
 BookkeepingSubAccount=Grand livre auxiliaire
@@ -449,6 +450,7 @@ AccountancyErrorMismatchLetterCode=Incohérence dans le code de lettrage
 AccountancyErrorMismatchBalanceAmount=Le montant de la balance (%s) n'est pas égale à 0
 AccountancyErrorLetteringBookkeeping=Des erreurs se sont produites concernant les transactions: %s
 ErrorArchiveAddFile=Impossible d'ajouter le fichier "%s" dans l'archive
+BookKeepingHasSomeAmountRound=Vous avez la possibilité de corriger les arrondis des montants avant de procéder à l'enregistrement des écritures en comptabilité
 
 ## Import
 ImportAccountingEntries=Écritures comptables
