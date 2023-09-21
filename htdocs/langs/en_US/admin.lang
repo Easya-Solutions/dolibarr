@@ -2406,3 +2406,7 @@ OptionXIsCorrectlyEnabledInModuleY=Option "<b>%s</b>" is enabled into module <b>
 AtBottomOfPage=At bottom of page
 FailedAuth=failed authentications
 MaxNumberOfFailedAuth=Max number of failed authentication in 24h to deny login.
+AsciiKeyNone=None
+AsciiKeyEnter=Key enter
+AsciiKeySemiColon=Key semi-colon
+SHIPPING_BATCH_NEW_LINE_ASCII_CODE=Key to detect a new line for the shipping of serial numbers
