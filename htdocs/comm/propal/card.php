@@ -1603,7 +1603,7 @@ if (empty($reshook)) {
 		// warehouse
 		$result = $object->setWarehouse(GETPOST('warehouse_id', 'int'));
 	} elseif ($action == 'update_extras') {
-		$object->oldcopy = dol_clone($object);
+		$object->oldcopy = dol_clone($object, 2);
 
 		// Fill array 'array_options' with data from update form
 		$ret = $extrafields->setOptionalsFromPost(null, $object, GETPOST('attribute', 'restricthtml'));
@@ -2165,7 +2165,11 @@ if ($action == 'create') {
 	 * Show object in view mode
 	 */
 	$object->fetch_thirdparty();
-	$soc = $object->thirdparty;
+	if ($object->thirdparty) {
+		$soc = $object->thirdparty;
+	} else {
+		$soc = new Societe($db);
+	}
 
 	$head = propal_prepare_head($object);
 	print dol_get_fiche_head($head, 'comm', $langs->trans('Proposal'), -1, 'propal');
@@ -2415,7 +2419,7 @@ if ($action == 'create') {
 	$morehtmlref .= $form->editfieldkey("RefCustomer", 'ref_client', $object->ref_client, $object, $usercancreate, 'string', '', 0, 1);
 	$morehtmlref .= $form->editfieldval("RefCustomer", 'ref_client', $object->ref_client, $object, $usercancreate, 'string'.(isset($conf->global->THIRDPARTY_REF_INPUT_SIZE) ? ':'.$conf->global->THIRDPARTY_REF_INPUT_SIZE : ''), '', null, null, '', 1);
 	// Thirdparty
-	$morehtmlref .= '<br>'.$soc->getNomUrl(1, 'customer');
+	$morehtmlref .= '<br><span class="hideonsmartphone">'.$langs->trans('ThirdParty').' : </span>'.$soc->getNomUrl(1, 'customer');
 	if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $soc->id > 0) {
 		$morehtmlref .= ' (<a href="'.DOL_URL_ROOT.'/comm/propal/list.php?socid='.$soc->id.'&search_societe='.urlencode($soc->name).'">'.$langs->trans("OtherProposals").'</a>)';
 	}
