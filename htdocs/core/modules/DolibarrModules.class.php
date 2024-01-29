@@ -494,6 +494,9 @@ class DolibarrModules // Can not be abstract, because we need to instantiate it 
 				$sql = $val;
 				$ignoreerror = 0;
 				if (is_array($val)) {
+					if (empty($val['ignoreerror'])) {
+						$val['ignoreerror'] = '';
+					};
 					$sql = $val['sql'];
 					$ignoreerror = $val['ignoreerror'];
 				}
