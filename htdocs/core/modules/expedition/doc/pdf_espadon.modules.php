@@ -856,7 +856,7 @@ class pdf_espadon extends ModelePdfExpedition
 		if ($object->trueWeight) {
 			$totalWeighttoshow = showDimensionInBestUnit($object->trueWeight, $object->weight_units, "weight", $outputlangs);
 		}
-		if ($object->trueVolume) {
+		if (isset($object->trueVolume)) {
 			if ($object->volume_units < 50) {
 				$totalVolumetoshow = showDimensionInBestUnit($object->trueVolume, $object->volume_units, "volume", $outputlangs);
 			} else {

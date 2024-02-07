@@ -2311,7 +2311,7 @@ if ($action == 'create') {
 				$product_static->surface_units = $lines[$i]->surface_units;
 				$product_static->volume = $lines[$i]->volume;
 				$product_static->volume_units = $lines[$i]->volume_units;
-				$product_static->stockable_product = $lines[$i]->stockable_product;
+				$product_static->stockable_product = $lines[$i]->stockable_product ?? '';
 
 				$text = $product_static->getNomUrl(1);
 				$text .= ' - '.$label;
@@ -2472,6 +2472,7 @@ if ($action == 'create') {
 				// Warehouse source
 				if (isModEnabled('stock')) {
 					print '<td class="linecolwarehousesource left">';
+					$lines[$i]->fetch_product(); //See if it can be placed upper in this file
 					if ($lines[$i]->entrepot_id > 0 && $lines[$i]->product->stockable_product == Product::ENABLED_STOCK) {
 						$entrepot = new Entrepot($db);
 						$entrepot->fetch($lines[$i]->entrepot_id);

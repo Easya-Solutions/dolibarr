@@ -983,9 +983,12 @@ if (empty($reshook)) {
 			}
 
 			$info_bits = 0;
-			if ($tva_npr) {
+			if (isset($tva_npr)) {
 				$info_bits |= 0x01;
 			}
+			else {
+				$tva_npr = '';
+			}			
 
 			// Local Taxes
 			$localtax1_tx = get_localtax($tva_tx, 1, $object->thirdparty);
