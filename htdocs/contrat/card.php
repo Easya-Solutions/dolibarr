@@ -277,7 +277,7 @@ if (empty($reshook)) {
 
 				// Possibility to add external linked objects with hooks
 				$object->linked_objects[$object->origin] = $object->origin_id;
-				if (is_array($_POST['other_linked_objects']) && !empty($_POST['other_linked_objects'])) {
+				if (is_array($_POST['other_linked_objects'] ?? '') && !empty($_POST['other_linked_objects'])) {
 					$object->linked_objects = array_merge($object->linked_objects, $_POST['other_linked_objects']);
 				}
 
@@ -505,7 +505,7 @@ if (empty($reshook)) {
 				$price_min_ttc = $prod->price_min_ttc;
 
 				// On defini prix unitaire
-				if ($conf->global->PRODUIT_MULTIPRICES && $object->thirdparty->price_level) {
+				if (isset($conf->global->PRODUIT_MULTIPRICES) && $object->thirdparty->price_level) {
 					$price_min = $prod->multiprices_min[$object->thirdparty->price_level];
 					$price_min_ttc = $prod->multiprices_min_ttc[$object->thirdparty->price_level];
 				} elseif (!empty($conf->global->PRODUIT_CUSTOMER_PRICES)) {
@@ -588,8 +588,8 @@ if (empty($reshook)) {
 				}
 			}
 
-			$localtax1_tx = get_localtax($tva_tx, 1, $object->thirdparty, $mysoc, $tva_npr);
-			$localtax2_tx = get_localtax($tva_tx, 2, $object->thirdparty, $mysoc, $tva_npr);
+			$localtax1_tx = get_localtax($tva_tx, 1, $object->thirdparty, $mysoc, $tva_npr ?? 0);
+			$localtax2_tx = get_localtax($tva_tx, 2, $object->thirdparty, $mysoc, $tva_npr ?? 0);
 
 			// ajout prix achat
 			$fk_fournprice = GETPOST('fournprice');
@@ -600,7 +600,7 @@ if (empty($reshook)) {
 			}
 
 			$info_bits = 0;
-			if ($tva_npr) {
+			if (isset($tva_npr)) {
 				$info_bits |= 0x01;
 			}
 
@@ -649,7 +649,10 @@ if (empty($reshook)) {
 					}
 
 					$ret = $object->fetch($id); // Reload to get new records
-
+					$hidedetails ?? $hidedetails = 0;
+					$hidedesc ?? $hidedesc = 0;
+					$hideref ?? $hideref = 0;
+					
 					$object->generateDocument($object->model_pdf, $outputlangs, $hidedetails, $hidedesc, $hideref);
 				}
 
