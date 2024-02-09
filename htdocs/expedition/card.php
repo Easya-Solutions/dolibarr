@@ -2311,7 +2311,7 @@ if ($action == 'create') {
 				$product_static->surface_units = $lines[$i]->surface_units;
 				$product_static->volume = $lines[$i]->volume;
 				$product_static->volume_units = $lines[$i]->volume_units;
-				$product_static->stockable_product = $lines[$i]->stockable_product ?? '';
+				$product_static->stockable_product = $lines[$i]->stockable_product ?? 0;
 
 				$text = $product_static->getNomUrl(1);
 				$text .= ' - '.$label;
