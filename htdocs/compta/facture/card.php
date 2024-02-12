@@ -5721,11 +5721,9 @@ if ($action == 'create') {
 						// Sometimes we can receive more, so we accept to enter more and will offer a button to convert into discount (but it is not a credit note, just a prepayment done)
 						//print '<a class="butAction" href="'.DOL_URL_ROOT.'/compta/paiement.php?facid='.$object->id.'&amp;action=create&amp;accountid='.$object->fk_account.'">'.$langs->trans('DoPayment').'</a>';
 						$params['attr']['title'] = '';
-						if (isset($object->fk_account)) {
-						print dolGetButtonAction($langs->trans('DoPayment'), '', 'default', DOL_URL_ROOT.'/compta/paiement.php?facid='.$object->id.'&amp;action=create&amp;accountid='.$object->fk_account, '', true, $params);
-						} else {
-						print dolGetButtonAction($langs->trans('DoPayment'), '', 'default', DOL_URL_ROOT.'/compta/paiement.php?facid='.$object->id.'&amp;action=create', '', true, $params);
-						}
+						$payment_url = DOL_URL_ROOT.'/compta/paiement.php?facid='.$object->id.'&amp;action=create';
+						if (isset($object->fk_account)) $payment_url .= '&amp;accountid='.$object->fk_account ;
+						print dolGetButtonAction($langs->trans('DoPayment'), '', 'default', $payment_url, '', true, $params);
 					}
 				}
 			}
