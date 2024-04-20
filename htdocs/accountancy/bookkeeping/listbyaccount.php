@@ -98,6 +98,7 @@ $search_debit = GETPOST('search_debit', 'alpha');
 $search_credit = GETPOST('search_credit', 'alpha');
 $search_lettering_code = GETPOST('search_lettering_code', 'alpha');
 $search_not_reconciled = GETPOST('search_not_reconciled', 'alpha');
+$reallocate_account = GETPOST('reallocate_account', 'int');
 
 if (GETPOST("button_delmvt_x") || GETPOST("button_delmvt.x") || GETPOST("button_delmvt")) {
 	$action = 'delbookkeepingyear';
@@ -474,6 +475,54 @@ if (empty($reshook)) {
 		}
 	}
 
+	if (!empty($toselect) && $massaction === 'reallocateaccount' && $confirm === 'yes') {
+		$accounting = new AccountingAccount($db);
+
+		$arrayofdifferentselectedvalues = array();
+
+		$cpt = 0; $ok = 0; $ko = 0;
+		foreach ($toselect as $productid) {
+			dol_syslog("/accountancy/bookkeeping/lisbyaccount.php ".$reallocate_account, LOG_DEBUG);
+
+			$result = 0;
+			if ($reallocate_account > 0) {
+				$arrayofdifferentselectedvalues[$reallocate_account] = $reallocate_account;
+				$result = $accounting->fetch($reallocate_account, null, 1);
+			}
+			if ($result <= 0) {
+				// setEventMessages(null, $accounting->errors, 'errors');
+				$msg .= '<div><span class="error">'.$langs->trans("ErrorDB").' : '.$langs->trans("Product").' '.$productid.' '.$langs->trans("NotVentilatedinAccount").' : id='.$reallocate_account.'<br> <pre>'.$sql.'</pre></span></div>';
+				$ko++;
+			} else {
+				$sql = '';
+				$sql = " UPDATE ".MAIN_DB_PREFIX."accounting_bookkeeping";
+				$sql .= " SET numero_compte = '".$db->escape($accounting->account_number)."'";
+				$sql .= " WHERE rowid = ".((int) $productid);
+
+				dol_syslog("/accountancy/bookkeeping/lisbyaccount.php", LOG_DEBUG);
+
+				$db->begin();
+
+				if ($db->query($sql)) {
+					$ok++;
+					$db->commit();
+				} else {
+					$ko++;
+					$db->rollback();
+				}
+			}
+
+			$cpt++;
+		}
+
+		if ($ko) {
+			setEventMessages($langs->trans("XLineFailedToBeBinded", $ko), null, 'errors');
+		}
+		if ($ok) {
+			setEventMessages($langs->trans("XLineSuccessfullyBinded", $ok), null, 'mesgs');
+		}
+	}
+
 	// others mass actions
 	if (!$error && getDolGlobalInt('ACCOUNTING_ENABLE_LETTERING') && $user->hasRight('accounting', 'mouvements', 'creer')) {
 		if ($massaction == 'letteringauto') {
@@ -658,10 +707,13 @@ if (getDolGlobalInt('ACCOUNTING_ENABLE_LETTERING') && $user->hasRight('accountin
 	if ($type == 'sub') $arrayofmassactions['letteringpartial'] = img_picto('', 'check', 'class="pictofixedwidth"') . $langs->trans('LetteringPartial');
 	$arrayofmassactions['preunletteringmanual'] = img_picto('', 'uncheck', 'class="pictofixedwidth"') . $langs->trans('UnletteringManual');
 }
+if ($user->hasRight('accounting', 'mouvements', 'creer')) {
+	$arrayofmassactions['reallocateaccount'] = img_picto('', 'next', 'class="pictofixedwidth"') . $langs->trans('ReallocateAccount');
+}
 if ($user->hasRight('accounting', 'mouvements', 'supprimer')) {
 	$arrayofmassactions['predeletebookkeepingwriting'] = img_picto('', 'delete', 'class="pictofixedwidth"').$langs->trans("Delete");
 }
-if (GETPOST('nomassaction', 'int') || in_array($massaction, array('preunletteringauto', 'preunletteringmanual', 'predeletebookkeepingwriting'))) {
+if (GETPOST('nomassaction', 'int') || in_array($massaction, array('preunletteringauto', 'preunletteringmanual', 'reallocatetransaction', 'predeletebookkeepingwriting'))) {
 	$arrayofmassactions = array();
 }
 $massactionbutton = $form->selectMassAction($massaction, $arrayofmassactions);
@@ -744,6 +796,16 @@ if (preg_match('/^asc/i', $sortorder)) {
 if ($type == 'sub') {
 	print info_admin($langs->trans("WarningRecordWithoutSubledgerAreExcluded"));
 }
+
+if ($massaction == 'reallocateaccount') {
+	$formquestion[]=array('type' => 'other',
+		'name' => 'reallocateaccount',
+		'label' => $langs->trans("AccountancyCode"),
+		'value' => $formaccounting->select_account('', 'reallocate_account', 1, array(), 0, 0, 'maxwidth200 maxwidthonsmartphone', 'cachewithshowemptyone'));
+	print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans("ConfirmReallocateAccount"), $langs->trans("ConfirmReallocateAccountQuestion", count($toselect)), "confirm_reallocateaccount", $formquestion, 1, 0, 200, 500, 1);
+}
+
+print $reallocate_account;
 
 $moreforfilter = '';
 
