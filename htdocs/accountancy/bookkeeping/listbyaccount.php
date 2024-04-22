@@ -798,14 +798,24 @@ if ($type == 'sub') {
 }
 
 if ($massaction == 'reallocateaccount') {
-	$formquestion[]=array('type' => 'other',
-		'name' => 'reallocateaccount',
-		'label' => $langs->trans("AccountancyCode"),
-		'value' => $formaccounting->select_account('', 'reallocate_account', 1, array(), 0, 0, 'maxwidth200 maxwidthonsmartphone', 'cachewithshowemptyone'));
+	if ($type == 'sub') {
+		$formquestion[] = array('type' => 'other',
+			'name' => 'reallocateaccount',
+			'label' => $langs->trans("SubledgerAccount"),
+			'value' => $formaccounting->select_auxaccount('', 'reallocate_account', 1, 'maxwidth200 maxwidthonsmartphone', 'cachewithshowemptyone'));
+	} else {
+		$formquestion[] = array('type' => 'other',
+			'name' => 'reallocateaccount',
+			'label' => $langs->trans("AccountAccounting"),
+			'value' => $formaccounting->select_account('', 'reallocate_account', 1, array(), 0, 0, 'maxwidth200 maxwidthonsmartphone', 'cachewithshowemptyone'));
+	}
 	print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans("ConfirmReallocateAccount"), $langs->trans("ConfirmReallocateAccountQuestion", count($toselect)), "confirm_reallocateaccount", $formquestion, 1, 0, 200, 500, 1);
 }
 
+// Debug
 print $reallocate_account;
+print $toselect;
+print $confirm;
 
 $moreforfilter = '';
 
