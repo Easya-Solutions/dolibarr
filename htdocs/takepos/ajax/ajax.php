@@ -115,6 +115,23 @@ if ($action == 'getProducts') {
 				$prod->price_formated = price(price2num(empty($prod->multiprices[$pricelevel]) ? $prod->price : $prod->multiprices[$pricelevel], 'MT'), 1, $langs, 1, -1, -1, $conf->currency);
 				$prod->price_ttc_formated = price(price2num(empty($prod->multiprices_ttc[$pricelevel]) ? $prod->price_ttc : $prod->multiprices_ttc[$pricelevel], 'MT'), 1, $langs, 1, -1, -1, $conf->currency);
 
+				// Add entries to prod from hooks
+				$parameters=array();
+				$parameters['obj'] = $prod;
+				$reshook = $hookmanager->executeHooks('completeAjaxReturnObject', $parameters);
+				if ($reshook > 0) {
+					// replace
+					if (count($hookmanager->resArray)) {
+						$prod = $hookmanager->resArray[0];
+					} else {
+						$prod = array();
+					}
+				} else {
+					// add
+					if (count($hookmanager->resArray)) {
+						$res[] = $hookmanager->resArray[0];
+					}
+				}
 				$res[] = $prod;
 			}
 		}
