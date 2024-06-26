@@ -374,7 +374,7 @@ class Lettering extends BookKeeping
 			// Test amount integrity
 			if (!$error && !$partial) {
 				$sql = "SELECT SUM(ABS(debit)) as deb, SUM(ABS(credit)) as cred FROM " . MAIN_DB_PREFIX . "accounting_bookkeeping WHERE ";
-				$sql .= " rowid IN (" . $this->db->sanitize(implode(',', $ids)) . ") AND lettering_code IS NULL AND subledger_account != ''";
+				$sql .= " rowid IN (" . $this->db->sanitize(implode(',', $ids)) . ") AND lettering_code IS NULL";
 
 				dol_syslog(__METHOD__ . " - Test amount integrity", LOG_DEBUG);
 				$resql = $this->db->query($sql);
@@ -397,7 +397,7 @@ class Lettering extends BookKeeping
 				$sql = "UPDATE " . MAIN_DB_PREFIX . "accounting_bookkeeping SET";
 				$sql .= " lettering_code='" . $this->db->escape($letter) . "'";
 				$sql .= ", date_lettering = '" . $this->db->idate($now) . "'"; // todo correct date it's false
-				$sql .= "  WHERE rowid IN (" . $this->db->sanitize(implode(',', $ids)) . ") AND lettering_code IS NULL AND subledger_account != ''";
+				$sql .= "  WHERE rowid IN (" . $this->db->sanitize(implode(',', $ids)) . ") AND lettering_code IS NULL";
 
 				dol_syslog(__METHOD__ . " - Update lettering code", LOG_DEBUG);
 				$resql = $this->db->query($sql);
@@ -438,7 +438,6 @@ class Lettering extends BookKeeping
 		$sql .= " lettering_code = NULL";
 		$sql .= ", date_lettering = NULL";
 		$sql .= " WHERE rowid IN (".$this->db->sanitize(implode(',', $ids)).")";
-		$sql .= " AND subledger_account != ''";
 
 		dol_syslog(get_class($this)."::update", LOG_DEBUG);
 		$resql = $this->db->query($sql);
