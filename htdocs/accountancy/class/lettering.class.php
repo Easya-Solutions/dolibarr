@@ -345,12 +345,21 @@ class Lettering extends BookKeeping
 
 		if (!$error && !empty($ids)) {
 			// Get next code
-			$sql = "SELECT DISTINCT ab2.lettering_code";
+//			$sql = "SELECT DISTINCT ab2.lettering_code";
+//			$sql .= " FROM " . MAIN_DB_PREFIX . "accounting_bookkeeping AS ab";
+//			$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "accounting_bookkeeping AS ab2 ON ab2.subledger_account = ab.subledger_account";
+//			$sql .= " WHERE ab.rowid IN (" . $this->db->sanitize(implode(',', $ids)) . ")";
+//			$sql .= " AND ab2.lettering_code != ''";
+//			$sql .= " ORDER BY ab2.lettering_code DESC";
+
+
+			$sql = "SELECT DISTINCT ab.lettering_code";
 			$sql .= " FROM " . MAIN_DB_PREFIX . "accounting_bookkeeping AS ab";
-			$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "accounting_bookkeeping AS ab2 ON ab2.subledger_account = ab.subledger_account";
-			$sql .= " WHERE ab.rowid IN (" . $this->db->sanitize(implode(',', $ids)) . ")";
-			$sql .= " AND ab2.lettering_code != ''";
-			$sql .= " ORDER BY ab2.lettering_code DESC";
+			$sql .= " WHERE ab.subledger_account = EXISTS(SELECT ab2.subledger_account FROM " . MAIN_DB_PREFIX . "accounting_bookkeeping AS ab2 WHERE ab2.rowid IN (" . $this->db->sanitize(implode(',', $ids)) . "))";
+			$sql .= " AND ab.lettering_code != ''";
+			$sql .= " ORDER BY ab.lettering_code DESC";
+
+
 
 			dol_syslog(__METHOD__ . " - Get next code", LOG_DEBUG);
 			$resql = $this->db->query($sql);
