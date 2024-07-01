@@ -50,6 +50,9 @@ class AccountancyExport
 	// Type of export. Used into $conf->global->ACCOUNTING_EXPORT_MODELCSV
 	public static $EXPORT_TYPE_CONFIGURABLE = 1; // CSV
 	public static $EXPORT_TYPE_AGIRIS = 10;
+// Specifique Client 3194 - Begin
+	public static $EXPORT_TYPE_COMPTAFIRST = 11;
+// Specifique Client 3194 - End
 	public static $EXPORT_TYPE_EBP = 15;
 	public static $EXPORT_TYPE_CEGID = 20;
 	public static $EXPORT_TYPE_COGILOG = 25;
@@ -125,6 +128,9 @@ class AccountancyExport
 			self::$EXPORT_TYPE_CIEL => $langs->trans('Modelcsv_ciel'),
 			self::$EXPORT_TYPE_QUADRATUS => $langs->trans('Modelcsv_quadratus'),
 			self::$EXPORT_TYPE_WINFIC => $langs->trans('Modelcsv_winfic'),
+// Specifique Client 3194 - Begin
+			self::$EXPORT_TYPE_COMPTAFIRST => $langs->trans('Modelcsv_comptafirst'),
+// Specifique Client 3194 - End
 			self::$EXPORT_TYPE_EBP => $langs->trans('Modelcsv_ebp'),
 			self::$EXPORT_TYPE_COGILOG => $langs->trans('Modelcsv_cogilog'),
 			self::$EXPORT_TYPE_AGIRIS => $langs->trans('Modelcsv_agiris'),
@@ -165,6 +171,9 @@ class AccountancyExport
 			self::$EXPORT_TYPE_CIEL => 'ciel',
 			self::$EXPORT_TYPE_QUADRATUS => 'quadratus',
 			self::$EXPORT_TYPE_WINFIC => 'winfic',
+// Specifique Client 3194 - Begin
+			self::$EXPORT_TYPE_COMPTAFIRST => 'comptafirst',
+// Specifique Client 3194 - End
 			self::$EXPORT_TYPE_EBP => 'ebp',
 			self::$EXPORT_TYPE_COGILOG => 'cogilog',
 			self::$EXPORT_TYPE_AGIRIS => 'agiris',
@@ -227,6 +236,11 @@ class AccountancyExport
 					'label' => $langs->trans('Modelcsv_winfic'),
 					'ACCOUNTING_EXPORT_FORMAT' => 'txt',
 				),
+// Specifique Client 3194 - Begin
+				self::$EXPORT_TYPE_COMPTAFIRST => array(
+					'label' => $langs->trans('Modelcsv_comptafirst'),
+				),
+// Specifique Client 3194 - End
 				self::$EXPORT_TYPE_EBP => array(
 					'label' => $langs->trans('Modelcsv_ebp'),
 				),
@@ -450,6 +464,11 @@ class AccountancyExport
 			case self::$EXPORT_TYPE_WINFIC:
 				$this->exportWinfic($TData, $exportFile);
 				break;
+// Specifique Client 3194 - Begin
+			case self::$EXPORT_TYPE_COMPTAFIRST :
+				$this->exportCompteFirst($TData, $exportFile);
+				break;
+// Specifique Client 3194 - End
 			case self::$EXPORT_TYPE_EBP:
 				$this->exportEbp($TData, $exportFile);
 				break;
@@ -1128,6 +1147,119 @@ class AccountancyExport
 		}
 	}
 
+// Specifique Client 3194 - Begin
+	/**
+	 * Export format : ComptaFirst
+	 *
+	 * @param array 	$TData 			data
+	 * @param resource	$exportFile		[=null] File resource to export or print if null
+	 *
+	 * @return void
+	 */
+	public function exportCompteFirst(&$TData, $exportFile = null) {
+		global $conf;
+
+		$separator = '';
+		$end_line ="\r\n";
+		$invoices_infos = array();
+		$supplier_invoices_infos = array();
+
+		//We should use dol_now function not time however this is wrong date to transfert in accounting
+		//$date_ecriture = dol_print_date(dol_now(), $conf->global->ACCOUNTING_EXPORT_DATE); // format must be ddmmyy
+		//$date_ecriture = dol_print_date(time(), $conf->global->ACCOUNTING_EXPORT_DATE); // format must be ddmmyy
+		foreach ( $TData as $data ) {
+			$code_compta = $data->numero_compte;
+			if (! empty($data->subledger_account))
+				$code_compta = $data->subledger_account;
+
+			$invoice_ref = $data->doc_ref;
+			$company_name = '';
+			$piece=self::trunc(dol_string_unaccent($data->label_operation), 53);
+			if (($data->doc_type == 'customer_invoice' || $data->doc_type == 'supplier_invoice') && $data->fk_doc > 0) {
+				if (($data->doc_type == 'customer_invoice' && !isset($invoices_infos[$data->fk_doc])) ||
+					($data->doc_type == 'supplier_invoice' && !isset($supplier_invoices_infos[$data->fk_doc]))) {
+					if ($data->doc_type == 'customer_invoice') {
+						// Get new customer invoice ref and company name
+						$sql = "SELECT f.facnumber, s.nom, p.ref FROM " . MAIN_DB_PREFIX . "facture as f".
+							" LEFT JOIN " . MAIN_DB_PREFIX . "societe AS s ON f.fk_soc = s.rowid" .
+							" LEFT JOIN " . MAIN_DB_PREFIX . "projet AS p ON p.rowid = f.fk_projet" .
+							//" LEFT JOIN " . MAIN_DB_PREFIX . "projet_extrafields AS pe ON pe.fk_object = p.rowid" .
+							" WHERE f.rowid = " . $data->fk_doc;
+						$resql = $this->db->query($sql);
+						if ($resql) {
+							if ($obj = $this->db->fetch_object($resql)) {
+								// Save invoice infos
+								$invoices_infos[$data->fk_doc] = array('ref' => $obj->facnumber, 'company_name' => $obj->nom);
+								$invoice_ref = $obj->facnumber;
+								$company_name = $obj->nom;
+								$code_analytique = $obj->ref;
+							}
+						}
+					} else {
+						// Get new supplier invoice ref and company name
+						$sql = "SELECT ff.ref, s.nom FROM " . MAIN_DB_PREFIX . "facture_fourn as ff".
+							" LEFT JOIN " . MAIN_DB_PREFIX . "societe AS s ON ff.fk_soc = s.rowid" .
+							" WHERE ff.rowid = " . $data->fk_doc;
+						$resql = $this->db->query($sql);
+						if ($resql) {
+							if ($obj = $this->db->fetch_object($resql)) {
+								// Save invoice infos
+								$supplier_invoices_infos[$data->fk_doc] = array('ref' => $obj->ref, 'company_name' => $obj->nom);
+								$invoice_ref = $obj->ref;
+								$company_name = $obj->nom;
+							}
+						}
+					}
+				} elseif ($data->doc_type == 'customer_invoice') {
+					// Retrieve invoice infos
+					$invoice_ref = $invoices_infos[$data->fk_doc]['ref'];
+					$company_name = $invoices_infos[$data->fk_doc]['company_name'];
+				} else {
+					// Retrieve invoice infos
+					$invoice_ref = $supplier_invoices_infos[$data->fk_doc]['ref'];
+					$company_name = $supplier_invoices_infos[$data->fk_doc]['company_name'];
+				}
+			}
+			if ($data->doc_type == 'bank') {
+				$company_name = $data->subledger_label;
+				$piece = $data->doc_ref;
+				if (!empty($company_name)) {
+					$piece =$piece . '-'.$company_name;
+				}
+			}
+			$Tab = array ();
+			$Tab['num_compte'] = str_pad(self::trunc($code_compta, 12), 12);
+			$Tab['date_ecriture'] = dol_print_date($data->doc_date, '%d%m%y');
+			$Tab['num_piece'] = str_pad(substr(utf8_decode($invoice_ref), 0, 12),12);
+			$Tab['code_journal'] = str_pad ($data->code_journal,3);
+			if (! empty($piece)) {
+				$Tab['libelle_ecriture'] = str_pad(substr(utf8_decode($piece),0,25),25);
+			} else {
+				$Tab['libelle_ecriture'] = str_repeat(' ',25);
+			}
+			$Tab['libelle_comp'] = str_repeat(' ',25);
+			$Tab['montant'] = str_pad(abs($data->montant*100), 11, '0', STR_PAD_LEFT); // TODO manage negative amount
+			$Tab['signe_montant'] = '+';
+			$Tab['sens'] = $data->sens; // C or D
+			if (empty($code_analytique) || substr($code_compta,0,5) == '44571' || substr($code_compta,0,2) == 'C1'){
+				$Tab['filler2'] = str_repeat(' ',53);
+			} else {
+				$Tab['codeanalytique'] = str_pad('O' . $code_analytique . $code_analytique, 53);
+			}
+			// $Tab['montant'] = str_pad(abs($data->montant), 12, '0', STR_PAD_LEFT); // TODO manage negative amount
+
+			$Tab['company_name'] = utf8_decode($company_name);
+			$Tab['end_line'] = $end_line;
+
+			$output = implode($separator, $Tab);
+			if ($exportFile) {
+				fwrite($exportFile, $output);
+			} else {
+				print $output;
+			}
+		}
+	}
+// Specifique Client 3194 - End
 
 	/**
 	 * Export format : EBP
@@ -1156,8 +1288,10 @@ class AccountancyExport
 				$tab[] = $line->subledger_account;
 			}
 			//$tab[] = substr(length_accountg($line->numero_compte), 0, 2) . $separator;
-			$tab[] = '"'.dol_trunc($line->label_operation, 40, 'right', 'UTF-8', 1).'"';
-			$tab[] = '"'.dol_trunc($line->piece_num, 15, 'right', 'UTF-8', 1).'"';
+// Specifique Client 3194 - Begin - necessaire ?
+			$tab[] = '"'.dol_trunc($line->label_operation, 40, 'right', 'Windows-1252', 1).'"';
+			$tab[] = '"'.dol_trunc($line->piece_num, 15, 'right', 'Windows-1252', 1).'"';
+// Specifique Client 3194 - End
 			$tab[] = price2num(abs($line->debit - $line->credit));
 			$tab[] = $line->sens;
 			$tab[] = $date_document;
@@ -2597,7 +2731,9 @@ class AccountancyExport
 	 */
 	public static function trunc($str, $size)
 	{
-		return dol_trunc($str, $size, 'right', 'UTF-8', 1);
+// Specifique Client 3194 - Begin - necessaire ?
+		return dol_trunc($str, $size, 'right', 'Windows-1252', 1);
+// Specifique Client 3194 - End
 	}
 
 	/**

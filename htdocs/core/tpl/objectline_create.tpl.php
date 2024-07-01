@@ -393,7 +393,14 @@ if ($nolinesbefore) {
 		$coldisplay++;
 		if ($seller->tva_assuj == "0") {
 			echo '<input type="hidden" name="tva_tx" id="tva_tx" value="0">'.vatrate(0, true);
-		} else {
+		}
+// Specifique Client 3194 - Begin
+		// Mise à zéro du taux proposé si code_comptable_client tiers vaut 186xxxxxx
+		elseif (substr($buyer->code_compta_client, 0, 3) == getDolGlobalString('ACCOUNTING_AFPJR_SELL_INTER_RACINE')) {
+			echo '<input type="hidden" name="tva_tx" id="tva_tx" value="0">Refacturation intra/inter<br>Taux TVA forcé à : <br>'.vatrate(0, true);
+		}
+// Specifique Client 3194 - End
+		else {
 			echo $form->load_tva('tva_tx', (GETPOSTISSET("tva_tx") ? GETPOST("tva_tx", 'alpha', 2) : -1), $seller, $buyer, 0, 0, '', false, 1);
 		}
 		?>

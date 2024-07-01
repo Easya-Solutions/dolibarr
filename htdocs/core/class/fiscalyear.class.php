@@ -281,6 +281,41 @@ class Fiscalyear extends CommonObject
 		}
 	}
 
+// Specifique Client 3194 - Begin - commenter cloture en standard - a supprimer
+//	/**
+//	 *	close fiscal year
+//	 *
+//	 *	@param	User	$user		User making closure
+//	 *	@return	int					<0 if KO, >0 if OK
+//	 */
+//	function closefiscalyear($user)
+//	{
+//		global $langs;
+//
+//		$this->db->begin();
+//
+//		$sql = "UPDATE ".MAIN_DB_PREFIX."accounting_fiscalyear";
+//		$sql .= " SET statut = '".$this->db->escape($this->statut?$this->statut:1)."'";
+//		$sql .= ", fk_user_modif = " . $user->id;
+//		$sql .= " WHERE rowid = ".$this->id;
+//
+//		dol_syslog(get_class($this)."::closefiscalyear", LOG_DEBUG);
+//		$result = $this->db->query($sql);
+//		if ($result)
+//		{
+//			$this->db->commit();
+//			return 1;
+//		}
+//		else
+//		{
+//			$this->error=$this->db->lasterror();
+//			dol_syslog($this->error, LOG_ERR);
+//			$this->db->rollback();
+//			return -1;
+//		}
+//	}
+// Specifique Client 3194 - End
+
 	/**
 	 * getTooltipContentArray
 	 *

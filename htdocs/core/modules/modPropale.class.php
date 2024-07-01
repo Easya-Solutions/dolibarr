@@ -214,6 +214,9 @@ class modPropale extends DolibarrModules
 		));
 		$this->export_fields_array[$r] = array_merge($this->export_fields_array[$r], array(
 			'p.rowid'=>'ProductId', 'p.ref'=>'ProductRef', 'p.label'=>'ProductLabel'
+// Specifique Client 3194 - Begin
+			,'ce.label'=>'Nom de l\'équipe'
+// Specifique Client 3194 - End
 		));
 		// Add multicompany field
 		if (!empty($conf->global->MULTICOMPANY_ENTITY_IN_EXPORT_IF_SHARED)) {
@@ -282,6 +285,9 @@ class modPropale extends DolibarrModules
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'user as uc ON c.fk_user_author = uc.rowid';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'user as uv ON c.fk_user_valid = uv.rowid';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'propal_extrafields as extra ON c.rowid = extra.fk_object';
+// Specifique Client 3194 - Begin
+		$this->export_sql_end[$r] .=' LEFT JOIN '.MAIN_DB_PREFIX.'c_equipe as ce ON extra.equ = ce.rowid';
+// Specifique Client 3194 - End
 		$this->export_sql_end[$r] .= ', '.MAIN_DB_PREFIX.'propaldet as cd';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'propaldet_extrafields as extra2 on cd.rowid = extra2.fk_object';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'product as p on (cd.fk_product = p.rowid)';

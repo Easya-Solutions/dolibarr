@@ -608,6 +608,11 @@ if (!$error && $action == 'writebookkeeping') {
 		$date = dol_print_date($val["date"], 'day');
 
 		$ref = getSourceDocRef($val, $tabtype[$key]);
+// Specifique Client 3194 - Begin
+		$detailAmount = getDetailAmountDocRef($val, $tabtype[$key]);
+
+		$piece_num = 0;
+// Specifique Client 3194 - End
 
 		$errorforline = 0;
 
@@ -678,6 +683,10 @@ if (!$error && $action == 'writebookkeeping') {
 							setEventMessages($bookkeeping->error, $bookkeeping->errors, 'errors');
 						}
 					}
+
+// Specifique Client 3194 - Begin
+					$piece_num = $bookkeeping->piece_num;
+// Specifique Client 3194 - End
 				}
 			}
 		}
@@ -688,177 +697,252 @@ if (!$error && $action == 'writebookkeeping') {
 				// Line into thirdparty account
 				foreach ($tabtp[$key] as $k => $mt) {
 					if ($mt) {
-						$lettering = false;
-
-						$reflabel = '';
-						if (!empty($val['lib'])) {
-							$reflabel .= dol_string_nohtmltag($val['lib']).($val['soclib'] ? " - " : "");
-						}
-						if ($tabtype[$key] == 'banktransfert') {
-							$reflabel .= dol_string_nohtmltag($langs->transnoentitiesnoconv('TransitionalAccount').' '.$account_transfer);
-						} else {
-							$reflabel .= dol_string_nohtmltag($val['soclib']);
+// Specifique Client 3194 - Begin
+						if (empty($conf->global->ACCOUNTING_DETAIL_PAYMENT_LINES) || count($detailAmount) <= 1)
+						{
+							$detailAmount = array(array('ref'=> $ref, 'amount'=>$mt));
 						}
 
-						$bookkeeping = new BookKeeping($db);
-						$bookkeeping->doc_date = $val["date"];
-						$bookkeeping->doc_ref = $ref;
-						$bookkeeping->doc_type = 'bank';
-						$bookkeeping->fk_doc = $key;
-						$bookkeeping->fk_docdet = $val["fk_bank"];
+						$nbLines = count($detailAmount);
+						$idx = 0;
+						foreach ($detailAmount as $payment_details) {
+							$idx++;
+// Specifique Client 3194 - End
+							$lettering = false;
 
-						$bookkeeping->label_operation = $reflabel;
-						$bookkeeping->montant = $mt;
-						$bookkeeping->sens = ($mt < 0) ? 'D' : 'C';
-						$bookkeeping->debit = ($mt < 0 ? -$mt : 0);
-						$bookkeeping->credit = ($mt >= 0) ? $mt : 0;
-						$bookkeeping->code_journal = $journal;
-						$bookkeeping->journal_label = $langs->transnoentities($journal_label);
-						$bookkeeping->fk_user_author = $user->id;
-						$bookkeeping->date_creation = $now;
+							$reflabel = '';
+							if (!empty($val['lib'])) {
+								$reflabel .= dol_string_nohtmltag($val['lib']) . ($val['soclib'] ? " - " : "");
+							}
+							if ($tabtype[$key] == 'banktransfert') {
+								$reflabel .= dol_string_nohtmltag($langs->transnoentitiesnoconv('TransitionalAccount') . ' ' . $account_transfer);
+							} else {
+								$reflabel .= dol_string_nohtmltag($val['soclib']);
+							}
+// Specifique Client 3194 - Begin
+							if ($nbLines > 1) $reflabel .= ' - ' . $idx . '/' . $nbLines;
+// Specifique Client 3194 - End
 
-						if ($tabtype[$key] == 'payment') {	// If payment is payment of customer invoice, we get ref of invoice
-							$lettering = true;
-							$bookkeeping->subledger_account = $k; // For payment, the subledger account is stored as $key of $tabtp
-							$bookkeeping->subledger_label = $tabcompany[$key]['name']; // $tabcompany is defined only if we are sure there is 1 thirdparty for the bank transaction
-							$bookkeeping->numero_compte = $conf->global->ACCOUNTING_ACCOUNT_CUSTOMER;
-							$bookkeeping->label_compte = $accountingaccountcustomer->label;
-						} elseif ($tabtype[$key] == 'payment_supplier') {	// If payment is payment of supplier invoice, we get ref of invoice
-							$lettering = true;
-							$bookkeeping->subledger_account = $k; // For payment, the subledger account is stored as $key of $tabtp
-							$bookkeeping->subledger_label = $tabcompany[$key]['name']; // $tabcompany is defined only if we are sure there is 1 thirdparty for the bank transaction
-							$bookkeeping->numero_compte = $conf->global->ACCOUNTING_ACCOUNT_SUPPLIER;
-							$bookkeeping->label_compte = $accountingaccountsupplier->label;
-						} elseif ($tabtype[$key] == 'payment_expensereport') {
-							$bookkeeping->subledger_account = $tabuser[$key]['accountancy_code'];
-							$bookkeeping->subledger_label = $tabuser[$key]['name'];
-							$bookkeeping->numero_compte = $conf->global->SALARIES_ACCOUNTING_ACCOUNT_PAYMENT;
-							$bookkeeping->label_compte = $accountingaccountpayment->label;
-						} elseif ($tabtype[$key] == 'payment_salary') {
-							$bookkeeping->subledger_account = $tabuser[$key]['accountancy_code'];
-							$bookkeeping->subledger_label = $tabuser[$key]['name'];
-							$bookkeeping->numero_compte = $conf->global->SALARIES_ACCOUNTING_ACCOUNT_PAYMENT;
-							$bookkeeping->label_compte = $accountingaccountpayment->label;
-						} elseif (in_array($tabtype[$key], array('sc', 'payment_sc'))) {   // If payment is payment of social contribution
-							$bookkeeping->subledger_account = '';
-							$bookkeeping->subledger_label = '';
-							$accountingaccount->fetch(null, $k, true);	// TODO Use a cache
-							$bookkeeping->numero_compte = $k;
-							$bookkeeping->label_compte = $accountingaccount->label;
-						} elseif ($tabtype[$key] == 'payment_vat') {
-							$bookkeeping->subledger_account = '';
-							$bookkeeping->subledger_label = '';
-							$accountingaccount->fetch(null, $k, true);		// TODO Use a cache
-							$bookkeeping->numero_compte = $k;
-							$bookkeeping->label_compte = $accountingaccount->label;
-						} elseif ($tabtype[$key] == 'payment_donation') {
-							$bookkeeping->subledger_account = '';
-							$bookkeeping->subledger_label = '';
-							$accountingaccount->fetch(null, $k, true);		// TODO Use a cache
-							$bookkeeping->numero_compte = $k;
-							$bookkeeping->label_compte = $accountingaccount->label;
-						} elseif ($tabtype[$key] == 'member') {
-							$bookkeeping->subledger_account = '';
-							$bookkeeping->subledger_label = '';
-							$accountingaccount->fetch(null, $k, true);		// TODO Use a cache
-							$bookkeeping->numero_compte = $k;
-							$bookkeeping->label_compte = $accountingaccount->label;
-						} elseif ($tabtype[$key] == 'payment_loan') {
-							$bookkeeping->subledger_account = '';
-							$bookkeeping->subledger_label = '';
-							$accountingaccount->fetch(null, $k, true);		// TODO Use a cache
-							$bookkeeping->numero_compte = $k;
-							$bookkeeping->label_compte = $accountingaccount->label;
-						} elseif ($tabtype[$key] == 'payment_various') {
-							$bookkeeping->subledger_account = $k;
-							$bookkeeping->subledger_label = $tabcompany[$key]['name'];
-							$accountingaccount->fetch(null, $tabpay[$key]["account_various"], true);	// TODO Use a cache
-							$bookkeeping->numero_compte = $tabpay[$key]["account_various"];
-							$bookkeeping->label_compte = $accountingaccount->label;
-						} elseif ($tabtype[$key] == 'banktransfert') {
-							$bookkeeping->subledger_account = '';
-							$bookkeeping->subledger_label = '';
-							$accountingaccount->fetch(null, $k, true);		// TODO Use a cache
-							$bookkeeping->numero_compte = $k;
-							$bookkeeping->label_compte = $accountingaccount->label;
-						} else {
-							if ($tabtype[$key] == 'unknown') {	// Unknown transaction, we will use a waiting account for thirdparty.
-								// Temporary account
+							$bookkeeping = new BookKeeping($db);
+							$bookkeeping->doc_date = $val["date"];
+// Specifique Client 3194 - Begin
+							$bookkeeping->doc_ref = $payment_details['ref'];
+// Specifique Client 3194 - End
+							$bookkeeping->doc_type = 'bank';
+							$bookkeeping->fk_doc = $key;
+							$bookkeeping->fk_docdet = $val["fk_bank"];
+
+							$bookkeeping->label_operation = $reflabel;
+// Specifique Client 3194 - Begin
+							$bookkeeping->montant = $payment_details['amount'];
+							$bookkeeping->sens = ($payment_details['amount'] < 0) ? 'D' : 'C';
+							$bookkeeping->debit = ($payment_details['amount'] < 0 ? -$payment_details['amount'] : 0);
+							$bookkeeping->credit = ($payment_details['amount'] >= 0) ? $payment_details['amount'] : 0;
+// Specifique Client 3194 - End
+							$bookkeeping->code_journal = $journal;
+							$bookkeeping->journal_label = $langs->transnoentities($journal_label);
+							$bookkeeping->fk_user_author = $user->id;
+							$bookkeeping->date_creation = $now;
+
+							if ($tabtype[$key] == 'payment') {    // If payment is payment of customer invoice, we get ref of invoice
+								$lettering = true;
+								$bookkeeping->subledger_account = $k; // For payment, the subledger account is stored as $key of $tabtp
+								$bookkeeping->subledger_label = $tabcompany[$key]['name']; // $tabcompany is defined only if we are sure there is 1 thirdparty for the bank transaction
+								$bookkeeping->numero_compte = $conf->global->ACCOUNTING_ACCOUNT_CUSTOMER;
+								$bookkeeping->label_compte = $accountingaccountcustomer->label;
+							} elseif ($tabtype[$key] == 'payment_supplier') {    // If payment is payment of supplier invoice, we get ref of invoice
+								$lettering = true;
+								$bookkeeping->subledger_account = $k; // For payment, the subledger account is stored as $key of $tabtp
+								$bookkeeping->subledger_label = $tabcompany[$key]['name']; // $tabcompany is defined only if we are sure there is 1 thirdparty for the bank transaction
+								$bookkeeping->numero_compte = $conf->global->ACCOUNTING_ACCOUNT_SUPPLIER;
+								$bookkeeping->label_compte = $accountingaccountsupplier->label;
+							} elseif ($tabtype[$key] == 'payment_expensereport') {
+								$bookkeeping->subledger_account = $tabuser[$key]['accountancy_code'];
+								$bookkeeping->subledger_label = $tabuser[$key]['name'];
+								$bookkeeping->numero_compte = $conf->global->SALARIES_ACCOUNTING_ACCOUNT_PAYMENT;
+								$bookkeeping->label_compte = $accountingaccountpayment->label;
+							} elseif ($tabtype[$key] == 'payment_salary') {
+								$bookkeeping->subledger_account = $tabuser[$key]['accountancy_code'];
+								$bookkeeping->subledger_label = $tabuser[$key]['name'];
+								$bookkeeping->numero_compte = $conf->global->SALARIES_ACCOUNTING_ACCOUNT_PAYMENT;
+								$bookkeeping->label_compte = $accountingaccountpayment->label;
+							} elseif (in_array($tabtype[$key], array('sc', 'payment_sc'))) {   // If payment is payment of social contribution
 								$bookkeeping->subledger_account = '';
 								$bookkeeping->subledger_label = '';
-								$bookkeeping->numero_compte = $conf->global->ACCOUNTING_ACCOUNT_SUSPENSE;
-								$bookkeeping->label_compte = $accountingaccountsuspense->label;
-							}
-						}
-						$bookkeeping->label_operation = $reflabel;
-						$bookkeeping->entity = $conf->entity;
-
-						$totaldebit += $bookkeeping->debit;
-						$totalcredit += $bookkeeping->credit;
-
-						$result = $bookkeeping->create($user);
-						if ($result < 0) {
-							if ($bookkeeping->error == 'BookkeepingRecordAlreadyExists') {	// Already exists
-								$error++;
-								$errorforline++;
-								setEventMessages('Transaction for ('.$bookkeeping->doc_type.', '.$bookkeeping->fk_doc.', '.$bookkeeping->fk_docdet.') were already recorded', null, 'warnings');
+								$accountingaccount->fetch(null, $k, true);    // TODO Use a cache
+								$bookkeeping->numero_compte = $k;
+								$bookkeeping->label_compte = $accountingaccount->label;
+							} elseif ($tabtype[$key] == 'payment_vat') {
+								$bookkeeping->subledger_account = '';
+								$bookkeeping->subledger_label = '';
+								$accountingaccount->fetch(null, $k, true);        // TODO Use a cache
+								$bookkeeping->numero_compte = $k;
+								$bookkeeping->label_compte = $accountingaccount->label;
+							} elseif ($tabtype[$key] == 'payment_donation') {
+								$bookkeeping->subledger_account = '';
+								$bookkeeping->subledger_label = '';
+								$accountingaccount->fetch(null, $k, true);        // TODO Use a cache
+								$bookkeeping->numero_compte = $k;
+								$bookkeeping->label_compte = $accountingaccount->label;
+							} elseif ($tabtype[$key] == 'member') {
+								$bookkeeping->subledger_account = '';
+								$bookkeeping->subledger_label = '';
+								$accountingaccount->fetch(null, $k, true);        // TODO Use a cache
+								$bookkeeping->numero_compte = $k;
+								$bookkeeping->label_compte = $accountingaccount->label;
+							} elseif ($tabtype[$key] == 'payment_loan') {
+								$bookkeeping->subledger_account = '';
+								$bookkeeping->subledger_label = '';
+								$accountingaccount->fetch(null, $k, true);        // TODO Use a cache
+								$bookkeeping->numero_compte = $k;
+								$bookkeeping->label_compte = $accountingaccount->label;
+							} elseif ($tabtype[$key] == 'payment_various') {
+								$bookkeeping->subledger_account = $k;
+								$bookkeeping->subledger_label = $tabcompany[$key]['name'];
+								$accountingaccount->fetch(null, $tabpay[$key]["account_various"], true);    // TODO Use a cache
+								$bookkeeping->numero_compte = $tabpay[$key]["account_various"];
+								$bookkeeping->label_compte = $accountingaccount->label;
+							} elseif ($tabtype[$key] == 'banktransfert') {
+								$bookkeeping->subledger_account = '';
+								$bookkeeping->subledger_label = '';
+								$accountingaccount->fetch(null, $k, true);        // TODO Use a cache
+								$bookkeeping->numero_compte = $k;
+								$bookkeeping->label_compte = $accountingaccount->label;
 							} else {
-								$error++;
-								$errorforline++;
-								setEventMessages($bookkeeping->error, $bookkeeping->errors, 'errors');
+								if ($tabtype[$key] == 'unknown') {    // Unknown transaction, we will use a waiting account for thirdparty.
+									// Temporary account
+									$bookkeeping->subledger_account = '';
+									$bookkeeping->subledger_label = '';
+									$bookkeeping->numero_compte = $conf->global->ACCOUNTING_ACCOUNT_SUSPENSE;
+									$bookkeeping->label_compte = $accountingaccountsuspense->label;
+								}
 							}
-						} else {
-							if ($lettering && getDolGlobalInt('ACCOUNTING_ENABLE_LETTERING') && getDolGlobalInt('ACCOUNTING_ENABLE_AUTOLETTERING')) {
-								require_once DOL_DOCUMENT_ROOT . '/accountancy/class/lettering.class.php';
-								$lettering_static = new Lettering($db);
-								$nb_lettering = $lettering_static->bookkeepingLetteringAll(array($bookkeeping->id));
+							$bookkeeping->label_operation = $reflabel;
+							$bookkeeping->entity = $conf->entity;
+
+							$totaldebit += $bookkeeping->debit;
+							$totalcredit += $bookkeeping->credit;
+
+							$result = $bookkeeping->create($user);
+							if ($result < 0) {
+								if ($bookkeeping->error == 'BookkeepingRecordAlreadyExists') {    // Already exists
+									$error++;
+									$errorforline++;
+									setEventMessages('Transaction for (' . $bookkeeping->doc_type . ', ' . $bookkeeping->fk_doc . ', ' . $bookkeeping->fk_docdet . ') were already recorded', null, 'warnings');
+								} else {
+									$error++;
+									$errorforline++;
+									setEventMessages($bookkeeping->error, $bookkeeping->errors, 'errors');
+								}
+							} else {
+// Specifique Client 3194 - Begin
+								$bookkeeping->piece_num = $piece_num;
+								$result = $bookkeeping->update($user);
+								if ($result < 0) {
+									if ($bookkeeping->error == 'BookkeepingRecordAlreadyExists')    // Already exists
+									{
+										$error++;
+										$errorforline++;
+										setEventMessages('Transaction for (' . $bookkeeping->doc_type . ', ' . $bookkeeping->fk_doc . ', ' . $bookkeeping->fk_docdet . ') were already recorded', null, 'warnings');
+									} else {
+										$error++;
+										$errorforline++;
+										setEventMessages($bookkeeping->error, $bookkeeping->errors, 'errors');
+									}
+								}
+
+								if (!$errorforline && $lettering && getDolGlobalInt('ACCOUNTING_ENABLE_LETTERING') && getDolGlobalInt('ACCOUNTING_ENABLE_AUTOLETTERING')) {
+// Specifique Client 3194 - End
+									require_once DOL_DOCUMENT_ROOT . '/accountancy/class/lettering.class.php';
+									$lettering_static = new Lettering($db);
+									$nb_lettering = $lettering_static->bookkeepingLetteringAll(array($bookkeeping->id));
+								}
 							}
 						}
 					}
+// Specifique Client 3194 - Begin
 				}
+// Specifique Client 3194 - End
 			} else {	// If thirdparty unknown, output the waiting account
 				foreach ($tabbq[$key] as $k => $mt) {
 					if ($mt) {
-						$reflabel = '';
-						if (!empty($val['lib'])) {
-							$reflabel .= dol_string_nohtmltag($val['lib'])." - ";
+// Specifique Client 3194 - Begin
+						if (empty($conf->global->ACCOUNTING_DETAIL_PAYMENT_LINES) || count($detailAmount) <= 1)
+						{
+							$detailAmount = array(array('ref'=> $ref, 'amount'=>$mt));
 						}
-						$reflabel .= dol_string_nohtmltag('WaitingAccount');
 
-						$bookkeeping = new BookKeeping($db);
-						$bookkeeping->doc_date = $val["date"];
-						$bookkeeping->doc_ref = $ref;
-						$bookkeeping->doc_type = 'bank';
-						$bookkeeping->fk_doc = $key;
-						$bookkeeping->fk_docdet = $val["fk_bank"];
-						$bookkeeping->montant = $mt;
-						$bookkeeping->sens = ($mt < 0) ? 'D' : 'C';
-						$bookkeeping->debit = ($mt < 0 ? -$mt : 0);
-						$bookkeeping->credit = ($mt >= 0) ? $mt : 0;
-						$bookkeeping->code_journal = $journal;
-						$bookkeeping->journal_label = $langs->transnoentities($journal_label);
-						$bookkeeping->fk_user_author = $user->id;
-						$bookkeeping->date_creation = $now;
-						$bookkeeping->label_compte = '';
-						$bookkeeping->label_operation = $reflabel;
-						$bookkeeping->entity = $conf->entity;
+						$nbLines = count($detailAmount);
+						$idx = 0;
+						foreach ($detailAmount as $payment_details) {
+							$idx++;
+// Specifique Client 3194 - End
+							$reflabel = '';
+							if (!empty($val['lib'])) {
+								$reflabel .= dol_string_nohtmltag($val['lib']) . " - ";
+							}
+							$reflabel .= dol_string_nohtmltag('WaitingAccount');
+// Specifique Client 3194 - Begin
+							if ($nbLines > 1) $reflabel .= ' - ' . $idx . '/' . $nbLines;
+// Specifique Client 3194 - End
 
-						$totaldebit += $bookkeeping->debit;
-						$totalcredit += $bookkeeping->credit;
+							$bookkeeping = new BookKeeping($db);
+							$bookkeeping->doc_date = $val["date"];
+// Specifique Client 3194 - Begin
+							$bookkeeping->doc_ref = $payment_details['ref'];
+// Specifique Client 3194 - End
+							$bookkeeping->doc_type = 'bank';
+							$bookkeeping->fk_doc = $key;
+							$bookkeeping->fk_docdet = $val["fk_bank"];
+// Specifique Client 3194 - Begin
+							$bookkeeping->montant = $payment_details['amount'];
+							$bookkeeping->sens = ($payment_details['amount'] < 0) ? 'D' : 'C';
+							$bookkeeping->debit = ($payment_details['amount'] < 0 ? -$payment_details['amount'] : 0);
+							$bookkeeping->credit = ($payment_details['amount'] >= 0) ? $payment_details['amount'] : 0;
+// Specifique Client 3194 - End
+							$bookkeeping->code_journal = $journal;
+							$bookkeeping->journal_label = $langs->transnoentities($journal_label);
+							$bookkeeping->fk_user_author = $user->id;
+							$bookkeeping->date_creation = $now;
+							$bookkeeping->label_compte = '';
+							$bookkeeping->label_operation = $reflabel;
+							$bookkeeping->entity = $conf->entity;
 
-						$result = $bookkeeping->create($user);
+							$totaldebit += $bookkeeping->debit;
+							$totalcredit += $bookkeeping->credit;
 
-						if ($result < 0) {
-							if ($bookkeeping->error == 'BookkeepingRecordAlreadyExists') {	// Already exists
-								$error++;
-								$errorforline++;
-								setEventMessages('Transaction for ('.$bookkeeping->doc_type.', '.$bookkeeping->fk_doc.', '.$bookkeeping->fk_docdet.') were already recorded', null, 'warnings');
-							} else {
-								$error++;
-								$errorforline++;
-								setEventMessages($bookkeeping->error, $bookkeeping->errors, 'errors');
+							$result = $bookkeeping->create($user);
+
+							if ($result < 0) {
+								if ($bookkeeping->error == 'BookkeepingRecordAlreadyExists') {    // Already exists
+									$error++;
+									$errorforline++;
+									setEventMessages('Transaction for (' . $bookkeeping->doc_type . ', ' . $bookkeeping->fk_doc . ', ' . $bookkeeping->fk_docdet . ') were already recorded', null, 'warnings');
+								} else {
+									$error++;
+									$errorforline++;
+									setEventMessages($bookkeeping->error, $bookkeeping->errors, 'errors');
+								}
+							}
+// Specifique Client 3194 - Begin
+							else {
+								$bookkeeping->piece_num = $piece_num;
+								$result = $bookkeeping->update($user);
+								if ($result < 0) {
+									if ($bookkeeping->error == 'BookkeepingRecordAlreadyExists')    // Already exists
+									{
+										$error++;
+										$errorforline++;
+										setEventMessages('Transaction for (' . $bookkeeping->doc_type . ', ' . $bookkeeping->fk_doc . ', ' . $bookkeeping->fk_docdet . ') were already recorded', null, 'warnings');
+									} else {
+										$error++;
+										$errorforline++;
+										setEventMessages($bookkeeping->error, $bookkeeping->errors, 'errors');
+									}
+								}
 							}
 						}
+// Specifique Client 3194 - End
 					}
 				}
 			}
@@ -937,6 +1021,9 @@ if ($action == 'exportcsv') {		// ISO and not UTF8 !
 		$date = dol_print_date($val["date"], 'day');
 
 		$ref = getSourceDocRef($val, $tabtype[$key]);
+// Specifique Client 3194 - Begin
+		$detailAmount = getDetailAmountDocRef($val, $tabtype[$key]);
+// Specifique Client 3194 - End
 
 		// Bank
 		foreach ($tabbq[$key] as $k => $mt) {
@@ -969,61 +1056,101 @@ if ($action == 'exportcsv') {		// ISO and not UTF8 !
 		if (is_array($tabtp[$key])) {
 			foreach ($tabtp[$key] as $k => $mt) {
 				if ($mt) {
-					$reflabel = '';
-					if (!empty($val['lib'])) {
-						$reflabel .= dol_string_nohtmltag($val['lib']).($val['soclib'] ? " - " : "");
-					}
-					if ($tabtype[$key] == 'banktransfert') {
-						$reflabel .= dol_string_nohtmltag($langs->transnoentitiesnoconv('TransitionalAccount').' '.$account_transfer);
-					} else {
-						$reflabel .= dol_string_nohtmltag($val['soclib']);
+// Specifique Client 3194 - Begin
+					if (empty($conf->global->ACCOUNTING_DETAIL_PAYMENT_LINES) || count($detailAmount) <= 1) {
+						$detailAmount = array(array('ref' => $ref, 'amount' => $mt));
 					}
 
-					print '"'.$key.'"'.$sep;
-					print '"'.$date.'"'.$sep;
-					print '"'.$val["type_payment"].'"'.$sep;
-					print '"'.length_accountg(html_entity_decode($k)).'"'.$sep;
-					if ($tabtype[$key] == 'payment_supplier') {
-						print '"'.getDolGlobalString('ACCOUNTING_ACCOUNT_SUPPLIER').'"'.$sep;
-					} elseif ($tabtype[$key] == 'payment') {
-						print '"'.getDolGlobalString('ACCOUNTING_ACCOUNT_CUSTOMER').'"'.$sep;
-					} elseif ($tabtype[$key] == 'payment_expensereport') {
-						print '"'.getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT').'"'.$sep;
-					} elseif ($tabtype[$key] == 'payment_salary') {
-						print '"'.getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT').'"'.$sep;
-					} else {
-						print '"'.length_accountg(html_entity_decode($k)).'"'.$sep;
+					$nbLines = count($detailAmount);
+					$idx = 0;
+					foreach ($detailAmount as $payment_details) {
+						$idx++;
+// Specifique Client 3194 - End
+						$reflabel = '';
+						if (!empty($val['lib'])) {
+							$reflabel .= dol_string_nohtmltag($val['lib']) . ($val['soclib'] ? " - " : "");
+						}
+						if ($tabtype[$key] == 'banktransfert') {
+							$reflabel .= dol_string_nohtmltag($langs->transnoentitiesnoconv('TransitionalAccount') . ' ' . $account_transfer);
+						} else {
+							$reflabel .= dol_string_nohtmltag($val['soclib']);
+						}
+// Specifique Client 3194 - Begin
+						if ($nbLines > 1) $reflabel .= ' - ' . $idx . '/' . $nbLines;
+// Specifique Client 3194 - End
+
+						print '"' . $key . '"' . $sep;
+						print '"' . $date . '"' . $sep;
+						print '"' . $val["type_payment"] . '"' . $sep;
+						print '"' . length_accountg(html_entity_decode($k)) . '"' . $sep;
+						if ($tabtype[$key] == 'payment_supplier') {
+							print '"' . getDolGlobalString('ACCOUNTING_ACCOUNT_SUPPLIER') . '"' . $sep;
+						} elseif ($tabtype[$key] == 'payment') {
+							print '"' . getDolGlobalString('ACCOUNTING_ACCOUNT_CUSTOMER') . '"' . $sep;
+						} elseif ($tabtype[$key] == 'payment_expensereport') {
+							print '"' . getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT') . '"' . $sep;
+						} elseif ($tabtype[$key] == 'payment_salary') {
+							print '"' . getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT') . '"' . $sep;
+						} else {
+							print '"' . length_accountg(html_entity_decode($k)) . '"' . $sep;
+						}
+						print '"' . length_accounta(html_entity_decode($k)) . '"' . $sep;
+						print '"' . $reflabel . '"' . $sep;
+// Specifique Client 3194 - Begin
+						print '"' . ($payment_details['amount'] < 0 ? price(-$payment_details['amount']) : '') . '"' . $sep;
+						print '"' . ($payment_details['amount'] >= 0 ? price($payment_details['amount']) : '') . '"' . $sep;
+// Specifique Client 3194 - End
+						print '"' . $journal . '"' . $sep;
+// Specifique Client 3194 - Begin
+						print '"' . dol_string_nohtmltag($payment_details['ref']) . '"' . $sep;
+// Specifique Client 3194 - End
+						print "\n";
+// Specifique Client 3194 - Begin
 					}
-					print '"'.length_accounta(html_entity_decode($k)).'"'.$sep;
-					print '"'.$reflabel.'"'.$sep;
-					print '"'.($mt < 0 ? price(-$mt) : '').'"'.$sep;
-					print '"'.($mt >= 0 ? price($mt) : '').'"'.$sep;
-					print '"'.$journal.'"'.$sep;
-					print '"'.dol_string_nohtmltag($ref).'"'.$sep;
-					print "\n";
+// Specifique Client 3194 - End
 				}
 			}
 		} else {	// If thirdparty unkown, output the waiting account
 			foreach ($tabbq[$key] as $k => $mt) {
 				if ($mt) {
-					$reflabel = '';
-					if (!empty($val['lib'])) {
-						$reflabel .= dol_string_nohtmltag($val['lib'])." - ";
+// Specifique Client 3194 - Begin
+					if (empty($conf->global->ACCOUNTING_DETAIL_PAYMENT_LINES) || count($detailAmount) <= 1) {
+						$detailAmount = array(array('ref' => $ref, 'amount' => $mt));
 					}
-					$reflabel .= dol_string_nohtmltag('WaitingAccount');
 
-					print '"'.$key.'"'.$sep;
-					print '"'.$date.'"'.$sep;
-					print '"'.$val["type_payment"].'"'.$sep;
-					print '"'.length_accountg(getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE')).'"'.$sep;
-					print '"'.length_accounta(getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE')).'"'.$sep;
-					print $sep;
-					print '"'.$reflabel.'"'.$sep;
-					print '"'.($mt < 0 ? price(-$mt) : '').'"'.$sep;
-					print '"'.($mt >= 0 ? price($mt) : '').'"'.$sep;
-					print '"'.$journal.'"'.$sep;
-					print '"'.dol_string_nohtmltag($ref).'"'.$sep;
-					print "\n";
+					$nbLines = count($detailAmount);
+					$idx = 0;
+					foreach ($detailAmount as $payment_details) {
+						$idx++;
+// Specifique Client 3194 - End
+						$reflabel = '';
+						if (!empty($val['lib'])) {
+							$reflabel .= dol_string_nohtmltag($val['lib']) . " - ";
+						}
+						$reflabel .= dol_string_nohtmltag('WaitingAccount');
+// Specifique Client 3194 - Begin
+						if ($nbLines > 1) $reflabel .= ' - ' . $idx . '/' . $nbLines;
+// Specifique Client 3194 - End
+
+						print '"' . $key . '"' . $sep;
+						print '"' . $date . '"' . $sep;
+						print '"' . $val["type_payment"] . '"' . $sep;
+						print '"' . length_accountg(getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE')) . '"' . $sep;
+						print '"' . length_accounta(getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE')) . '"' . $sep;
+						print $sep;
+						print '"' . $reflabel . '"' . $sep;
+// Specifique Client 3194 - Begin
+						print '"' . ($payment_details['amount'] < 0 ? price(-$payment_details['amount']) : '') . '"' . $sep;
+						print '"' . ($payment_details['amount'] >= 0 ? price($payment_details['amount']) : '') . '"' . $sep;
+// Specifique Client 3194 - End
+						print '"' . $journal . '"' . $sep;
+// Specifique Client 3194 - Begin
+						print '"' . dol_string_nohtmltag($payment_details['ref']) . '"' . $sep;
+// Specifique Client 3194 - End
+						print "\n";
+// Specifique Client 3194 - Begin
+					}
+// Specifique Client 3194 - End
 				}
 			}
 		}
@@ -1180,6 +1307,9 @@ if (empty($action) || $action == 'view') {
 		$date = dol_print_date($val["date"], 'day');
 
 		$ref = getSourceDocRef($val, $tabtype[$key]);
+// Specifique Client 3194 - Begin
+		$detailAmount = getDetailAmountDocRef($val, $tabtype[$key]);
+// Specifique Client 3194 - End
 
 		// Bank
 		foreach ($tabbq[$key] as $k => $mt) {
@@ -1240,165 +1370,208 @@ if (empty($action) || $action == 'view') {
 		if (is_array($tabtp[$key])) {
 			foreach ($tabtp[$key] as $k => $mt) {
 				if ($mt) {
-					$reflabel = '';
-					if (!empty($val['lib'])) {
-						$reflabel .= $val['lib'].($val['soclib'] ? " - " : "");
-					}
-					if ($tabtype[$key] == 'banktransfert') {
-						$reflabel .= $langs->trans('TransitionalAccount').' '.$account_transfer;
-					} else {
-						$reflabel .= $val['soclib'];
+// Specifique Client 3194 - Begin
+					if (empty($conf->global->ACCOUNTING_DETAIL_PAYMENT_LINES) || count($detailAmount) <= 1) {
+						$detailAmount = array(array('ref' => $ref, 'amount' => $mt));
 					}
 
-					print '<!-- Thirdparty bank.rowid='.$key.' -->';
-					print '<tr class="oddeven">';
-
-					// Date
-					print "<td>".$date."</td>";
-
-					// Ref
-					print "<td>".dol_escape_htmltag($ref)."</td>";
-
-					// Ledger account
-					$account_ledger = $k;
-					// Try to force general ledger account depending on type
-					if ($tabtype[$key] == 'payment') {
-						$account_ledger = getDolGlobalString('ACCOUNTING_ACCOUNT_CUSTOMER');
-					}
-					if ($tabtype[$key] == 'payment_supplier') {
-						$account_ledger = getDolGlobalString('ACCOUNTING_ACCOUNT_SUPPLIER');
-					}
-					if ($tabtype[$key] == 'payment_expensereport') {
-						$account_ledger = getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT');
-					}
-					if ($tabtype[$key] == 'payment_salary') {
-						$account_ledger = getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT');
-					}
-					if ($tabtype[$key] == 'payment_vat') {
-						$account_ledger = getDolGlobalString('ACCOUNTING_VAT_PAY_ACCOUNT');
-					}
-					if ($tabtype[$key] == 'member') {
-						$account_ledger = getDolGlobalString('ADHERENT_SUBSCRIPTION_ACCOUNTINGACCOUNT');
-					}
-					if ($tabtype[$key] == 'payment_various') {
-						$account_ledger = $tabpay[$key]["account_various"];
-					}
-					$accounttoshow = length_accountg($account_ledger);
-					if (empty($accounttoshow) || $accounttoshow == 'NotDefined') {
-						if ($tabtype[$key] == 'unknown') {
-							// We will accept writing, but into a waiting account
-							if (!getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE') || getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE') == '-1') {
-								$accounttoshow = '<span class="error small">'.$langs->trans('UnknownAccountForThirdpartyAndWaitingAccountNotDefinedBlocking').'</span>';
-							} else {
-								$accounttoshow = '<span class="warning small">'.$langs->trans('UnknownAccountForThirdparty', length_accountg($conf->global->ACCOUNTING_ACCOUNT_SUSPENSE)).'</span>'; // We will use a waiting account
-							}
-						} else {
-							// We will refuse writing
-							$errorstring = 'UnknownAccountForThirdpartyBlocking';
-							if ($tabtype[$key] == 'payment') {
-								$errorstring = 'MainAccountForCustomersNotDefined';
-							}
-							if ($tabtype[$key] == 'payment_supplier') {
-								$errorstring = 'MainAccountForSuppliersNotDefined';
-							}
-							if ($tabtype[$key] == 'payment_expensereport') {
-								$errorstring = 'MainAccountForUsersNotDefined';
-							}
-							if ($tabtype[$key] == 'payment_salary') {
-								$errorstring = 'MainAccountForUsersNotDefined';
-							}
-							if ($tabtype[$key] == 'payment_vat') {
-								$errorstring = 'MainAccountForVatPaymentNotDefined';
-							}
-							if ($tabtype[$key] == 'member') {
-								$errorstring = 'MainAccountForSubscriptionPaymentNotDefined';
-							}
-							$accounttoshow = '<span class="error small">'.$langs->trans($errorstring).'</span>';
+					$nbLines = count($detailAmount);
+					$idx = 0;
+					foreach ($detailAmount as $payment_details) {
+						$idx++;
+// Specifique Client 3194 - End
+						$reflabel = '';
+						if (!empty($val['lib'])) {
+							$reflabel .= $val['lib'] . ($val['soclib'] ? " - " : "");
 						}
-					}
-					print '<td class="maxwidth300" title="'.dol_escape_htmltag(dol_string_nohtmltag($accounttoshow)).'">';
-					print $accounttoshow;	// This is a HTML string
-					print "</td>";
+						if ($tabtype[$key] == 'banktransfert') {
+							$reflabel .= $langs->trans('TransitionalAccount') . ' ' . $account_transfer;
+						} else {
+							$reflabel .= $val['soclib'];
+						}
+// Specifique Client 3194 - Begin
+						if ($nbLines > 1) $reflabel .= ' - ' . $idx . '/' . $nbLines;
+// Specifique Client 3194 - End
 
-					// Subledger account
-					$accounttoshowsubledger = '';
-					if (in_array($tabtype[$key], array('payment', 'payment_supplier', 'payment_expensereport', 'payment_salary', 'payment_various'))) {	// Type of payments that uses a subledger
-						$accounttoshowsubledger = length_accounta($k);
-						if ($accounttoshow != $accounttoshowsubledger) {
-							if (empty($accounttoshowsubledger) || $accounttoshowsubledger == 'NotDefined') {
-								//var_dump($tabpay[$key]);
-								//var_dump($tabtype[$key]);
-								//var_dump($tabbq[$key]);
-								//print '<span class="error">'.$langs->trans("ThirdpartyAccountNotDefined").'</span>';
-								if (!empty($tabcompany[$key]['code_compta'])) {
-									if (in_array($tabtype[$key], array('payment_various', 'payment_salary'))) {
-										// For such case, if subledger is not defined, we won't use subledger accounts.
-										$accounttoshowsubledger = '<span class="warning small">'.$langs->trans("ThirdpartyAccountNotDefinedOrThirdPartyUnknownSubledgerIgnored").'</span>';
-									} else {
-										$accounttoshowsubledger = '<span class="warning small">'.$langs->trans("ThirdpartyAccountNotDefinedOrThirdPartyUnknown", $tabcompany[$key]['code_compta']).'</span>';
-									}
+						print '<!-- Thirdparty bank.rowid=' . $key . ' -->';
+						print '<tr class="oddeven">';
+
+						// Date
+						print "<td>" . $date . "</td>";
+
+						// Ref
+// Specifique Client 3194 - Begin
+						print "<td>" . dol_escape_htmltag($payment_details['ref']) . "</td>";
+// Specifique Client 3194 - End
+
+						// Ledger account
+						$account_ledger = $k;
+						// Try to force general ledger account depending on type
+						if ($tabtype[$key] == 'payment') {
+							$account_ledger = getDolGlobalString('ACCOUNTING_ACCOUNT_CUSTOMER');
+						}
+						if ($tabtype[$key] == 'payment_supplier') {
+							$account_ledger = getDolGlobalString('ACCOUNTING_ACCOUNT_SUPPLIER');
+						}
+						if ($tabtype[$key] == 'payment_expensereport') {
+							$account_ledger = getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT');
+						}
+						if ($tabtype[$key] == 'payment_salary') {
+							$account_ledger = getDolGlobalString('SALARIES_ACCOUNTING_ACCOUNT_PAYMENT');
+						}
+						if ($tabtype[$key] == 'payment_vat') {
+							$account_ledger = getDolGlobalString('ACCOUNTING_VAT_PAY_ACCOUNT');
+						}
+						if ($tabtype[$key] == 'member') {
+							$account_ledger = getDolGlobalString('ADHERENT_SUBSCRIPTION_ACCOUNTINGACCOUNT');
+						}
+						if ($tabtype[$key] == 'payment_various') {
+							$account_ledger = $tabpay[$key]["account_various"];
+						}
+						$accounttoshow = length_accountg($account_ledger);
+						if (empty($accounttoshow) || $accounttoshow == 'NotDefined') {
+							if ($tabtype[$key] == 'unknown') {
+								// We will accept writing, but into a waiting account
+								if (!getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE') || getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE') == '-1') {
+									$accounttoshow = '<span class="error small">' . $langs->trans('UnknownAccountForThirdpartyAndWaitingAccountNotDefinedBlocking') . '</span>';
 								} else {
-									$accounttoshowsubledger = '<span class="error small">'.$langs->trans("ThirdpartyAccountNotDefinedOrThirdPartyUnknownBlocking").'</span>';
+									$accounttoshow = '<span class="warning small">' . $langs->trans('UnknownAccountForThirdparty', length_accountg($conf->global->ACCOUNTING_ACCOUNT_SUSPENSE)) . '</span>'; // We will use a waiting account
 								}
+							} else {
+								// We will refuse writing
+								$errorstring = 'UnknownAccountForThirdpartyBlocking';
+								if ($tabtype[$key] == 'payment') {
+									$errorstring = 'MainAccountForCustomersNotDefined';
+								}
+								if ($tabtype[$key] == 'payment_supplier') {
+									$errorstring = 'MainAccountForSuppliersNotDefined';
+								}
+								if ($tabtype[$key] == 'payment_expensereport') {
+									$errorstring = 'MainAccountForUsersNotDefined';
+								}
+								if ($tabtype[$key] == 'payment_salary') {
+									$errorstring = 'MainAccountForUsersNotDefined';
+								}
+								if ($tabtype[$key] == 'payment_vat') {
+									$errorstring = 'MainAccountForVatPaymentNotDefined';
+								}
+								if ($tabtype[$key] == 'member') {
+									$errorstring = 'MainAccountForSubscriptionPaymentNotDefined';
+								}
+								$accounttoshow = '<span class="error small">' . $langs->trans($errorstring) . '</span>';
 							}
-						} else {
-							$accounttoshowsubledger = '';
 						}
+						print '<td class="maxwidth300" title="' . dol_escape_htmltag(dol_string_nohtmltag($accounttoshow)) . '">';
+						print $accounttoshow;    // This is a HTML string
+						print "</td>";
+
+						// Subledger account
+						$accounttoshowsubledger = '';
+						if (in_array($tabtype[$key], array('payment', 'payment_supplier', 'payment_expensereport', 'payment_salary', 'payment_various'))) {    // Type of payments that uses a subledger
+							$accounttoshowsubledger = length_accounta($k);
+							if ($accounttoshow != $accounttoshowsubledger) {
+								if (empty($accounttoshowsubledger) || $accounttoshowsubledger == 'NotDefined') {
+									//var_dump($tabpay[$key]);
+									//var_dump($tabtype[$key]);
+									//var_dump($tabbq[$key]);
+									//print '<span class="error">'.$langs->trans("ThirdpartyAccountNotDefined").'</span>';
+									if (!empty($tabcompany[$key]['code_compta'])) {
+										if (in_array($tabtype[$key], array('payment_various', 'payment_salary'))) {
+											// For such case, if subledger is not defined, we won't use subledger accounts.
+											$accounttoshowsubledger = '<span class="warning small">' . $langs->trans("ThirdpartyAccountNotDefinedOrThirdPartyUnknownSubledgerIgnored") . '</span>';
+										} else {
+											$accounttoshowsubledger = '<span class="warning small">' . $langs->trans("ThirdpartyAccountNotDefinedOrThirdPartyUnknown", $tabcompany[$key]['code_compta']) . '</span>';
+										}
+									} else {
+										$accounttoshowsubledger = '<span class="error small">' . $langs->trans("ThirdpartyAccountNotDefinedOrThirdPartyUnknownBlocking") . '</span>';
+									}
+								}
+							} else {
+								$accounttoshowsubledger = '';
+							}
+						}
+						print '<td class="maxwidth300">';
+						print $accounttoshowsubledger;    // This is a html string
+						print "</td>";
+
+						print "<td>" . $reflabel . "</td>";
+
+						print '<td class="center">' . $val["type_payment"] . "</td>";
+
+// Specifique Client 3194 - Begin
+						print '<td class="right nowraponall amount">' . ($payment_details['amount'] < 0 ? price(-$payment_details['amount']) : '') . "</td>";
+// Specifique Client 3194 - End
+
+// Specifique Client 3194 - Begin
+						print '<td class="right nowraponall amount">' . ($payment_details['amount'] >= 0 ? price($payment_details['amount']) : '') . "</td>";
+// Specifique Client 3194 - End
+
+						print "</tr>";
+
+						$i++;
+// Specifique Client 3194 - Begin
 					}
-					print '<td class="maxwidth300">';
-					print $accounttoshowsubledger;	// This is a html string
-					print "</td>";
-
-					print "<td>".$reflabel."</td>";
-
-					print '<td class="center">'.$val["type_payment"]."</td>";
-
-					print '<td class="right nowraponall amount">'.($mt < 0 ? price(-$mt) : '')."</td>";
-
-					print '<td class="right nowraponall amount">'.($mt >= 0 ? price($mt) : '')."</td>";
-
-					print "</tr>";
-
-					$i++;
+// Specifique Client 3194 - End
 				}
 			}
 		} else {	// Waiting account
 			foreach ($tabbq[$key] as $k => $mt) {
 				if ($mt) {
-					$reflabel = '';
-					if (!empty($val['lib'])) {
-						$reflabel .= $val['lib']." - ";
+// Specifique Client 3194 - Begin
+					if (empty($conf->global->ACCOUNTING_DETAIL_PAYMENT_LINES) || count($detailAmount) <= 1) {
+						$detailAmount = array(array('ref' => $ref, 'amount' => $mt));
 					}
-					$reflabel .= 'WaitingAccount';
 
-					print '<!-- Wait bank.rowid='.$key.' -->';
-					print '<tr class="oddeven">';
-					print "<td>".$date."</td>";
-					print "<td>".$ref."</td>";
-					// Ledger account
-					print "<td>";
-					/*if (empty($accounttoshow) || $accounttoshow == 'NotDefined')
-					{
-						print '<span class="error">'.$langs->trans("WaitAccountNotDefined").'</span>';
-					}
-					else */ print length_accountg($conf->global->ACCOUNTING_ACCOUNT_SUSPENSE);
-					print "</td>";
-					// Subledger account
-					print "<td>";
-					/*if (empty($accounttoshowsubledger) || $accounttoshowsubledger == 'NotDefined')
-					{
-						print '<span class="error">'.$langs->trans("WaitAccountNotDefined").'</span>';
-					}
-					else print length_accountg($conf->global->ACCOUNTING_ACCOUNT_SUSPENSE);
-					*/
-					print "</td>";
-					print "<td>".$reflabel."</td>";
-					print '<td class="center">'.$val["type_payment"]."</td>";
-					print '<td class="right nowraponall amount">'.($mt < 0 ? price(-$mt) : '')."</td>";
-					print '<td class="right nowraponall amount">'.($mt >= 0 ? price($mt) : '')."</td>";
-					print "</tr>";
+					$nbLines = count($detailAmount);
+					$idx = 0;
+					foreach ($detailAmount as $payment_details) {
+						$idx++;
+// Specifique Client 3194 - End
+						$reflabel = '';
+						if (!empty($val['lib'])) {
+							$reflabel .= $val['lib'] . " - ";
+						}
+						$reflabel .= 'WaitingAccount';
+// Specifique Client 3194 - Begin
+						if ($nbLines > 1) $reflabel .= ' - ' . $idx . '/' . $nbLines;
+// Specifique Client 3194 - End
 
-					$i++;
+						print '<!-- Wait bank.rowid=' . $key . ' -->';
+						print '<tr class="oddeven">';
+						print "<td>" . $date . "</td>";
+// Specifique Client 3194 - Begin
+						print "<td>" . $payment_details['ref'] . "</td>";
+// Specifique Client 3194 - End
+						// Ledger account
+						print "<td>";
+						/*if (empty($accounttoshow) || $accounttoshow == 'NotDefined')
+						{
+							print '<span class="error">'.$langs->trans("WaitAccountNotDefined").'</span>';
+						}
+						else */
+						print length_accountg($conf->global->ACCOUNTING_ACCOUNT_SUSPENSE);
+						print "</td>";
+						// Subledger account
+						print "<td>";
+						/*if (empty($accounttoshowsubledger) || $accounttoshowsubledger == 'NotDefined')
+						{
+							print '<span class="error">'.$langs->trans("WaitAccountNotDefined").'</span>';
+						}
+						else print length_accountg($conf->global->ACCOUNTING_ACCOUNT_SUSPENSE);
+						*/
+						print "</td>";
+						print "<td>" . $reflabel . "</td>";
+						print '<td class="center">' . $val["type_payment"] . "</td>";
+// Specifique Client 3194 - Begin
+						print '<td class="right nowraponall amount">' . ($payment_details['amount'] < 0 ? price(-$payment_details['amount']) : '') . "</td>";
+						print '<td class="right nowraponall amount">' . ($payment_details['amount'] >= 0 ? price($payment_details['amount']) : '') . "</td>";
+// Specifique Client 3194 - End
+						print "</tr>";
+
+						$i++;
+// Specifique Client 3194 - Begin
+					}
+// Specifique Client 3194 - End
 				}
 			}
 		}
@@ -1437,7 +1610,10 @@ function getSourceDocRef($val, $typerecord)
 		$ref = $langs->transnoentitiesnoconv('Supplier');
 	}
 	if ($ref == '(CustomerInvoicePayment)' || $ref == '(CustomerInvoicePaymentBack)') {
-		$ref = $langs->transnoentitiesnoconv('Customer');
+// Specifique Client 3194 - Begin
+//		$ref = $langs->transnoentitiesnoconv('Customer');
+		$ref = '';
+// Specifique Client 3194 - End
 	}
 	if ($ref == '(SocialContributionPayment)') {
 		$ref = $langs->transnoentitiesnoconv('SocialContribution');
@@ -1473,7 +1649,9 @@ function getSourceDocRef($val, $typerecord)
 			$sqlmid .= " INNER JOIN ".$db->prefix()."facture as f ON f.rowid = payfac.fk_facture";
 			$sqlmid .= " WHERE payfac.fk_paiement=".((int) $val['paymentid']);
 		}
-		$ref = $langs->transnoentitiesnoconv("Invoice");
+// Specifique Client 3194 - Begin
+//		$ref = $langs->transnoentitiesnoconv("Invoice");
+// Specifique Client 3194 - End
 	} elseif ($typerecord == 'payment_supplier') {
 		$sqlmid = 'SELECT payfac.fk_facturefourn as id, f.ref';
 		$sqlmid .= " FROM ".MAIN_DB_PREFIX."paiementfourn_facturefourn as payfac, ".MAIN_DB_PREFIX."facture_fourn as f";
@@ -1532,6 +1710,54 @@ function getSourceDocRef($val, $typerecord)
 		}
 	}
 
-	$ref = dol_trunc($langs->transnoentitiesnoconv("BankId").' '.$val['fk_bank'].' - '.$ref, 295); // 295 + 3 dots (...) is < than max size of 300
+// Specifique Client 3194 - Begin
+//	$ref = dol_trunc($langs->transnoentitiesnoconv("BankId").' '.$val['fk_bank'].' - '.$ref, 295); // 295 + 3 dots (...) is < than max size of 300
+	$ref = dol_trunc($ref, 295);
+// Specifique Client 3194 - End
 	return $ref;
 }
+
+// Specifique Client 3194 - Begin
+/**
+ *  Return source for doc_ref of a bank transaction
+ *
+ * @param   string 	$val			Array of val
+ * @param   string	$typerecord		Type of record ('payment', 'payment_supplier', 'payment_expensereport', 'payment_vat', ...)
+ * @return  array
+ */
+function getDetailAmountDocRef($val, $typerecord)
+{
+	global $db, $langs;
+
+	$list = array();
+
+	$sqlmid = '';
+	if ($typerecord == 'payment') {
+		$sqlmid = 'SELECT payfac.fk_facture as id, f.facnumber as ref, payfac.amount';
+		$sqlmid .= " FROM " . MAIN_DB_PREFIX . "paiement_facture as payfac, " . MAIN_DB_PREFIX . "facture as f";
+		$sqlmid .= " WHERE payfac.fk_facture = f.rowid AND payfac.fk_paiement=" . $val["paymentid"];
+		//$ref = $langs->trans("Invoice");
+	} elseif ($typerecord == 'payment_supplier') {
+		$sqlmid = 'SELECT payfac.fk_facturefourn as id, f.ref, payfac.amount';
+		$sqlmid .= " FROM " . MAIN_DB_PREFIX . "paiementfourn_facturefourn as payfac, " . MAIN_DB_PREFIX . "facture_fourn as f";
+		$sqlmid .= " WHERE payfac.fk_facturefourn = f.rowid AND payfac.fk_paiementfourn=" . $val["paymentsupplierid"];
+		$ref = $langs->trans("SupplierInvoice");
+	}
+	// Add warning
+	if (empty($sqlmid)) {
+		dol_syslog("Found a typerecord=" . $typerecord . " not supported", LOG_WARNING);
+	}
+
+	if ($sqlmid) {
+		dol_syslog("accountancy/journal/bankjournal.php::getDetailAmountDocRef sqlmid=" . $sqlmid, LOG_DEBUG);
+		$resultmid = $db->query($sqlmid);
+		if ($resultmid) {
+			while ($objmid = $db->fetch_object($resultmid)) {
+				$list[] = array('ref' => $objmid->ref, 'amount' => $objmid->amount);
+			}
+		} else dol_print_error($db);
+	}
+
+	return $list;
+}
+// Specifique Client 3194 - End

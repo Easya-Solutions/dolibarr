@@ -74,6 +74,9 @@ $date_start = dol_mktime(0, 0, 0, GETPOST('fiscalyearmonth', 'int'), GETPOST('fi
 $date_end = dol_mktime(0, 0, 0, GETPOST('fiscalyearendmonth', 'int'), GETPOST('fiscalyearendday', 'int'), GETPOST('fiscalyearendyear', 'int'));
 
 $permissiontoadd = $user->hasRight('accounting', 'fiscalyear', 'write');
+// Specifique Client 3194 - Begin
+$permissiontodelete = $user->hasRight('accounting', 'fiscalyear', 'write');
+// Specifique Client 3194 - End
 
 // Security check
 if ($user->socid > 0) {
@@ -167,6 +170,23 @@ if ($action == 'confirm_delete' && $confirm == "yes") {
 		exit();
 	}
 }
+
+// Specifique Client 3194 - Begin - commenter cloture en standard - a supprimer
+// Update status
+//else if ($action == 'closefiscalyear') {
+//	$result = $object->fetch($id);
+//
+//	$object->statut = 1;
+//	$result = $object->closefiscalyear($user);
+//
+//	if ($result > 0) {
+//		header("Location: " . $_SERVER["PHP_SELF"] . "?id=" . $id);
+//		exit();
+//	} else {
+//		setEventMessages($object->error, $object->errors, 'errors');
+//	}
+//}
+// Specifique Client 3194 - End
 
 
 
@@ -345,9 +365,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($user->hasRight('accounting', 'fiscalyear', 'write')) {
 		print '<div class="tabsAction">';
 
+		// Specifique Client 3194 - Begin - commenter cloture en standard - a supprimer
+//		print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?action=closefiscalyear&id=' . $id . '">' . $langs->trans('ClosureFiscalYear') . '</a>';
+		// Specifique Client 3194 - End
+
 		print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=edit&token='.newToken().'&id='.$id.'">'.$langs->trans('Modify').'</a>';
 
-		//print dolGetButtonAction($langs->trans("Delete"), '', 'delete', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=delete&token='.newToken(), 'delete', $permissiontodelete);
+		// Specifique Client 3194 - Begin
+		print dolGetButtonAction($langs->trans("Delete"), '', 'delete', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=delete&token='.newToken(), 'delete', $permissiontodelete);
+		// Specifique Client 3194 - End
 
 		print '</div>';
 	}

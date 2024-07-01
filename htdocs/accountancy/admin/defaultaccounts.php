@@ -110,6 +110,17 @@ if (isModEnabled('loan')) {
 	$list_account[] = 'LOAN_ACCOUNTING_ACCOUNT_INSURANCE';
 }
 $list_account[] = 'ACCOUNTING_ACCOUNT_SUSPENSE';
+
+// Specifique Client 3194 - Begin
+$list_account[] = '---Afpjr---';
+// INTRA - On détecte le numéro comptable de la même société que l'entité pour la refacturation interne compte classique avec terminaison 111 (Ex: Bastide vers Bastide)
+$list_account[] = 'ACCOUNTING_AFPJR_SELL_INTRA_ACCOUNT_INTERN';
+$list_account[] = 'ACCOUNTING_AFPJR_SELL_INTRA_FIN';
+// INTER - On détecte la racine 186 pour identifier les autres sociétés du groupe et utiliser le compte de refacturation interne compte classique avec terminaison 222 (Ex : Bastide vers Les Près)
+$list_account[] = 'ACCOUNTING_AFPJR_SELL_INTER_RACINE';
+$list_account[] = 'ACCOUNTING_AFPJR_SELL_INTER_FIN';
+// Specifique Client 3194 - End
+
 if (isModEnabled('societe')) {
 	$list_account[] = '---Deposits---';
 }

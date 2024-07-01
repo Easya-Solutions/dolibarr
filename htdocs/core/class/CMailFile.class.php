@@ -434,6 +434,17 @@ class CMailFile
 			$this->message = 'This is a message with multiple parts in MIME format.'.$this->eol;
 			$this->message .= $text_body.$files_encoded;
 			$this->message .= "--".$this->mixed_boundary."--".$this->eol;
+
+// Specifique Client 3194 - Begin
+			$this->log_from = $this->addr_from;
+			$this->log_to = $this->addr_to;
+			$this->log_cc = $this->addr_cc;
+			$this->log_bcc = $this->addr_bcc;
+			$this->log_track_id = $this->trackid;
+			$this->log_subject = dol_trunc($this->subject);
+			$this->log_message = dol_trunc($this->message);
+			$this->log_files = $this->atleastonefile ? $filename_list : array();
+// Specifique Client 3194 - End
 		} elseif ($this->sendmode == 'smtps') {
 			// Use SMTPS library
 			// ------------------------------------------
@@ -501,6 +512,17 @@ class CMailFile
 			$this->msgid = time().'.SMTPs-dolibarr-'.$this->trackid.'@'.$host;
 
 			$this->smtps = $smtps;
+
+// Specifique Client 3194 - Begin
+			$this->log_from = $this->getValidAddress($from,0,1);
+			$this->log_to = $this->getValidAddress($to,0,1);
+			$this->log_cc = $addr_cc;
+			$this->log_bcc = $addr_bcc;
+			$this->log_track_id = $trackid;
+			$this->log_subject = dol_trunc($subject);
+			$this->log_message = dol_trunc($msg);
+			$this->log_files = $this->atleastonefile ? $filename_list : array();
+// Specifique Client 3194 - End
 		} elseif ($this->sendmode == 'swiftmailer') {
 			// Use Swift Mailer library
 			$host = dol_getprefix('email');
@@ -652,6 +674,17 @@ class CMailFile
 					$this->errors[] = $e->getMessage();
 				}
 			}
+
+// Specifique Client 3194 - Begin
+			$this->log_from = $this->getArrayAddress($from);
+			$this->log_to = $this->getArrayAddress($to);
+			$this->log_cc = $this->getArrayAddress($addr_cc);
+			$this->log_bcc = $this->getArrayAddress($addr_bcc);
+			$this->log_track_id = $trackid;
+			$this->log_subject = dol_trunc($subject);
+			$this->log_message = dol_trunc($msg);
+			$this->log_files = $this->atleastonefile ? $filename_list : array();
+// Specifique Client 3194 - End
 		} else {
 			// Send mail method not correctly defined
 			// --------------------------------------
@@ -1207,6 +1240,21 @@ class CMailFile
 
 				return 'Bad value for sendmode';
 			}
+
+// Specifique Client 3194 - Begin
+			if (!empty($conf->global->MAIN_MAIL_LOG_SEND_MAIL) && (empty($conf->global->MAIN_MAIL_LOG_SEND_MAIL_ERROR) || $res)) {
+				dol_syslog(__METHOD__ . " - Send mail " . ($res ? 'success' : 'fail') .
+					" - From: " . json_encode($this->log_from) .
+					" - To: " . json_encode($this->log_to) .
+					" - CC: " . json_encode($this->log_cc) .
+					" - BCC: " . json_encode($this->log_bcc) .
+					" - Track ID: " . json_encode($this->log_track_id) .
+					" - Subject: " . json_encode($this->log_subject) .
+					" - Message: " . json_encode($this->log_message) .
+					" - Files: " . json_encode($this->log_files) .
+					(!empty($this->error) ? " - Error: " . $this->error : ""), LOG_ALERT);
+			}
+// Specifique Client 3194 - End
 
 			// Now we delete image files that were created dynamically to manage data inline files
 			foreach ($this->html_images as $val) {

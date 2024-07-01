@@ -60,6 +60,10 @@ $search_ref_exp = GETPOST("search_ref_exp", 'alpha');
 $search_ref_liv = GETPOST('search_ref_liv', 'alpha');
 $search_ref_customer = GETPOST('search_ref_customer', 'alpha');
 $search_company = GETPOST("search_company", 'alpha');
+// Specifique Client 3194 - Begin
+$search_project = GETPOST("search_project", 'alpha');
+$search_equipe = GETPOST("search_equipe", 'alpha');
+// Specifique Client 3194 - End
 $search_shipping_method_id = GETPOST('search_shipping_method_id');
 $search_tracking = GETPOST("search_tracking", 'alpha');
 $search_town = GETPOST('search_town', 'alpha');
@@ -72,6 +76,12 @@ $search_datedelivery_start = dol_mktime(0, 0, 0, GETPOST('search_datedelivery_st
 $search_datedelivery_end = dol_mktime(23, 59, 59, GETPOST('search_datedelivery_endmonth', 'int'), GETPOST('search_datedelivery_endday', 'int'), GETPOST('search_datedelivery_endyear', 'int'));
 $search_datereceipt_start = dol_mktime(0, 0, 0, GETPOST('search_datereceipt_startmonth', 'int'), GETPOST('search_datereceipt_startday', 'int'), GETPOST('search_datereceipt_startyear', 'int'));
 $search_datereceipt_end = dol_mktime(23, 59, 59, GETPOST('search_datereceipt_endmonth', 'int'), GETPOST('search_datereceipt_endday', 'int'), GETPOST('search_datereceipt_endyear', 'int'));
+// Specifique Client 3194 - Begin
+$search_datec_start = dol_mktime(0, 0, 0, GETPOST('search_datec_startmonth', 'int'), GETPOST('search_datec_startday', 'int'), GETPOST('search_datec_startyear', 'int'));
+$search_datec_end = dol_mktime(23, 59, 59, GETPOST('search_datec_endmonth', 'int'), GETPOST('search_datec_endday', 'int'), GETPOST('search_datec_endyear', 'int'));
+$search_datem_start = dol_mktime(0, 0, 0, GETPOST('search_datem_startmonth', 'int'), GETPOST('search_datem_startday', 'int'), GETPOST('search_datem_startyear', 'int'));
+$search_datem_end = dol_mktime(23, 59, 59, GETPOST('search_datem_endmonth', 'int'), GETPOST('search_datem_endday', 'int'), GETPOST('search_datem_endyear', 'int'));
+// Specifique Client 3194 - End
 $sall = trim((GETPOST('search_all', 'alphanohtml') != '') ?GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml'));
 $search_user = GETPOST('search_user', 'int');
 $search_sale = GETPOST('search_sale', 'int');
@@ -118,6 +128,10 @@ $fieldstosearchall = array(
 	'e.ref'=>"Ref",
 	's.nom'=>"ThirdParty",
 	'e.note_public'=>'NotePublic',
+// Specifique Client 3194 - Begin
+	'p.title'=>"Project",
+	'ce.label'=>"Equipe",
+// Specifique Client 3194 - End
 	//'e.fk_shipping_method'=>'SendingMethod', // TODO fix this, does not work
 	'e.tracking_number'=>"TrackingNumber",
 );
@@ -130,6 +144,10 @@ $arrayfields = array(
 	'e.ref'=>array('label'=>$langs->trans("Ref"), 'checked'=>1, 'position'=>1),
 	'e.ref_customer'=>array('label'=>$langs->trans("RefCustomer"), 'checked'=>1, 'position'=>2),
 	's.nom'=>array('label'=>$langs->trans("ThirdParty"), 'checked'=>1, 'position'=>3),
+// Specifique Client 3194 - Begin
+	'p.title'=>array('label'=>$langs->trans("Project"), 'checked'=>1),
+	'ce.label'=>array('label'=>$langs->trans("Equipe"), 'checked'=>1),
+// Specifique Client 3194 - End
 	's.town'=>array('label'=>$langs->trans("Town"), 'checked'=>1, 'position'=>4),
 	's.zip'=>array('label'=>$langs->trans("Zip"), 'checked'=>1, 'position'=>5),
 	'state.nom'=>array('label'=>$langs->trans("StateShort"), 'checked'=>0, 'position'=>6),
@@ -184,6 +202,10 @@ if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x'
 	$search_ref_liv = '';
 	$search_ref_customer = '';
 	$search_company = '';
+// Specifique Client 3194 - Begin
+	$search_project='';
+	$search_equipe='';
+// Specifique Client 3194 - End
 	$search_town = '';
 	$search_zip = "";
 	$search_state = "";
@@ -197,6 +219,12 @@ if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x'
 	$search_datedelivery_end = '';
 	$search_datereceipt_start = '';
 	$search_datereceipt_end = '';
+// Specifique Client 3194 - Begin
+	$search_datec_start = '';
+	$search_datec_end = '';
+	$search_datem_start = '';
+	$search_datem_end = '';
+// Specifique Client 3194 - End
 	$search_status = '';
 	$toselect = array();
 	$search_array_options = array();
@@ -275,6 +303,9 @@ $sql .= " u.login";
 if (($search_categ_cus > 0) || ($search_categ_cus == -2)) {
 	$sql .= ", cc.fk_categorie, cc.fk_soc";
 }
+// Specifique Client 3194 - Begin
+$sql.= ', p.title as project_title, ce.label as equipe';
+// Specifique Client 3194 - End
 // Add fields from extrafields
 if (!empty($extrafields->attributes[$object->table_element]['label'])) {
 	foreach ($extrafields->attributes[$object->table_element]['label'] as $key => $val) {
@@ -312,6 +343,13 @@ $sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'user as u ON e.fk_user_author = u.rowid';
 if ($search_user > 0) {		// Get link to order to get the order id in eesource.fk_source
 	$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."element_element as eesource ON eesource.fk_target = e.rowid AND eesource.targettype = 'shipping' AND eesource.sourcetype = 'commande'";
 }
+// Specifique Client 3194 - Begin
+$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."element_element as ee2 ON (e.rowid = ee2.fk_target AND ee2.sourcetype = 'commande' AND ee2.targettype = 'shipping')";
+$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."commande as c ON c.rowid = ee2.fk_source";
+$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."commande_extrafields as cef ON cef.fk_object = c.rowid";
+$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_equipe as ce ON ce.rowid = cef.equ";
+$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."projet as p ON IF(e.fk_projet > 0, p.rowid=e.fk_projet, p.rowid=c.fk_projet)";
+// Specifique Client 3194 - End
 // We'll need this table joined to the select in order to filter by sale
 if ($search_sale > 0 || (empty($user->rights->societe->client->voir) && !$socid)) {
 	$sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
@@ -378,6 +416,10 @@ if ($search_user > 0) {
 if ($search_company) {
 	$sql .= natural_search('s.nom', $search_company);
 }
+// Specifique Client 3194 - Begin
+if ($search_project) $sql .= natural_search('p.title', $search_project);
+if ($search_equipe) $sql .= natural_search('ce.label', $search_equipe);
+// Specifique Client 3194 - End
 if ($search_ref_exp) {
 	$sql .= natural_search('e.ref', $search_ref_exp);
 }
@@ -398,6 +440,20 @@ if (getDolGlobalInt('MAIN_SUBMODULE_DELIVERY')) {
 		$sql .= " AND l.date_delivery <= '".$db->idate($search_datereceipt_end)."'";
 	}
 }
+// Specifique Client 3194 - Begin
+if ($search_datec_start) {
+	$sql .= " AND e.datec >= '".$db->idate($search_datec_start)."'";
+}
+if ($search_datec_end) {
+	$sql .= " AND e.datec <= '".$db->idate($search_datec_end)."'";
+}
+if ($search_datem_start) {
+	$sql .= " AND e.datem >= '".$db->idate($search_datem_start)."'";
+}
+if ($search_datem_end) {
+	$sql .= " AND e.datem <= '".$db->idate($search_datem_end)."'";
+}
+// Specifique Client 3194 - End
 if ($sall) {
 	$sql .= natural_search(array_keys($fieldstosearchall), $sall);
 }
@@ -535,6 +591,10 @@ if ($search_zip) {
 if ($search_type_thirdparty != '' && $search_type_thirdparty > 0) {
 	$param .= '&search_type_thirdparty='.urlencode($search_type_thirdparty);
 }
+// Specifique Client 3194 - Begin
+if ($search_project) $param.= "&amp;search_project=".urlencode($search_project);
+if ($search_equipe) $param.= "&amp;search_equipe=".urlencode($search_equipe);
+// Specifique Client 3194 - End
 if ($search_datedelivery_start)	{
 	$param .= '&search_datedelivery_startday='.urlencode(dol_print_date($search_datedelivery_start, '%d')).'&search_datedelivery_startmonth='.urlencode(dol_print_date($search_datedelivery_start, '%m')).'&search_datedelivery_startyear='.urlencode(dol_print_date($search_datedelivery_start, '%Y'));
 }
@@ -547,6 +607,20 @@ if ($search_datereceipt_start) {
 if ($search_datereceipt_end) {
 	$param .= '&search_datereceipt_endday='.urlencode(dol_print_date($search_datereceipt_end, '%d')).'&search_datereceipt_endmonth='.urlencode(dol_print_date($search_datereceipt_end, '%m')).'&search_datereceipt_endyear='.urlencode(dol_print_date($search_datereceipt_end, '%Y'));
 }
+// Specifique Client 3194 - Begin
+if ($search_datec_start) {
+	$param .= '&search_datec_startday='.urlencode(dol_print_date($search_datec_start, '%d')).'&search_datec_startmonth='.urlencode(dol_print_date($search_datec_start, '%m')).'&search_datec_startyear='.urlencode(dol_print_date($search_datec_start, '%Y'));
+}
+if ($search_datec_end) {
+	$param .= '&search_datec_endday='.urlencode(dol_print_date($search_datec_end, '%d')).'&search_datec_endmonth='.urlencode(dol_print_date($search_datec_end, '%m')).'&search_datec_endyear='.urlencode(dol_print_date($search_datec_end, '%Y'));
+}
+if ($search_datem_start) {
+	$param .= '&search_datem_startday='.urlencode(dol_print_date($search_datem_start, '%d')).'&search_datem_startmonth='.urlencode(dol_print_date($search_datem_start, '%m')).'&search_datem_startyear='.urlencode(dol_print_date($search_datem_start, '%Y'));
+}
+if ($search_datem_end) {
+	$param .= '&search_datem_endday='.urlencode(dol_print_date($search_datem_end, '%d')).'&search_datem_endmonth='.urlencode(dol_print_date($search_datem_end, '%m')).'&search_datem_endyear='.urlencode(dol_print_date($search_datem_end, '%Y'));
+}
+// Specifique Client 3194 - End
 if ($search_product_category != '') {
 	$param .= '&search_product_category='.urlencode($search_product_category);
 }
@@ -702,6 +776,22 @@ if (!empty($arrayfields['s.nom']['checked'])) {
 	print '<input class="flat" type="text" size="8" name="search_company" value="'.dol_escape_htmltag($search_company).'">';
 	print '</td>';
 }
+// Specifique Client 3194 - Begin
+// Project
+if (! empty($arrayfields['p.title']['checked']))
+{
+	print '<td class="liste_titre" align="left">';
+	print '<input class="flat" type="text" size="8" name="search_project" value="'.dol_escape_htmltag($search_project).'">';
+	print '</td>';
+}
+// Equipe
+if (! empty($arrayfields['ce.label']['checked']))
+{
+	print '<td class="liste_titre" align="left">';
+	print '<input class="flat" type="text" size="8" name="search_equipe" value="'.dol_escape_htmltag($search_equipe).'">';
+	print '</td>';
+}
+// Specifique Client 3194 - End
 // Town
 if (!empty($arrayfields['s.town']['checked'])) {
 	print '<td class="liste_titre"><input class="flat" type="text" size="6" name="search_town" value="'.$search_town.'"></td>';
@@ -785,11 +875,27 @@ print $hookmanager->resPrint;
 // Date creation
 if (!empty($arrayfields['e.datec']['checked'])) {
 	print '<td class="liste_titre">';
+// Specifique Client 3194 - Begin
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datec_start ? $search_datec_start : -1, 'search_datec_start', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('From'));
+	print '</div>';
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datec_end ? $search_datec_end : -1, 'search_datec_end', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('to'));
+	print '</div>';
+// Specifique Client 3194 - End
 	print '</td>';
 }
 // Date modification
 if (!empty($arrayfields['e.tms']['checked'])) {
 	print '<td class="liste_titre">';
+// Specifique Client 3194 - Begin
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datem_start ? $search_datem_start : -1, 'search_datem_start', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('From'));
+	print '</div>';
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datem_end ? $search_datem_end : -1, 'search_datem_end', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('to'));
+	print '</div>';
+// Specifique Client 3194 - End
 	print '</td>';
 }
 // Status
@@ -826,6 +932,10 @@ if (!empty($arrayfields['e.ref_customer']['checked'])) {
 if (!empty($arrayfields['s.nom']['checked'])) {
 	print_liste_field_titre($arrayfields['s.nom']['label'], $_SERVER["PHP_SELF"], "s.nom", "", $param, '', $sortfield, $sortorder, 'left ');
 }
+// Specifique Client 3194 - Begin
+if (! empty($arrayfields['p.title']['checked']))          print_liste_field_titre($arrayfields['p.title']['label'], $_SERVER["PHP_SELF"],"p.title", "", $param,'align="left"',$sortfield,$sortorder);
+if (! empty($arrayfields['ce.label']['checked']))          print_liste_field_titre($arrayfields['ce.label']['label'], $_SERVER["PHP_SELF"],"ce.label", "", $param,'align="left"',$sortfield,$sortorder);
+// Specifique Client 3194 - End
 if (!empty($arrayfields['s.town']['checked'])) {
 	print_liste_field_titre($arrayfields['s.town']['label'], $_SERVER["PHP_SELF"], 's.town', '', $param, '', $sortfield, $sortorder);
 }
@@ -957,6 +1067,27 @@ while ($i < min($num, $limit)) {
 				$totalarray['nbfield']++;
 			}
 		}
+
+// Specifique Client 3194 - Begin
+		// Project
+		if (! empty($arrayfields['p.title']['checked']))
+		{
+			print '<td>';
+			print $obj->project_title;
+			print '</td>';
+			if (! $i) $totalarray['nbfield']++;
+		}
+
+		// Equipe
+		if (! empty($arrayfields['ce.label']['checked']))
+		{
+			print '<td>';
+			print $obj->equipe;
+			print '</td>';
+			if (! $i) $totalarray['nbfield']++;
+		}
+// Specifique Client 3194 - End
+
 		// Town
 		if (!empty($arrayfields['s.town']['checked'])) {
 			print '<td class="nocellnopadd">';

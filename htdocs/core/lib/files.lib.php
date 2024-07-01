@@ -2663,7 +2663,9 @@ function dol_check_secure_access_document($modulepart, $original_file, $entity, 
 	} elseif ($modulepart == 'mycompany' && !empty($conf->mycompany->dir_output)) {
 		// Wrapping for some images
 		$accessallowed = 1;
-		$original_file = $conf->mycompany->dir_output.'/'.$original_file;
+// Specifique Client 3194 - Begin
+		$original_file = DOL_DATA_ROOT.'/'.$entity.'/mycompany/'.$original_file;
+// Specifique Client 3194 - End
 	} elseif ($modulepart == 'userphoto' && !empty($conf->user->dir_output)) {
 		// Wrapping for users photos (user photos are allowed to any connected users)
 		$accessallowed = 0;

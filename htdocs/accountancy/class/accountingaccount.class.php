@@ -29,6 +29,9 @@
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
 require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
+// Specifique Client 3194 - Begin
+require_once DOL_DOCUMENT_ROOT.'/core/lib/accounting.lib.php';
+// Specifique Client 3194 - End
 
 /**
  * Class to manage accounting accounts
@@ -203,6 +206,9 @@ class AccountingAccount extends CommonObject
 			if (!empty($limittoachartaccount)) {
 				$sql .= " AND a.fk_pcg_version = '".$this->db->escape($limittoachartaccount)."'";
 			}
+// Specifique Client 3194 - Begin
+			$sql .= " AND a.entity IN (" . getEntity('accounting_account', 0) . ")";    // We don't share object for accountancy
+// Specifique Client 3194 - End
 
 			dol_syslog(get_class($this)."::fetch rowid=".$rowid." account_number=".$account_number, LOG_DEBUG);
 

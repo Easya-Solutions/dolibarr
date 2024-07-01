@@ -27,13 +27,18 @@ if (empty($conf) || !is_object($conf)) {
 	exit;
 }
 
+// Specifique Client 3194 - Begin
+$dossier =  getDolGlobalString('MAIN_INFO_SOCIETE_DOSSIER');
+// Specifique Client 3194 - End
 $code = getDolGlobalString('MAIN_INFO_ACCOUNTANT_CODE');
 $prefix = getDolGlobalString('ACCOUNTING_EXPORT_PREFIX_SPEC');
 $format = getDolGlobalString('ACCOUNTING_EXPORT_FORMAT');
 $nodateexport = getDolGlobalInt('ACCOUNTING_EXPORT_NO_DATE_IN_FILENAME');
 $siren = getDolGlobalString('MAIN_INFO_SIREN');
 
-$date_export = "_".dol_print_date(dol_now(), '%Y%m%d%H%M%S');
+// Specifique Client 3194 - Begin
+$date_export = "_".dol_print_date(dol_now(), '%Y%m%d%H%M%S'/*'exportcompta'*/);
+// Specifique Client 3194 - End
 $endaccountingperiod = dol_print_date(dol_now(), '%Y%m%d');
 
 if (empty($downloadMode)) {
@@ -64,13 +69,21 @@ if (($accountancyexport->getFormatCode($formatexportset) == 'fec' || $accountanc
 
 	$endaccountingperiod = dol_print_date(dol_get_last_day($tmparray['year'], $tmparray['mon']), 'dayxcard');
 
-	$completefilename = $siren."FEC".$endaccountingperiod.".txt";
+// Specifique Client 3194 - Begin
+	$completefilename = ($dossier?$dossier . "_":"") .$siren."FEC".$endaccountingperiod.".txt";
+// Specifique Client 3194 - End
 } elseif ($accountancyexport->getFormatCode($formatexportset) == 'ciel' && $type_export == "general_ledger" && !empty($conf->global->ACCOUNTING_EXPORT_XIMPORT_FORCE_FILENAME)) {
-	$completefilename = "XIMPORT.TXT";
+// Specifique Client 3194 - Begin
+	$completefilename = ($dossier?$dossier . "_":"") ."XIMPORT.TXT";
+// Specifique Client 3194 - End
 } else {
-	$completefilename = ($code ? $code."_" : "").($prefix ? $prefix."_" : "").$filename.($nodateexport ? "" : $date_export).".".$format;
+// Specifique Client 3194 - Begin
+	$completefilename = ($dossier?$dossier . "_":"") . ($code ? $code."_" : "").($prefix ? $prefix."_" : "").$filename.($nodateexport ? "" : $date_export).".".$format;
+// Specifique Client 3194 - End
 }
 
 if (empty($downloadMode)) {
-	header('Content-Disposition: attachment;filename=' . $completefilename);
+// Specifique Client 3194 - Begin
+	header('Content-Disposition: attachment;filename=' . $completefilename.";charset=windows-1252");
+// Specifique Client 3194 - End
 }

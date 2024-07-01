@@ -2816,6 +2816,9 @@ function dol_print_date($time, $format = '', $tzoutput = 'auto', $outputlangs = 
 	} elseif ($format == 'standard') {
 		$format = '%Y-%m-%d %H:%M:%S';
 	}
+// Specifique Client 3194 - Begin
+	else if ($format == 'exportcompta')		$format='%d%m%Y_%Hh%M:%S';
+// Specifique Client 3194 - End
 
 	if ($reduceformat) {
 		$format = str_replace('%Y', '%y', $format);
@@ -6834,6 +6837,12 @@ function get_default_localtax($thirdparty_seller, $thirdparty_buyer, $local, $id
 	if (!is_object($thirdparty_buyer)) {
 		return -1;
 	}
+
+// Specifique Client 3194 - Begin
+	if (substr($thirdparty_buyer->code_compta_client, 0, 3) == getDolGlobalString('ACCOUNTING_AFPJR_SELL_INTER_RACINE')) {
+		return 0;
+	}
+// Specifique Client 3194 - End
 
 	if ($local == 1) { // Localtax 1
 		if ($mysoc->country_code == 'ES') {

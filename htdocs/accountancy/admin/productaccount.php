@@ -45,9 +45,11 @@ $langs->loadLangs(array("companies", "compta", "accountancy", "products"));
 if (!isModEnabled('accounting')) {
 	accessforbidden();
 }
-if (!$user->hasRight('accounting', 'bind', 'write')) {
-	accessforbidden();
-}
+// Specifique Client 3194 - Begin
+//if (!$user->hasRight('accounting', 'bind', 'write')) {
+//	accessforbidden();
+//}
+// Specifique Client 3194 - End
 
 // search & action GETPOST
 $action = GETPOST('action', 'aZ09');

@@ -845,7 +845,9 @@ if ($id > 0 || !empty($ref)) {
 			// Bouton expedier sans gestion des stocks
 			if (!isModEnabled('stock') && ($object->statut > Commande::STATUS_DRAFT && $object->statut < Commande::STATUS_CLOSED)) {
 				if ($user->rights->expedition->creer) {
-					print '<a class="butAction" href="'.DOL_URL_ROOT.'/expedition/card.php?action=create&amp;origin=commande&amp;object_id='.$id.'">'.$langs->trans("CreateShipment").'</a>';
+// Specifique Client 3194 - Begin
+					print '<a class="butAction" href="'.DOL_URL_ROOT.'/expedition/card.php?action=create&amp;origin=commande&amp;object_id='.$id.'&amp;projectid='.$object->fk_project.'&amp;shipping_method_id='.$object->shipping_method_id.'">'.$langs->trans("CreateShipment").'</a>';
+// Specifique Client 3194 - End
 					if ($toBeShippedTotal <= 0) {
 						print ' '.img_warning($langs->trans("WarningNoQtyLeftToSend"));
 					}

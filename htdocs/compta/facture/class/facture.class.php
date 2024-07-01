@@ -1277,6 +1277,10 @@ class Facture extends CommonInvoice
 				$object->mode_reglement_id	= (!empty($objsoc->mode_reglement_id) ? $objsoc->mode_reglement_id : 0);
 				$object->fk_project = '';
 				$object->fk_delivery_address = '';
+
+// Specifique Client 3194 - Begin
+				if (substr($objsoc->code_compta_client, 0, 3) == getDolGlobalString('ACCOUNTING_AFPJR_SELL_INTER_RACINE')) $IntraInter = 1;
+// Specifique Client 3194 - End
 			}
 
 			// TODO Change product price if multi-prices
@@ -1334,6 +1338,15 @@ class Facture extends CommonInvoice
 					$object->lines[$i]->date_end = $newLast;
 				}
 			}
+
+// Specifique Client 3194 - Begin
+			if (! empty($IntraInter))
+			{
+				$object->lines[$i]->tva_tx = 0; // Move VAT to zero
+				$object->lines[$i]->total_tva == 0; // Bug ?
+				$object->lines[$i]->total_ttc == $object->lines[$i]->total_ht; // Move total TTC to total HT // Bug ?
+			}
+// Specifique Client 3194 - End
 
 			$object->lines[$i]->ref_ext = ''; // Do not clone ref_ext
 		}
@@ -6120,6 +6133,10 @@ class FactureLigne extends CommonInvoiceLine
 	public $multicurrency_total_ht;
 	public $multicurrency_total_tva;
 	public $multicurrency_total_ttc;
+// Specifique Client 3194 - Begin
+	// Cache of accountancy code for each invoice
+	public static $cache_invoice_accountancy_code = array();
+// Specifique Client 3194 - End
 
 	/**
 	 *      Constructor
@@ -6244,6 +6261,29 @@ class FactureLigne extends CommonInvoiceLine
 		$pa_ht_isemptystring = (empty($this->pa_ht) && $this->pa_ht == ''); // If true, we can use a default value. If this->pa_ht = '0', we must use '0'.
 
 		dol_syslog(get_class($this)."::insert rang=".$this->rang, LOG_DEBUG);
+
+// Specifique Client 3194 - Begin
+		// Si le produit est facturé à un client numéroté 186xxxxx (Inter/intra), le taux de TVA doit être de zéro.
+		if (!isset(self::$cache_invoice_accountancy_code[$this->fk_facture])) {
+			$fact = new Facture($this->db);
+			$fact->fetch($this->fk_facture);
+			require_once DOL_DOCUMENT_ROOT .'/societe/class/societe.class.php';
+			$soc_vat = new Societe($this->db);
+			$soc_vat->fetch($fact->socid);
+			self::$cache_invoice_accountancy_code[$this->fk_facture] = $soc_vat->code_compta_client;
+		}
+
+		$soc_code_compta_client = self::$cache_invoice_accountancy_code[$this->fk_facture];
+		dol_syslog(get_class($this)."::insert - Replace tva_tx by 0 when insert in database if code_compta begin by 186. (Open-DSI) invoice_id=" . $this->fk_facture . " code_compta_customer=".$soc_code_compta_client, LOG_DEBUG);
+
+		if (substr($soc_code_compta_client, 0, 3) == getDolGlobalString('ACCOUNTING_AFPJR_SELL_INTER_RACINE')) {
+			$this->tva_tx = 0;
+			$this->total_tva = 0;
+			$this->total_ttc = $this->total_ht;
+			$this->multicurrency_total_tva = 0;
+			$this->multicurrency_total_ttc = $this->multicurrency_total_ht;
+		}
+// Specifique Client 3194 - End
 
 		// Clean parameters
 		$this->desc = trim($this->desc);
@@ -6478,6 +6518,29 @@ class FactureLigne extends CommonInvoiceLine
 		$error = 0;
 
 		$pa_ht_isemptystring = (empty($this->pa_ht) && $this->pa_ht == ''); // If true, we can use a default value. If this->pa_ht = '0', we must use '0'.
+
+// Specifique Client 3194 - Begin
+		// Si le produit est facturé à un client numéroté 186xxxxx (Inter/intra), le taux de TVA doit être de zéro.
+		if (!isset(self::$cache_invoice_accountancy_code[$this->fk_facture])) {
+			$fact = new Facture($this->db);
+			$fact->fetch($this->fk_facture);
+			require_once DOL_DOCUMENT_ROOT .'/societe/class/societe.class.php';
+			$soc_vat = new Societe($this->db);
+			$soc_vat->fetch($fact->socid);
+			self::$cache_invoice_accountancy_code[$this->fk_facture] = $soc_vat->code_compta_client;
+		}
+
+		$soc_code_compta_client = self::$cache_invoice_accountancy_code[$this->fk_facture];
+		dol_syslog(get_class($this)."::insert - Replace tva_tx by 0 when insert in database if code_compta begin by 186. (Open-DSI) invoice_id=" . $this->fk_facture . " code_compta_customer=".$soc_code_compta_client, LOG_DEBUG);
+
+		if (substr($soc_code_compta_client, 0, 3) == getDolGlobalString('ACCOUNTING_AFPJR_SELL_INTER_RACINE')) {
+			$this->tva_tx = 0;
+			$this->total_tva = 0;
+			$this->total_ttc = $this->total_ht;
+			$this->multicurrency_total_tva = 0;
+			$this->multicurrency_total_ttc = $this->multicurrency_total_ht;
+		}
+// Specifique Client 3194 - End
 
 		// Clean parameters
 		$this->desc = trim($this->desc);

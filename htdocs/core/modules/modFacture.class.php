@@ -516,6 +516,9 @@ class modFacture extends DolibarrModules
 			'f.total_ttc'=>"TotalTTC", 'f.total_tva'=>"TotalVAT", 'f.localtax1'=>'LT1', 'f.localtax2'=>'LT2', 'f.paye'=>"InvoicePaidCompletely", 'f.fk_statut'=>'InvoiceStatus', 'f.close_code'=>'EarlyClosingReason', 'f.close_note'=>'EarlyClosingComment',
 			'none.rest'=>'Rest',
 			'f.note_private'=>"NotePrivate", 'f.note_public'=>"NotePublic"
+// Specifique Client 3194 - Begin
+			, 'e.label'=>'Nom de l\'equipe'
+// Specifique Client 3194 - End
 		);
 		// Add multicurrency fields
 		if (isModEnabled("multicurrency")) {
@@ -578,6 +581,9 @@ class modFacture extends DolibarrModules
 			'fd.product_type'=>'invoice_line', 'fd.fk_product'=>'product', 'p.ref'=>'product', 'p.label'=>'product', $alias_product_perentity . '.accountancy_code_sell'=>'product',
 			'f.fk_user_author'=>'user', 'uc.login'=>'user', 'f.fk_user_valid'=>'user', 'uv.login'=>'user',
 			'aa.account_number' => "invoice_line",
+// Specifique Client 3194 - Begin
+			'e.label'=>'invoice'
+// Specifique Client 3194 - End
 		);
 		$this->export_help_array[$r] = array('fd.buy_price_ht'=>'CostPriceUsage');
 		$this->export_special_array[$r] = array('none.rest'=>'getRemainToPay');
@@ -613,6 +619,9 @@ class modFacture extends DolibarrModules
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'user as uc ON f.fk_user_author = uc.rowid';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'user as uv ON f.fk_user_valid = uv.rowid';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'facture_extrafields as extra ON f.rowid = extra.fk_object';
+// Specifique Client 3194 - Begin
+		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_equipe as e ON extra.equ = e.rowid';
+// Specifique Client 3194 - End
 		$this->export_sql_end[$r] .= ' , '.MAIN_DB_PREFIX.'facturedet as fd';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'facturedet_extrafields as extra2 on fd.rowid = extra2.fk_object';
 		$this->export_sql_end[$r] .= ' LEFT JOIN '.MAIN_DB_PREFIX.'product as p on (fd.fk_product = p.rowid)';

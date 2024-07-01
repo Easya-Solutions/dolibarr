@@ -28,6 +28,9 @@ InterventionClassifyBilled=Classer "Facturée"
 InterventionClassifyUnBilled=Classer "Non facturée"
 InterventionClassifyDone=Classé "Traitée"
 StatusInterInvoiced=Facturée
+## Specifique Client 3194 - Begin
+Done=Traitée
+## Specifique Client 3194 - End
 SendInterventionRef=Envoi de la fiche intervention %s
 SendInterventionByMail=Envoyer l'intervention par email
 InterventionCreatedInDolibarr=Intervention %s créée

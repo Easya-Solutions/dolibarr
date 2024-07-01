@@ -98,7 +98,9 @@ $tablib[35] = "DictionaryAccountancyJournal";
 
 // Requests to extract data
 $tabsql = array();
-$tabsql[35] = "SELECT a.rowid as rowid, a.code as code, a.label, a.nature, a.active FROM ".MAIN_DB_PREFIX."accounting_journal as a";
+// Specifique Client 3194 - Begin
+$tabsql[35] = "SELECT a.rowid as rowid, a.code as code, a.label, a.nature, a.active FROM ".MAIN_DB_PREFIX."accounting_journal as a WHERE a.entity=".$conf->entity;
+// Specifique Client 3194 - End
 
 // Criteria to sort dictionaries
 $tabsqlsort = array();
@@ -114,7 +116,9 @@ $tabfieldvalue[35] = "code,label,nature";
 
 // Nom des champs dans la table pour insertion d'un enregistrement
 $tabfieldinsert = array();
-$tabfieldinsert[35] = "code,label,nature";
+// Specifique Client 3194 - Begin
+$tabfieldinsert[35] = "code,label,nature,entity";
+// Specifique Client 3194 - End
 
 // Nom du rowid si le champ n'est pas de type autoincrement
 // Example: "" if id field is "rowid" and has autoincrement on

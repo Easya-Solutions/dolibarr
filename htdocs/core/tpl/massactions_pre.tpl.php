@@ -242,7 +242,9 @@ if ($massaction == 'presend') {
 	}
 
 
-	$formmail->withoptiononeemailperrecipient = ((count($listofselectedref) == 1 && count(reset($listofselectedref)) == 1) || empty($liste)) ? 0 : (GETPOST('oneemailperrecipient', 'int') ? 1 : -1);
+// Specifique Client 3194 - Begin
+	$formmail->withoptiononeemailperrecipient = ((count($listofselectedref) == 1 && count(reset($listofselectedref)) == 1) || empty($liste)) ? 0 : (GETPOSTISSET('oneemailperrecipient') ? (GETPOST('oneemailperrecipient', 'int') ? 1 : -1) : (getDolGlobalInt('MAIN_ONE_EMAIL_PER_RECIPIENT_BY_DEFAULT') ? 1 : -1));
+// Specifique Client 3194 - End
 	if (in_array($objecttmp->element, array('conferenceorboothattendee'))) {
 		$formmail->withoptiononeemailperrecipient = 0;
 	}

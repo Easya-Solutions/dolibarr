@@ -97,6 +97,9 @@ if (($action == 'update' && !GETPOST("cancel", 'alpha'))
 
 	$db->begin();
 
+// Specifique Client 3194 - Begin
+	dolibarr_set_const($db, "MAIN_INFO_SOCIETE_DOSSIER", GETPOST("dossier",'nohtml'),'chaine',0,'',$conf->entity);
+// Specifique Client 3194 - End
 	dolibarr_set_const($db, "MAIN_INFO_SOCIETE_NOM", GETPOST("nom", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
 	dolibarr_set_const($db, "MAIN_INFO_SOCIETE_ADDRESS", GETPOST("MAIN_INFO_SOCIETE_ADDRESS", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
 	dolibarr_set_const($db, "MAIN_INFO_SOCIETE_TOWN", GETPOST("MAIN_INFO_SOCIETE_TOWN", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
@@ -413,6 +416,12 @@ print '<input type="hidden" name="action" value="update">';
 
 print '<table class="noborder centpercent editmode">';
 print '<tr class="liste_titre"><th class="titlefieldcreate wordbreak">'.$langs->trans("CompanyInfo").'</th><th></th></tr>'."\n";
+
+// Specifique Client 3194 - Begin
+// Dossier
+print '<tr class="oddeven"><td><label for="name">'.$langs->trans("Dossier").'</label></td><td>';
+print '<input name="dossier" id="dossier" class="minwidth200" value="'.dol_escape_htmltag((GETPOSTISSET('dossier') ? GETPOST('dossier', 'nohtml') : (!empty($conf->global->MAIN_INFO_SOCIETE_DOSSIER) ? $conf->global->MAIN_INFO_SOCIETE_DOSSIER : ''))).'"></td></tr>'."\n";
+// Specifique Client 3194 - End
 
 // Name
 print '<tr class="oddeven"><td class="fieldrequired wordbreak"><label for="name">'.$langs->trans("CompanyName").'</label></td><td>';

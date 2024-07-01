@@ -250,6 +250,8 @@ class modAgenda extends DolibarrModules
 			'user'=>2
 		);
 		$r++;
+// Specifique Client 3194 - Begin
+/*
 		// Calendar
 		$this->menu[$r] = array(
 			'fk_menu'=>'r=1',
@@ -320,7 +322,8 @@ class modAgenda extends DolibarrModules
 			'target'=>'',
 			'user'=>2
 		);
-
+*/
+// Specifique Client 3194 - End
 		// List
 		$r++;
 		$this->menu[$r] = array(
@@ -338,7 +341,9 @@ class modAgenda extends DolibarrModules
 		);
 		$r++;
 		$this->menu[$r] = array(
-			'fk_menu'=>'r=8',
+// Specifique Client 3194 - Begin
+			'fk_menu'=>'r=3',
+// Specifique Client 3194 - End
 			'type'=>'left',
 			'titre'=>'MenuToDoMyActions',
 			'mainmenu'=>'agenda',
@@ -352,7 +357,9 @@ class modAgenda extends DolibarrModules
 		);
 		$r++;
 		$this->menu[$r] = array(
-			'fk_menu'=>'r=8',
+// Specifique Client 3194 - Begin
+			'fk_menu'=>'r=3',
+// Specifique Client 3194 - End
 			'type'=>'left',
 			'titre'=>'MenuDoneMyActions',
 			'mainmenu'=>'agenda',
@@ -366,7 +373,9 @@ class modAgenda extends DolibarrModules
 		);
 		$r++;
 		$this->menu[$r] = array(
-			'fk_menu'=>'r=8',
+// Specifique Client 3194 - Begin
+			'fk_menu'=>'r=3',
+// Specifique Client 3194 - End
 			'type'=>'left',
 			'titre'=>'MenuToDoActions',
 			'mainmenu'=>'agenda',
@@ -380,7 +389,9 @@ class modAgenda extends DolibarrModules
 		);
 		$r++;
 		$this->menu[$r] = array(
-			'fk_menu'=>'r=8',
+// Specifique Client 3194 - Begin
+			'fk_menu'=>'r=3',
+// Specifique Client 3194 - End
 			'type'=>'left',
 			'titre'=>'MenuDoneActions',
 			'mainmenu'=>'agenda',

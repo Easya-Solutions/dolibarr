@@ -516,3 +516,12 @@ DocsAlreadyExportedAreIncluded=Les documents déjà exportés sont inclus
 ClickToShowAlreadyExportedLines=Cliquez pour afficher les lignes déjà exportées
 
 NAccounts=%s comptes
+
+## Specifique Client 3194 - Begin
+ACCOUNTING_AFPJR_SELL_INTRA_ACCOUNT_INTERN=Numéro comptable client du tiers Intra (Ex: Entité Bastide facture à Bastide Entreprise - Noter le compte comptable client Bastide Entreprise : 186000050)
+ACCOUNTING_AFPJR_SELL_INTRA_FIN=Numérotation fin compte comptable Intra (Ex : Racine 6 - 706000222) Noter 3 derniers caractères
+ACCOUNTING_AFPJR_SELL_INTER_RACINE=Racine compte comptable détection Inter, limité à 3 (Ex: 186)
+ACCOUNTING_AFPJR_SELL_INTER_FIN=Numérotation fin compte comptable Inter (Ex : Racine 6 - 706000111) Noter 3 derniers caractères
+ClosureFiscalYear=Clôturer la période
+IncludeDocsAlreadyExported=Inclure les docs déjà exportés
+## Specifique Client 3194 - End

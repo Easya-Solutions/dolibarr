@@ -227,6 +227,11 @@ if (empty($reshook)) {
 		$multicurrency_code = array();
 		$multicurrency_tx = array();
 
+// Specifique Client 3194 - Begin
+		$new_amounts = array();
+		$new_multicurrency_amounts = array();
+// Specifique Client 3194 - End
+
 		// Clean parameters amount if payment is for a credit note
 		foreach ($amounts as $key => $value) {	// How payment is dispatched
 			$tmpinvoice = new Facture($db);
@@ -237,6 +242,9 @@ if (empty($reshook)) {
 			}
 			$multicurrency_code[$key] = $tmpinvoice->multicurrency_code;
 			$multicurrency_tx[$key] = $tmpinvoice->multicurrency_tx;
+// Specifique Client 3194 - Begin
+	        if (empty($tmpinvoice->paye)) $new_amounts[$key] = $amounts[$key];
+// Specifique Client 3194 - End
 		}
 
 		foreach ($multicurrency_amounts as $key => $value) {	// How payment is dispatched
@@ -248,6 +256,9 @@ if (empty($reshook)) {
 			}
 			$multicurrency_code[$key] = $tmpinvoice->multicurrency_code;
 			$multicurrency_tx[$key] = $tmpinvoice->multicurrency_tx;
+// Specifique Client 3194 - Begin
+			if (empty($tmpinvoice->paye)) $new_multicurrency_amounts[$key] = $multicurrency_amounts[$key];
+// Specifique Client 3194 - End
 		}
 
 		if (isModEnabled("banque")) {
@@ -261,8 +272,10 @@ if (empty($reshook)) {
 		// Creation of payment line
 		$paiement = new Paiement($db);
 		$paiement->datepaye     = $datepaye;
-		$paiement->amounts      = $amounts; // Array with all payments dispatching with invoice id
-		$paiement->multicurrency_amounts = $multicurrency_amounts; // Array with all payments dispatching
+// Specifique Client 3194 - Begin
+		$paiement->amounts      = $new_amounts; // Array with all payments dispatching with invoice id
+		$paiement->multicurrency_amounts = $new_multicurrency_amounts; // Array with all payments dispatching
+// Specifique Client 3194 - End
 		$paiement->multicurrency_code = $multicurrency_code; // Array with all currency of payments dispatching
 		$paiement->multicurrency_tx = $multicurrency_tx; // Array with all currency tx of payments dispatching
 		$paiement->paiementid   = dol_getIdFromCode($db, GETPOST('paiementcode'), 'c_paiement', 'code', 'id', 1);

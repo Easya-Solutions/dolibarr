@@ -3273,7 +3273,9 @@ class Form
 		$opt .= "</option>\n";
 		$optJson = array(
 			'key' => $outkey,
-			'value' => $outref,
+// Specifique Client 3194 - Begin
+			'value' => $outref . ' - ' . $outlabel,
+// Specifique Client 3194 - End
 			'label' => $outval,
 			'label2' => $outlabel,
 			'desc' => $outdesc,

@@ -4068,6 +4068,14 @@ abstract class CommonObject
 					} elseif ($objecttype == 'contact') {
 						 $module = 'societe';
 					}
+// Specifique Client 3194 - Begin
+					else if ($objecttype == "contratabonnement") {
+						$classpath = "contrat/class";
+						$subelement = "contrat";
+						$module = "contratabonnement";
+					}
+// Specifique Client 3194 - End
+
 					// Set classfile
 					$classfile = strtolower($subelement);
 					$classname = ucfirst($subelement);
