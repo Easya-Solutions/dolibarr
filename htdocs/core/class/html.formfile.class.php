@@ -1302,6 +1302,7 @@ class FormFile
 
 					$editline = 0;
 					$nboflines++;
+
 					print '<!-- Line list_of_documents '.$key.' relativepath = '.$relativepath.' -->'."\n";
 					// Do we have entry into database ?
 
@@ -1311,6 +1312,10 @@ class FormFile
 
 					// File name
 					print '<td class="minwith200 tdoverflowmax500">';
+					// Preview link
+					if (!$editline) {
+						print $this->showPreview($file, $modulepart, $filepath, 0, '&entity='.(!empty($object->entity) ? $object->entity : $conf->entity), 'paddingright') . "\n";
+					}
 
 					// Show file name with link to download
 					//print "XX".$file['name'];	//$file['name'] must be utf8
@@ -1328,7 +1333,7 @@ class FormFile
 						print $relativepath;
 					}
 					//print dol_trunc($file['name'],$maxlength,'middle');
-					if (GETPOST('action', 'aZ09') == 'editfile' && $file['name'] == basename(GETPOST('urlfile', 'alpha'))) {
+					if (GETPOST('action', 'aZ09') == 'editfile' && $file['name'] == basename(GETPOST('urlfile', 'alpha'))&& $file['level1name'] == dirname(GETPOST('urlfile', 'alpha'))) {
 						print '</a>';
 						$section_dir = dirname(GETPOST('urlfile', 'alpha'));
 						if (!preg_match('/\/$/', $section_dir)) {
@@ -1376,6 +1381,9 @@ class FormFile
 							}
 							if (!dol_is_file($file['path'].'/'.$smallfile)) {
 								$smallfile = getImageFileNameForSize($file['name'], '_small', '.png'); // For backward compatibility of old thumbs that were created with filename in lower case and with .png extension
+							}
+							if (!dol_is_file($file['path'].'/'.$smallfile)) {
+								$smallfile = getImageFileNameForSize($file['name'], ''); // This is in case no _small image exist
 							}
 							//print $file['path'].'/'.$smallfile.'<br>';
 

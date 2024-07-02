@@ -334,6 +334,15 @@ function completeFileArrayWithDatabaseInfo(&$filearray, $relativedir)
 
 			$filearrayindatabase = array_merge($filearrayindatabase, dol_dir_list_in_database($relativedirold, '', null, 'name', SORT_ASC));
 		}
+	} elseif ($modulepart == 'ticket') {
+		foreach ($filearray as $key => $val) {
+			$rel_dir = preg_replace('/^'.preg_quote(DOL_DATA_ROOT, '/').'/', '', $filearray[$key]['path']);
+			$rel_dir = preg_replace('/[\\/]$/', '', $rel_dir);
+			$rel_dir = preg_replace('/^[\\/]/', '', $rel_dir);
+			if ($rel_dir != $relativedir) {
+				$filearrayindatabase = array_merge($filearrayindatabase, dol_dir_list_in_database($rel_dir, '', null, 'name', SORT_ASC));
+			}
+		}
 	}
 
 	//var_dump($relativedir);
@@ -2588,6 +2597,9 @@ function dol_check_secure_access_document($modulepart, $original_file, $entity, 
 	}
 	if ($modulepart == 'tva') {
 		$modulepart = 'tax-vat';
+	}
+	if ($modulepart == 'agenda') {
+		$modulepart = 'actions';
 	}
 	// Fix modulepart delivery
 	if ($modulepart == 'expedition' && strpos($original_file, 'receipt/') === 0) {
