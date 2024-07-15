@@ -397,7 +397,7 @@ if ($nolinesbefore) {
 // Specifique Client 3194 - Begin
 		// Mise à zéro du taux proposé si code_comptable_client tiers vaut 186xxxxxx
 		elseif (substr($buyer->code_compta_client, 0, 3) == getDolGlobalString('ACCOUNTING_AFPJR_SELL_INTER_RACINE')) {
-			echo '<input type="hidden" name="tva_tx" id="tva_tx" value="0">Refacturation intra/inter<br>Taux TVA forcé à : <br>'.vatrate(0, true);
+			echo '<input type="hidden" name="tva_tx" value="0">Refacturation intra/inter<br>Taux TVA forcé à : <br>'.vatrate(0, true);
 		}
 // Specifique Client 3194 - End
 		else {
