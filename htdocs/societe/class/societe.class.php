@@ -1095,6 +1095,7 @@ class Societe extends CommonObject
 		$contact->town              = $this->town;
 		$this->setUpperOrLowerCase();
 		$contact->phone_pro         = $this->phone;
+		$contact->phone_mobile      = $this->phone_mobile;
 
 		$contactId = $contact->create($user, $notrigger);
 		if ($contactId < 0) {
