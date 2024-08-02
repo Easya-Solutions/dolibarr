@@ -104,12 +104,13 @@ _printOnOff('INVOICE_USE_SITUATION_CREDIT_NOTE', $langs->trans('UseSituationInvo
 $confkey = 'INVOICE_USE_RETAINED_WARRANTY';
 
 $arrayAvailableType = array(
+	0 => '', // don't use $showempty in selectArray since it sets a value of -1
 	Facture::TYPE_SITUATION => $langs->trans("InvoiceSituation"),
 	Facture::TYPE_STANDARD.'+'.Facture::TYPE_SITUATION => $langs->trans("InvoiceSituation").' + '.$langs->trans("InvoiceStandard"),
 );
 $selected = $conf->global->$confkey;
 $curentInput = (empty($inputCount) ? 1 : ($inputCount + 1));
-$formSelectInvoiceType = $form->selectarray('value'.$curentInput, $arrayAvailableType, $selected, 1);
+$formSelectInvoiceType = $form->selectarray('value'.$curentInput, $arrayAvailableType, $selected, 0);
 _printInputFormPart($confkey, $langs->trans('AllowedInvoiceForRetainedWarranty'), '', array(), $formSelectInvoiceType);
 
 //_printOnOff('INVOICE_RETAINED_WARRANTY_LIMITED_TO_SITUATION', $langs->trans('RetainedwarrantyOnlyForSituation'));

@@ -557,3 +557,5 @@ UPDATE llx_facturedet SET situation_percent = 100 WHERE situation_percent IS NUL
 
 DELETE FROM llx_rights_def WHERE module = 'hrm' AND perms = 'employee';
 
+-- delete a constant that should not be set
+DELETE FROM llx_const WHERE name = 'INVOICE_USE_RETAINED_WARRANTY' AND value = -1;
