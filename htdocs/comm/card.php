@@ -888,7 +888,8 @@ if ($object->id > 0) {
 						}
 					}
 					$relativepath = dol_sanitizeFileName($objp->ref).'/'.dol_sanitizeFileName($objp->ref).'.pdf';
-					print $formfile->showPreview($file_list, $propal_static->element, $relativepath, 0);
+					if (file_exists($conf->propal->multidir_output[$objp->entity].'/'.$relativepath))
+						print $formfile->showPreview($file_list, $propal_static->element, $relativepath, 0);
 				}
 				// $filename = dol_sanitizeFileName($objp->ref);
 				// $filedir = $conf->propal->multidir_output[$objp->entity].'/'.dol_sanitizeFileName($objp->ref);
@@ -1000,7 +1001,8 @@ if ($object->id > 0) {
 						}
 					}
 					$relativepath = dol_sanitizeFileName($objp->ref).'/'.dol_sanitizeFileName($objp->ref).'.pdf';
-					print $formfile->showPreview($file_list, $commande_static->element, $relativepath, 0, $param);
+					if (file_exists($conf->commande->multidir_output[$objp->entity].'/'.$relativepath))
+						print $formfile->showPreview($file_list, $commande_static->element, $relativepath, 0, $param);
 				}
 				// $filename = dol_sanitizeFileName($objp->ref);
 				// $filedir = $conf->order->multidir_output[$objp->entity].'/'.dol_sanitizeFileName($objp->ref);
@@ -1094,7 +1096,8 @@ if ($object->id > 0) {
 						}
 					}
 					$relativepath = dol_sanitizeFileName($objp->ref).'/'.dol_sanitizeFileName($objp->ref).'.pdf';
-					print $formfile->showPreview($file_list, $sendingstatic->element, $relativepath, 0, $param);
+					if (file_exists($conf->expedition->multidir_output[$objp->entity].'/'.$relativepath))
+						print $formfile->showPreview($file_list, $sendingstatic->element, $relativepath, 0, $param);
 				}
 				// $filename = dol_sanitizeFileName($objp->ref);
 				// $filedir = $conf->expedition->multidir_output[$objp->entity].'/'.dol_sanitizeFileName($objp->ref);
@@ -1200,7 +1203,8 @@ if ($object->id > 0) {
 							}
 						}
 						$relativepath = dol_sanitizeFileName($objp->ref).'/'.dol_sanitizeFileName($objp->ref).'.pdf';
-						print $formfile->showPreview($file_list, $contrat->element, $relativepath, 0);
+						if (file_exists($conf->contrat->multidir_output[$objp->entity].'/'.$relativepath))
+							print $formfile->showPreview($file_list, $contrat->element, $relativepath, 0);
 					}
 				}
 				// $filename = dol_sanitizeFileName($objp->ref);
@@ -1291,7 +1295,8 @@ if ($object->id > 0) {
 						}
 					}
 					$relativepath = dol_sanitizeFileName($objp->ref).'/'.dol_sanitizeFileName($objp->ref).'.pdf';
-					print $formfile->showPreview($file_list, $fichinter_static->element, $relativepath, 0);
+					if (file_exists($conf->ficheinter->multidir_output[$objp->entity].'/'.$relativepath))
+						print $formfile->showPreview($file_list, $fichinter_static->element, $relativepath, 0);
 				}
 				// $filename = dol_sanitizeFileName($objp->ref);
 				// $filedir = $conf->fichinter->multidir_output[$objp->entity].'/'.dol_sanitizeFileName($objp->ref);
@@ -1491,7 +1496,8 @@ if ($object->id > 0) {
 						}
 					}
 					$relativepath = dol_sanitizeFileName($objp->ref).'/'.dol_sanitizeFileName($objp->ref).'.pdf';
-					print $formfile->showPreview($file_list, $facturestatic->element, $relativepath, 0);
+					if (file_exists($conf->facture->multidir_output[$objp->entity].'/'.$relativepath))
+						print $formfile->showPreview($file_list, $facturestatic->element, $relativepath, 0);
 				}
 				// $filename = dol_sanitizeFileName($objp->ref);
 				// $filedir = $conf->facture->multidir_output[$objp->entity].'/'.dol_sanitizeFileName($objp->ref);
