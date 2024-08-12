@@ -219,7 +219,7 @@ if ($result) {
 			$vatdata = $vatdata_cache[$tax_id];
 		} else {
 			$vatdata = getTaxesFromId($tax_id, $mysoc, $mysoc, 0);
-				$vatdata_cache[$tax_id] = $vatdata;
+			$vatdata_cache[$tax_id] = $vatdata;
 		}
 		$compta_tva = (!empty($vatdata['accountancy_code_sell']) ? $vatdata['accountancy_code_sell'] : $cpttva);
 		$compta_localtax1 = (!empty($vatdata['accountancy_code_sell']) ? $vatdata['accountancy_code_sell'] : $cpttva);
@@ -242,8 +242,7 @@ if ($result) {
 					$line->fetch($obj->fdid);
 
 					// Situation invoices handling
-					$prev_progress = $line->get_prev_progress($obj->rowid);
-
+					$prev_progress = $line->getPrevProgressFromInvoiceCycleRefAndType($obj->situation_cycle_ref, $obj->type);
 					$situation_ratio = ($obj->situation_percent - $prev_progress) / $obj->situation_percent;
 				}
 			}
