@@ -27,6 +27,7 @@
  */
 
 include_once DOL_DOCUMENT_ROOT.'/core/lib/geturl.lib.php';
+include_once DOL_DOCUMENT_ROOT.'/core/login/functions_dolibarr.php';
 dol_include_once('/core/lib/openid_connect.lib.php');
 
 /**
@@ -36,9 +37,10 @@ dol_include_once('/core/lib/openid_connect.lib.php');
  * @param	string	$usertotest		Login
  * @param	string	$passwordtotest	Password
  * @param   int		$entitytotest	Number of instance (always 1 if module multicompany not enabled)
+ * @param   string  $context        Context
  * @return	string|false			Login if OK, false if KO
  */
-function check_user_password_openid_connect($usertotest, $passwordtotest, $entitytotest)
+function check_user_password_openid_connect($usertotest, $passwordtotest, $entitytotest, $context)
 {
 	global $db;
 
@@ -58,7 +60,10 @@ function check_user_password_openid_connect($usertotest, $passwordtotest, $entit
 
 	// Step 1 is done by user: request an authorization code
 
-	if (GETPOSTISSET('username')) {
+	if ($context == 'dav' || $context == 'api' || $context == 'ws') {
+        $login = check_user_password_dolibarr($usertotest, $passwordtotest, $entitytotest);
+        return !empty($login) ? $login : false;
+    } elseif (GETPOSTISSET('username')) {
 		// OIDC does not require credentials here: pass on to next auth handler
 		$_SESSION["dol_loginmesg"] = "Not an OpenID Connect flow";
 		dol_syslog("functions_openid_connect::check_user_password_openid_connect::not an OIDC flow");
