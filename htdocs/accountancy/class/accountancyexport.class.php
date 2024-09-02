@@ -1180,7 +1180,7 @@ class AccountancyExport
 					($data->doc_type == 'supplier_invoice' && !isset($supplier_invoices_infos[$data->fk_doc]))) {
 					if ($data->doc_type == 'customer_invoice') {
 						// Get new customer invoice ref and company name
-						$sql = "SELECT f.facnumber, s.nom, p.ref FROM " . MAIN_DB_PREFIX . "facture as f".
+						$sql = "SELECT f.ref, s.nom, p.ref FROM " . MAIN_DB_PREFIX . "facture as f".
 							" LEFT JOIN " . MAIN_DB_PREFIX . "societe AS s ON f.fk_soc = s.rowid" .
 							" LEFT JOIN " . MAIN_DB_PREFIX . "projet AS p ON p.rowid = f.fk_projet" .
 							//" LEFT JOIN " . MAIN_DB_PREFIX . "projet_extrafields AS pe ON pe.fk_object = p.rowid" .
@@ -1189,8 +1189,8 @@ class AccountancyExport
 						if ($resql) {
 							if ($obj = $this->db->fetch_object($resql)) {
 								// Save invoice infos
-								$invoices_infos[$data->fk_doc] = array('ref' => $obj->facnumber, 'company_name' => $obj->nom);
-								$invoice_ref = $obj->facnumber;
+								$invoices_infos[$data->fk_doc] = array('ref' => $obj->ref, 'company_name' => $obj->nom);
+								$invoice_ref = $obj->ref;
 								$company_name = $obj->nom;
 								$code_analytique = $obj->ref;
 							}
