@@ -39,6 +39,8 @@
 -- VMYSQL4.3 ALTER TABLE llx_hrm_skillrank CHANGE COLUMN `rank` rankorder integer;
 -- VPGSQL8.2 ALTER TABLE llx_hrm_skillrank CHANGE COLUMN rank rankorder integer;
 
+ALTER TABLE llx_projet_task ADD COLUMN fk_user_modif integer after fk_user_creat;
+
 ALTER TABLE llx_accounting_system CHANGE COLUMN fk_pays fk_country integer;
 
 ALTER TABLE llx_commande_fournisseurdet MODIFY COLUMN ref varchar(128);
@@ -568,7 +570,10 @@ insert into llx_c_action_trigger (code,label,description,elementtype,rang) value
 
 UPDATE llx_menu SET url = '/fourn/paiement/list.php?mainmenu=billing&leftmenu=suppliers_bills_payment' WHERE leftmenu = 'suppliers_bills_payment';
 
+UPDATE llx_paiement SET ref = rowid WHERE ref IS NULL OR ref = '';
+
 -- Easya 2024
+
 -- Backport VAT by entity #24965 - Also available on Easya 2022
 -- VMYSQL4.1 DROP INDEX uk_c_tva_id on llx_c_tva;
 -- VPGSQL8.2 DROP INDEX uk_c_tva_id;
@@ -580,7 +585,21 @@ ALTER TABLE llx_facture ADD COLUMN fk_input_reason integer NULL DEFAULT NULL AFT
 
 -- Product/service managed in stock
 ALTER TABLE llx_product ADD COLUMN stockable_product integer DEFAULT 1 NOT NULL;
-UPDATE llx_product set stockable_product = 0 WHERE type = 1;
+UPDATE llx_product set stockable_product = 0 WHERE fk_product_type = 1;
 
 -- Rename const to add customer categories on not customer/prospect third-party if enabled
 UPDATE llx_const SET name = 'THIRDPARTY_CAN_HAVE_CUSTOMER_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT' WHERE name = 'THIRDPARTY_CAN_HAVE_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT_SUPPLIER';
+
+-- add triggers for COMPANY_RIB_XXX
+INSERT INTO llx_c_action_trigger (code,label,description,elementtype,rang) values ('COMPANY_RIB_CREATE','Third party payment information created','Executed when a third party payment information is created','societe',1);
+INSERT INTO llx_c_action_trigger (code,label,description,elementtype,rang) values ('COMPANY_RIB_MODIFY','Third party payment information updated','Executed when a third party payment information is updated','societe',1);
+INSERT INTO llx_c_action_trigger (code,label,description,elementtype,rang) values ('COMPANY_RIB_DELETE','Third party payment information deleted','Executed when a third party payment information is deleted','societe',1);
+
+UPDATE llx_rights_def SET perms = 'thirdparty_paymentinformation' WHERE perms = 'thirdparty_paymentinformation_advance';
+
+-- Fix against empty modules page
+UPDATE llx_const SET value = '' WHERE name LIKE 'MAIN_MODULE_SETUP_ON_LIST_BY_DEFAULT' AND value NOT IN ('common', 'commonkanban');
+
+-- Duration (Sum of linked fichinter) of ticket
+ALTER TABLE llx_ticket ADD COLUMN duration integer AFTER progress;
+UPDATE llx_ticket AS t1 LEFT JOIN (SELECT (CASE WHEN ee.targettype = 'ticket' THEN ee.fk_target ELSE ee.fk_source END) AS rowid, SUM(fd.duree) as duration FROM llx_element_element AS ee LEFT JOIN llx_fichinterdet AS fd ON fd.fk_fichinter = (CASE WHEN ee.targettype = 'fichinter' THEN ee.fk_target ELSE ee.fk_source END) WHERE (ee.sourcetype = 'fichinter' AND ee.targettype = 'ticket') OR (ee.targettype = 'fichinter' AND ee.sourcetype = 'ticket') GROUP BY (CASE WHEN ee.targettype = 'ticket' THEN ee.fk_target ELSE ee.fk_source END)) AS t2 ON t2.rowid = t1.rowid SET t1.duration = t2.duration;
