@@ -211,7 +211,7 @@ class pdf_strato extends ModelePDFContract
 
 		if ($conf->contract->multidir_output[$conf->entity]) {
 			$object->fetch_thirdparty();
-			
+
 			// Definition of $dir and $file
 			if ($object->specimen) {
 				$dir = $conf->contract->multidir_output[$conf->entity];
@@ -630,7 +630,7 @@ class pdf_strato extends ModelePDFContract
 	{
 		// phpcs:enable
 		global $conf, $langs, $hookmanager;
-		
+
 		$ltrdirection = 'L';
 		if ($outputlangs->trans("DIRECTION") == 'rtl') {
 			$ltrdirection = 'R';
