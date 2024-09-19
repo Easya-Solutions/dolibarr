@@ -277,6 +277,11 @@ class Account extends CommonObject
 	 */
 	public $ics_transfer;
 
+	/**
+	 * @var string The previous ref in case of rename on update to rename attachment folders
+	 */
+	public $oldref;
+
 
 
 	/**
@@ -917,6 +922,28 @@ class Account extends CommonObject
 				$result = $this->insertExtraFields();
 				if ($result < 0) {
 					$error++;
+				}
+			}
+
+			if (!$error && !empty($this->oldref) && $this->oldref !== $this->ref) {
+				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filepath = 'bank/".$this->db->escape($this->ref)."'";
+				$sql .= " WHERE filepath = 'bank/".$this->db->escape($this->oldref)."' and src_object_type='bank_account' and entity = ".((int) $conf->entity);
+				$resql = $this->db->query($sql);
+				if (!$resql) {
+					$error++;
+					$this->error = $this->db->lasterror();
+				}
+
+				// We rename directory in order not to lose the attachments
+				$oldref = dol_sanitizeFileName($this->oldref);
+				$newref = dol_sanitizeFileName($this->ref);
+				$dirsource = $conf->bank->dir_output.'/'.$oldref;
+				$dirdest = $conf->bank->dir_output.'/'.$newref;
+				if (file_exists($dirsource)) {
+					dol_syslog(get_class($this)."::update rename dir ".$dirsource." into ".$dirdest, LOG_DEBUG);
+					if (@rename($dirsource, $dirdest)) {
+						dol_syslog("Rename ok", LOG_DEBUG);
+					}
 				}
 			}
 
@@ -2193,9 +2220,10 @@ class AccountLine extends CommonObjectLine
 	 *      Delete bank transaction record
 	 *
 	 *		@param	User|null	$user	User object that delete
-	 *      @return	int 				<0 if KO, >0 if OK
+	 * @param	int			$notrigger	1=Does not execute triggers, 0= execute triggers
+	 * @return	int 					Return integer <0 if KO, >0 if OK
 	 */
-	public function delete(User $user = null)
+	public function delete(User $user = null, $notrigger = 0)
 	{
 		global $conf;
 
@@ -2208,6 +2236,16 @@ class AccountLine extends CommonObjectLine
 		}
 
 		$this->db->begin();
+
+		if (!$notrigger) {
+			// Call trigger
+			$result = $this->call_trigger('BANKACCOUNTLINE_DELETE', $user);
+			if ($result < 0) {
+				$this->db->rollback();
+				return -1;
+			}
+			// End call triggers
+		}
 
 		// Protection to avoid any delete of accounted lines. Protection on by default
 		if (empty($conf->global->BANK_ALLOW_TRANSACTION_DELETION_EVEN_IF_IN_ACCOUNTING)) {

@@ -623,7 +623,7 @@ if (empty($reshook)) {
 				$object->generateDocument($object->model_pdf, $outputlangs, $hidedetails, $hidedesc, $hideref);
 			}
 		}
-	} elseif ($action == 'set_incoterms' && isModEnabled('incoterm')) {
+	} elseif ($action == 'set_incoterms' && isModEnabled('incoterm') && $usercancreate) {
 		// Set incoterm
 		$result = $object->setIncoterms(GETPOST('incoterm_id', 'int'), GETPOST('location_incoterms', 'alpha'));
 		if ($result < 0) {
@@ -1008,7 +1008,7 @@ if (empty($reshook)) {
 			}
 
 			$info_bits = 0;
-			if ($tva_npr) {
+			if (!empty($tva_npr)) {
 				$info_bits |= 0x01;
 			}
 

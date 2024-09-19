@@ -1914,6 +1914,9 @@ class Contact extends CommonObject
 		} else {
 			if (count($this->roles) > 0) {
 				foreach ($this->roles as $keyRoles => $valRoles) {
+					if (empty($valRoles)) {
+						continue;
+					}
 					$idrole = 0;
 					if (is_array($valRoles)) {
 						$idrole = $valRoles['id'];

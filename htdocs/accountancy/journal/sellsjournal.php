@@ -70,7 +70,7 @@ if (!isModEnabled('accounting')) {
 if ($user->socid > 0) {
 	accessforbidden();
 }
-if (!$user->hasRight('accounting', 'mouvements', 'lire')) {
+if (!$user->hasRight('accounting', 'bind', 'write')) {
 	accessforbidden();
 }
 
@@ -343,6 +343,20 @@ if ($result) {
 	}
 
 	// After the loop on each line
+	$parameters = array(
+		'tabfac' => &$tabfac,
+		'tabht' => &$tabht,
+		'tabtva' => &$tabtva,
+		'def_tva' => &$def_tva,
+		'tabwarranty' => &$tabwarranty,
+		'tabrevenuestamp' => &$tabrevenuestamp,
+		'tabttc' => &$tabttc,
+		'tablocaltax1' => &$tablocaltax1,
+		'tablocaltax2' => &$tablocaltax2,
+		'tabcompany' => &$tabcompany,
+		'vatdata_cache' => &$vatdata_cache,
+	);
+	$reshook = $hookmanager->executeHooks('processedJournalData', $parameters); // Note that $action and $object may have been modified by hook
 } else {
 	dol_print_error($db);
 }
