@@ -259,7 +259,7 @@ if ($action == 'dispatch' && $permissiontoreceive) {
 			}
 
 			// We ask to move a qty
-			if (!empty(GETPOST($qty)) && GETPOST($qty) != 0) {
+			if ((float) GETPOST($qty) != 0) {
 				$productId = GETPOSTINT($prod);
 
 				if (!(GETPOST($ent, 'int') > 0)) {
