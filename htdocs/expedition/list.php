@@ -442,16 +442,16 @@ if (getDolGlobalInt('MAIN_SUBMODULE_DELIVERY')) {
 }
 // Specifique Client 3194 - Begin
 if ($search_datec_start) {
-	$sql .= " AND e.datec >= '".$db->idate($search_datec_start)."'";
+	$sql .= " AND e.date_creation >= '".$db->idate($search_datec_start)."'";
 }
 if ($search_datec_end) {
-	$sql .= " AND e.datec <= '".$db->idate($search_datec_end)."'";
+	$sql .= " AND e.date_creation <= '".$db->idate($search_datec_end)."'";
 }
 if ($search_datem_start) {
-	$sql .= " AND e.datem >= '".$db->idate($search_datem_start)."'";
+	$sql .= " AND e.tms >= '".$db->idate($search_datem_start)."'";
 }
 if ($search_datem_end) {
-	$sql .= " AND e.datem <= '".$db->idate($search_datem_end)."'";
+	$sql .= " AND e.tms <= '".$db->idate($search_datem_end)."'";
 }
 // Specifique Client 3194 - End
 if ($sall) {
