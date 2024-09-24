@@ -150,7 +150,7 @@ if ($reshook < 0) {
 	setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 }
 
-if ($action == 'setcost_price') {
+if ($action == 'setcost_price' && $usercancreate) {
 	if ($id) {
 		$result = $object->fetch($id);
 		$object->cost_price = price2num($cost_price);
@@ -165,7 +165,7 @@ if ($action == 'setcost_price') {
 	}
 }
 
-if ($action == 'addlimitstockwarehouse' && $user->hasRight('produit', 'creer')) {
+if ($action == 'addlimitstockwarehouse' && $usercancreate) {
 	$seuil_stock_alerte = GETPOST('seuil_stock_alerte');
 	$desiredstock = GETPOST('desiredstock');
 
@@ -204,7 +204,7 @@ if ($action == 'addlimitstockwarehouse' && $user->hasRight('produit', 'creer')) 
 	exit;
 }
 
-if ($action == 'delete_productstockwarehouse' && $user->hasRight('produit', 'creer')) {
+if ($action == 'delete_productstockwarehouse' && $usercancreate) {
 	$pse = new ProductStockEntrepot($db);
 
 	$pse->fetch(GETPOST('fk_productstockwarehouse', 'int'));
@@ -216,7 +216,7 @@ if ($action == 'delete_productstockwarehouse' && $user->hasRight('produit', 'cre
 }
 
 // Set stock limit
-if ($action == 'setseuil_stock_alerte' && $user->hasRight('produit', 'creer')) {
+if ($action == 'setseuil_stock_alerte' && $usercancreate) {
 	$object = new Product($db);
 	$result = $object->fetch($id);
 	$object->seuil_stock_alerte = $stocklimit;
@@ -230,7 +230,7 @@ if ($action == 'setseuil_stock_alerte' && $user->hasRight('produit', 'creer')) {
 }
 
 // Set desired stock
-if ($action == 'setdesiredstock' && $user->hasRight('produit', 'creer')) {
+if ($action == 'setdesiredstock' && $usercancreate) {
 	$object = new Product($db);
 	$result = $object->fetch($id);
 	$object->desiredstock = $desiredstock;
@@ -243,8 +243,8 @@ if ($action == 'setdesiredstock' && $user->hasRight('produit', 'creer')) {
 
 
 // Correct stock
-if ($action == "correct_stock" && !$cancel) {
-	if (!(GETPOST("id_entrepot", 'int') > 0)) {
+if ($action == "correct_stock" && !$cancel && $usercancreate) {
+	if (!(GETPOSTINT("id_entrepot") > 0)) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Warehouse")), null, 'errors');
 		$error++;
 		$action = 'correction';
@@ -336,8 +336,8 @@ if ($action == "correct_stock" && !$cancel) {
 }
 
 // Transfer stock from a warehouse to another warehouse
-if ($action == "transfert_stock" && !$cancel) {
-	if (!(GETPOST("id_entrepot", 'int') > 0) || !(GETPOST("id_entrepot_destination", 'int') > 0)) {
+if ($action == "transfert_stock" && !$cancel && $usercancreate) {
+	if (!(GETPOSTINT("id_entrepot") > 0) || !(GETPOSTINT("id_entrepot_destination") > 0)) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Warehouse")), null, 'errors');
 		$error++;
 		$action = 'transfert';
@@ -494,7 +494,7 @@ if ($action == "transfert_stock" && !$cancel) {
 }
 
 // Update batch information
-if ($action == 'updateline' && GETPOST('save') == $langs->trans("Save")) {
+if ($action == 'updateline' && GETPOST('save') == $langs->trans("Save") && $usercancreate) {
 	$pdluo = new Productbatch($db);
 	$result = $pdluo->fetch(GETPOST('pdluoid', 'int'));
 
@@ -522,7 +522,6 @@ if ($action == 'updateline' && GETPOST('save') == $langs->trans("Save")) {
 	header("Location: product.php?id=".$id);
 	exit;
 }
-
 
 
 /*

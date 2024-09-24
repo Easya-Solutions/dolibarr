@@ -747,9 +747,9 @@ if ($object->id > 0) {
 	} else {
 		$sql .= " WHERE fk_facture = ".((int) $object->id);
 	}
-	// $sql .= " AND pfd.traite = 0";
+	$sql .= " AND pfd.traite = 0";
 	$sql .= " AND pfd.type = 'ban'";
-	$sql .= " AND pfd.ext_payment_id IS NULL"; // TODO CHECK
+	//$sql .= " AND pfd.ext_payment_id IS NULL"; // TODO CHECK
 
 	$resql = $db->query($sql);
 	if ($resql) {

@@ -129,6 +129,11 @@ class Ticket extends CommonObject
 	public $progress;
 
 	/**
+	 * @var int Duration in percent (Sum of linked fichinter)
+	 */
+	public $duration;
+
+	/**
 	 * @var string Duration for ticket
 	 */
 	public $timing;
@@ -318,8 +323,9 @@ class Ticket extends CommonObject
 		'message' => array('type'=>'html', 'label'=>'Message', 'visible'=>-2, 'enabled'=>1, 'position'=>540, 'notnull'=>-1,),
 		'email_msgid' => array('type'=>'varchar(255)', 'label'=>'EmailMsgID', 'visible'=>-2, 'enabled'=>1, 'position'=>540, 'notnull'=>-1, 'help'=>'EmailMsgIDDesc', 'csslist'=>'tdoverflowmax100'),
 		'email_date' => array('type'=>'datetime', 'label'=>'EmailDate', 'visible'=>-2, 'enabled'=>1, 'position'=>541),
-		'progress' => array('type'=>'integer', 'label'=>'Progression', 'visible'=>-1, 'enabled'=>1, 'position'=>540, 'notnull'=>-1, 'css'=>'right', 'help'=>"", 'isameasure'=>2, 'csslist'=>'width50'),
-		'resolution' => array('type'=>'integer', 'label'=>'Resolution', 'visible'=>-1, 'enabled'=>'getDolGlobalString("TICKET_ENABLE_RESOLUTION")', 'position'=>550, 'notnull'=>1),
+		'progress' => array('type'=>'integer', 'label'=>'Progression', 'visible'=>-1, 'enabled'=>1, 'position'=>550, 'notnull'=>-1, 'css'=>'right', 'help'=>"", 'isameasure'=>2, 'csslist'=>'width50'),
+		'duration' => array('type'=>'integer', 'label'=>'TicketDurationAuto', 'visible'=>-1, 'enabled'=>1, 'position'=>560, 'notnull'=>-1, 'css'=>'right', 'help'=>"", 'isameasure'=>3, 'csslist'=>'width50'),
+		'resolution' => array('type'=>'integer', 'label'=>'Resolution', 'visible'=>-1, 'enabled'=>'getDolGlobalString("TICKET_ENABLE_RESOLUTION")', 'position'=>570, 'notnull'=>1),
 		'fk_statut' => array('type'=>'integer', 'label'=>'Status', 'visible'=>1, 'enabled'=>1, 'position'=>600, 'notnull'=>1, 'index'=>1, 'arrayofkeyval'=>array(0 => 'Unread', 1 => 'Read', 3 => 'Answered', 4 => 'Assigned', 5 => 'InProgress', 6 => 'Waiting', 8 => 'SolvedClosed', 9 => 'Deleted')),
 		'import_key' =>array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>1, 'visible'=>-2, 'position'=>900),
 	);
@@ -425,6 +431,10 @@ class Ticket extends CommonObject
 			$this->progress = trim($this->progress);
 		}
 
+		if (isset($this->duration)) {
+			$this->duration = (int) $this->duration;
+		}
+
 		if (isset($this->timing)) {
 			$this->timing = trim($this->timing);
 		}
@@ -492,6 +502,7 @@ class Ticket extends CommonObject
 			$sql .= "fk_statut,";
 			$sql .= "resolution,";
 			$sql .= "progress,";
+			$sql .= "duration,";
 			$sql .= "timing,";
 			$sql .= "type_code,";
 			$sql .= "category_code,";
@@ -517,6 +528,7 @@ class Ticket extends CommonObject
 			$sql .= " ".(!isset($this->fk_statut) ? '0' : "'".$this->db->escape($this->fk_statut)."'").",";
 			$sql .= " ".(!isset($this->resolution) ? 'NULL' : "'".$this->db->escape($this->resolution)."'").",";
 			$sql .= " ".(!isset($this->progress) ? '0' : "'".$this->db->escape($this->progress)."'").",";
+			$sql .= " ".(!isset($this->duration) ? 'NULL' : "'".$this->db->escape($this->duration)."'").",";
 			$sql .= " ".(!isset($this->timing) ? 'NULL' : "'".$this->db->escape($this->timing)."'").",";
 			$sql .= " ".(!isset($this->type_code) ? 'NULL' : "'".$this->db->escape($this->type_code)."'").",";
 			$sql .= " ".(empty($this->category_code) || $this->category_code == '-1' ? 'NULL' : "'".$this->db->escape($this->category_code)."'").",";
@@ -629,6 +641,7 @@ class Ticket extends CommonObject
 		$sql .= " t.fk_statut as status,";
 		$sql .= " t.resolution,";
 		$sql .= " t.progress,";
+		$sql .= " t.duration,";
 		$sql .= " t.timing,";
 		$sql .= " t.type_code,";
 		$sql .= " t.category_code,";
@@ -685,6 +698,7 @@ class Ticket extends CommonObject
 
 				$this->resolution = $obj->resolution;
 				$this->progress = $obj->progress;
+				$this->duration = $obj->duration;
 				$this->timing = $obj->timing;
 
 				$this->type_code = $obj->type_code;
@@ -758,6 +772,7 @@ class Ticket extends CommonObject
 		$sql .= " t.fk_statut,";
 		$sql .= " t.resolution,";
 		$sql .= " t.progress,";
+		$sql .= " t.duration,";
 		$sql .= " t.timing,";
 		$sql .= " t.type_code,";
 		$sql .= " t.category_code,";
@@ -853,6 +868,7 @@ class Ticket extends CommonObject
 					$line->fk_statut = $obj->fk_statut;
 					$line->resolution = $obj->resolution;
 					$line->progress = $obj->progress;
+					$line->duration = $obj->duration;
 					$line->timing = $obj->timing;
 
 					$label_type = ($langs->trans("TicketTypeShort".$obj->type_code) != ("TicketTypeShort".$obj->type_code) ? $langs->trans("TicketTypeShort".$obj->type_code) : ($obj->type_label != '-' ? $obj->type_label : ''));
@@ -963,6 +979,10 @@ class Ticket extends CommonObject
 			$this->progress = trim($this->progress);
 		}
 
+		if (isset($this->duration)) {
+			$this->duration = (int) $this->duration;
+		}
+
 		if (isset($this->timing)) {
 			$this->timing = trim($this->timing);
 		}
@@ -995,6 +1015,7 @@ class Ticket extends CommonObject
 		$sql .= " fk_statut=".(isset($this->fk_statut) ? $this->fk_statut : "0").",";
 		$sql .= " resolution=".(isset($this->resolution) ? $this->resolution : "null").",";
 		$sql .= " progress=".(isset($this->progress) ? "'".$this->db->escape($this->progress)."'" : "null").",";
+		$sql .= " duration=".(isset($this->duration) ? "'".$this->db->escape($this->duration)."'" : "null").",";
 		$sql .= " timing=".(isset($this->timing) ? "'".$this->db->escape($this->timing)."'" : "null").",";
 		$sql .= " type_code=".(isset($this->type_code) ? "'".$this->db->escape($this->type_code)."'" : "null").",";
 		$sql .= " category_code=".(isset($this->category_code) ? "'".$this->db->escape($this->category_code)."'" : "null").",";
@@ -1202,6 +1223,7 @@ class Ticket extends CommonObject
 		$this->status = 0;
 		$this->resolution = '1';
 		$this->progress = '10';
+		$this->duration = 70;
 		//$this->timing = '30';
 		$this->type_code = 'TYPECODE';
 		$this->category_code = 'CATEGORYCODE';
@@ -1744,7 +1766,7 @@ class Ticket extends CommonObject
 			$this->error = $actioncomm->error;
 			$this->errors = $actioncomm->errors;
 		}
-		
+
 		if ($actionid > 0) {
 			if (is_array($attachedfiles) && array_key_exists('paths', $attachedfiles) && count($attachedfiles['paths']) > 0) {
 				foreach ($attachedfiles['paths'] as $key => $filespath) {
@@ -2863,7 +2885,7 @@ class Ticket extends CommonObject
 	 */
 	public function sendTicketMessageByEmail($subject, $message, $send_internal_cc = 0, $array_receiver = array(), $filename_list = array(), $mimetype_list = array(), $mimefilename_list = array())
 	{
-		global $conf, $langs;
+		global $conf, $langs, $user;
 
 		if (getDolGlobalString('TICKET_DISABLE_ALL_MAILS')) {
 			dol_syslog(get_class($this).'::sendTicketMessageByEmail: Emails are disable into ticket setup by option TICKET_DISABLE_ALL_MAILS', LOG_WARNING);
@@ -3184,6 +3206,11 @@ class TicketsLine
 	 * Progress in percent
 	 */
 	public $progress;
+
+	/**
+	 * Duration for ticket (Sum of linked fichinter)
+	 */
+	public $duration;
 
 	/**
 	 * Duration for ticket

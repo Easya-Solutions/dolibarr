@@ -1103,9 +1103,32 @@ class SecurityTest extends PHPUnit\Framework\TestCase
 		print "result = ".$result."\n";
 		$this->assertFalse($result);
 
-		$result=dol_eval("(\$a.'aa')", 1, 0);
-		print "result = ".$result."\n";
-		$this->assertContains('Bad string syntax to evaluate', $result);
+		$string = '(isModEnabled("agenda") || isModEnabled("resource")) && getDolGlobalInt("MAIN_FEATURES_LEVEL") >= 0 && preg_match(\'/^(admintools|all|XXX)/\', $leftmenu)';
+		$result = dol_eval($string, 1, 1, '1');
+		print "result17 = ".$result."\n";
+		$this->assertTrue($result);
+
+		$result = dol_eval('1 && getDolGlobalInt("doesnotexist1") && $conf->global->MAIN_FEATURES_LEVEL', 1, 0);	// Should return false and not a 'Bad string syntax to evaluate ...'
+		print "result18 = ".$result."\n";
+		$this->assertFalse($result);
+
+		$a = 'ab';
+		$result = (string) dol_eval("(\$a.'s')", 1, 0);
+		print "result19 = ".$result."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', $result, 'Test 19');
+
+		$leftmenu = 'abs';
+		$result = (string) dol_eval('$leftmenu(-5)', 1, 0);
+		print "result20 = ".$result."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', $result, 'Test 20');
+
+		$result = (string) dol_eval('str_replace("z","e","zxzc")("whoami");', 1, 0);
+		print "result21 = ".$result."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', $result, 'Test 21');
+
+		$result = (string) dol_eval('($a = "ex") && ($b = "ec") && ($cmd = "$a$b") && $cmd ("curl localhost:5555")', 1, 0);
+		print "result22 = ".$result."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', $result, 'Test 22');
 	}
 
 
