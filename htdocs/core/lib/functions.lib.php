@@ -8222,59 +8222,140 @@ function verifCond($strRights)
  * Replace eval function to add more security.
  * This function is called by verifCond() or trans() and transnoentitiesnoconv().
  *
- * @param 	string	$s				String to evaluate
- * @param	int		$returnvalue	0=No return (used to execute eval($a=something)). 1=Value of eval is returned (used to eval($something)).
- * @param   int     $hideerrors     1=Hide errors
- * @return	mixed					Nothing or return result of eval
+ * @param 	string	$s					String to evaluate
+ * @param	int		$returnvalue		0=No return (used to execute eval($a=something)). 1=Value of eval is returned (used to eval($something)).
+ * @param   int     $hideerrors     	1=Hide errors
+ * @param	string	$onlysimplestring	'0' (used for computed property of extrafields)=Accept all chars, '1' (most common use)=Accept only simple string with char 'a-z0-9\s^$_+-.*>&|=!?():"\',/@';',  '2' (rarely used)=Accept also '[]'
+ * @return	mixed						Nothing or return result of eval
  */
-function dol_eval($s, $returnvalue = 0, $hideerrors = 1)
+function dol_eval($s, $returnvalue = 0, $hideerrors = 1, $onlysimplestring = '1')
 {
 	// Only global variables can be changed by eval function and returned to caller
 	global $db, $langs, $user, $conf, $website, $websitepage;
 	global $action, $mainmenu, $leftmenu;
+	global $mysoc;
+	global $objectoffield;
+
+	// Old variables used
 	global $rights;
 	global $object;
-	global $mysoc;
-
 	global $obj; // To get $obj used into list when dol_eval is used for computed fields and $obj is not yet $object
 	global $soc; // For backward compatibility
 
-	// Replace dangerous char (used for RCE), we allow only PHP variable testing.
-	if (strpos($s, '`') !== false) {
-		return 'Bad string syntax to evaluate: '.$s;
-	}
-
-	// We block using of php exec or php file functions
-	$forbiddenphpstrings = array("exec(", "passthru(", "shell_exec(", "system(", "proc_open(", "popen(", "eval(", "dol_eval(", "executeCLI(", "base64_decode(");
-	$forbiddenphpstrings = array_merge($forbiddenphpstrings, array("fopen(", "file_put_contents(", "fputs(", "fputscsv(", "fwrite(", "fpassthru(", "unlink(", "mkdir(", "rmdir(", "symlink(", "touch(", "umask("));
-	$forbiddenphpstrings = array_merge($forbiddenphpstrings, array('function(', '$$', 'call_user_func('));
-	$forbiddenphpstrings = array_merge($forbiddenphpstrings, array('_ENV', '_SESSION', '_COOKIE', '_GET', '_POST', '_REQUEST'));
-	$forbiddenphpregex = 'global\s+\$';
-	do {
-		$oldstringtoclean = $s;
-		$s = str_ireplace($forbiddenphpstrings, '__forbiddenstring__', $s);
-		$s = preg_replace('/'.$forbiddenphpregex.'/', '__forbiddenstring__', $s);
-		//$s = preg_replace('/\$[a-zA-Z0-9_\->\$]+\(/i', '', $s);	// Remove $function( call and $mycall->mymethod(
-	} while ($oldstringtoclean != $s);
-
-	if (strpos($s, '__forbiddenstring__') !== false) {
-		dol_syslog('Bad string syntax to evaluate: '.$s, LOG_WARNING);
-		return 'Bad string syntax to evaluate: '.$s;
-	}
-
-	//print $s."<br>\n";
-	if ($returnvalue) {
-		if ($hideerrors) {
-			return @eval('return '.$s.';');
-		} else {
-			return eval('return '.$s.';');
+	try {
+		// Test on dangerous char (used for RCE), we allow only characters to make PHP variable testing
+		if ($onlysimplestring == '1') {
+			// We must accept: '1 && getDolGlobalInt("doesnotexist1") && $conf->global->MAIN_FEATURES_LEVEL'
+			// We must accept: '$conf->barcode->enabled || preg_match(\'/^AAA/\',$leftmenu)'
+			// We must accept: '$user->rights->cabinetmed->read && !$object->canvas=="patient@cabinetmed"'
+			if (preg_match('/[^a-z0-9\s'.preg_quote('^$_+-.*>&|=!?():"\',/@', '/').']/i', $s)) {
+				if ($returnvalue) {
+					return 'Bad string syntax to evaluate (found chars that are not chars for simplestring): '.$s;
+				} else {
+					dol_syslog('Bad string syntax to evaluate (found chars that are not chars for simplestring): '.$s);
+					return '';
+				}
+				// TODO
+				// We can exclude all parenthesis ( that are not '($db' and 'getDolGlobalInt(' and 'getDolGlobalString(' and 'preg_match(' and 'isModEnabled('
+				// ...
+			}
+		} elseif ($onlysimplestring == '2') {
+			// We must accept: (($reloadedobj = new Task($db)) && ($reloadedobj->fetchNoCompute($object->id) > 0) && ($secondloadedobj = new Project($db)) && ($secondloadedobj->fetchNoCompute($reloadedobj->fk_project) > 0)) ? $secondloadedobj->ref : "Parent project not found"
+			if (preg_match('/[^a-z0-9\s'.preg_quote('^$_+-.*>&|=!?():"\',/@[]', '/').']/i', $s)) {
+				if ($returnvalue) {
+					return 'Bad string syntax to evaluate (found chars that are not chars for simplestring): '.$s;
+				} else {
+					dol_syslog('Bad string syntax to evaluate (found chars that are not chars for simplestring): '.$s);
+					return '';
+				}
+				// TODO
+				// We can exclude all parenthesis ( that are not '($db' and 'getDolGlobalInt(' and 'getDolGlobalString(' and 'preg_match(' and 'isModEnabled('
+				// ...
+			}
 		}
-	} else {
-		if ($hideerrors) {
-			@eval($s);
-		} else {
-			eval($s);
+		if (is_array($s) || $s === 'Array') {
+			return 'Bad string syntax to evaluate (value is Array) '.var_export($s, true);
 		}
+		if (strpos($s, '::') !== false) {
+			if ($returnvalue) {
+				return 'Bad string syntax to evaluate (double : char is forbidden): '.$s;
+			} else {
+				dol_syslog('Bad string syntax to evaluate (double : char is forbidden): '.$s);
+				return '';
+			}
+		}
+		if (strpos($s, '`') !== false) {
+			if ($returnvalue) {
+				return 'Bad string syntax to evaluate (backtick char is forbidden): '.$s;
+			} else {
+				dol_syslog('Bad string syntax to evaluate (backtick char is forbidden): '.$s);
+				return '';
+			}
+		}
+		if (preg_match('/[^0-9]+\.[^0-9]+/', $s)) {	// We refuse . if not between 2 numbers
+			if ($returnvalue) {
+				return 'Bad string syntax to evaluate (dot char is forbidden): '.$s;
+			} else {
+				dol_syslog('Bad string syntax to evaluate (dot char is forbidden): '.$s);
+				return '';
+			}
+		}
+
+		// We block use of php exec or php file functions
+		$forbiddenphpstrings = array('$$');
+		$forbiddenphpstrings = array_merge($forbiddenphpstrings, array('_ENV', '_SESSION', '_COOKIE', '_GET', '_POST', '_REQUEST', 'ReflectionFunction'));
+
+		$forbiddenphpfunctions = array("exec", "passthru", "shell_exec", "system", "proc_open", "popen");
+		$forbiddenphpfunctions = array_merge($forbiddenphpfunctions, array("dol_eval", "executeCLI", "verifCond"));	// native dolibarr functions
+		$forbiddenphpfunctions = array_merge($forbiddenphpfunctions, array("base64_decode", "rawurldecode", "urldecode", "str_rot13", "hex2bin")); // decode string functions used to obfuscated function name
+		$forbiddenphpfunctions = array_merge($forbiddenphpfunctions, array("fopen", "file_put_contents", "fputs", "fputscsv", "fwrite", "fpassthru", "require", "include", "mkdir", "rmdir", "symlink", "touch", "unlink", "umask"));
+		$forbiddenphpfunctions = array_merge($forbiddenphpfunctions, array("get_defined_functions", "get_defined_vars", "get_defined_constants", "get_declared_classes"));
+		$forbiddenphpfunctions = array_merge($forbiddenphpfunctions, array("function", "call_user_func"));
+		$forbiddenphpfunctions = array_merge($forbiddenphpfunctions, array("require", "include", "require_once", "include_once"));
+		$forbiddenphpfunctions = array_merge($forbiddenphpfunctions, array("eval", "create_function", "assert", "mb_ereg_replace")); // function with eval capabilities
+
+		$forbiddenphpmethods = array('invoke', 'invokeArgs');	// Method of ReflectionFunction to execute a function
+
+		$forbiddenphpregex = 'global\s+\$|\b('.implode('|', $forbiddenphpfunctions).')\b';
+
+		$forbiddenphpmethodsregex = '->('.implode('|', $forbiddenphpmethods).')';
+
+		do {
+			$oldstringtoclean = $s;
+			$s = str_ireplace($forbiddenphpstrings, '__forbiddenstring__', $s);
+			$s = preg_replace('/'.$forbiddenphpregex.'/i', '__forbiddenstring__', $s);
+			$s = preg_replace('/'.$forbiddenphpmethodsregex.'/i', '__forbiddenstring__', $s);
+			//$s = preg_replace('/\$[a-zA-Z0-9_\->\$]+\(/i', '', $s);	// Remove $function( call and $mycall->mymethod(
+		} while ($oldstringtoclean != $s);
+
+		if (strpos($s, '__forbiddenstring__') !== false) {
+			dol_syslog('Bad string syntax to evaluate: '.$s, LOG_WARNING);
+			if ($returnvalue) {
+				return 'Bad string syntax to evaluate: '.$s;
+			} else {
+				dol_syslog('Bad string syntax to evaluate: '.$s);
+				return '';
+			}
+		}
+
+		//print $s."<br>\n";
+		if ($returnvalue) {
+			if ($hideerrors) {
+				return @eval('return '.$s.';');
+			} else {
+				return eval('return '.$s.';');
+			}
+		} else {
+			if ($hideerrors) {
+				@eval($s);
+			} else {
+				eval($s);
+			}
+		}
+	} catch (Error $e) {
+		$error = 'dol_eval try/catch error : ';
+		$error .= $e->getMessage();
+		dol_syslog($error);
 	}
 }
 

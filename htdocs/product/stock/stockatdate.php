@@ -38,12 +38,6 @@ require_once './lib/replenishment.lib.php';
 // Load translation files required by the page
 $langs->loadLangs(array('products', 'stocks', 'orders'));
 
-// Security check
-if ($user->socid) {
-	$socid = $user->socid;
-}
-$result = restrictedArea($user, 'produit|service');
-
 // Initialize technical object to manage hooks of page. Note that conf->hooks_modules contains array of hook context
 $hookmanager->initHooks(array('stockatdate'));
 
@@ -101,6 +95,14 @@ if ($mode == 'future') {
 		$dateIsValid = false;
 	}
 }
+
+// Security check
+if ($user->socid) {
+	$socid = $user->socid;
+}
+
+$result = restrictedArea($user, 'produit|service');	// Must have permission to read product
+$result = restrictedArea($user, 'stock');	// Must have permission to read stock
 
 
 /*

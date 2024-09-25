@@ -70,7 +70,10 @@ $search_array_options = $extrafields->getOptionalsFromPost($object->table_elemen
 $hookmanager->initHooks(array('doncard', 'globalcard'));
 
 $upload_dir = $conf->don->dir_output;
-$permissiontoadd = $user->rights->don->creer;
+
+$permissiontoread = $user->hasRight('don', 'lire');
+$permissiontoadd = $user->hasRight('don', 'creer');
+$permissiontodelete = $user->hasRight('don', 'supprimer');
 
 
 /*
@@ -121,7 +124,7 @@ if ($action == 'confirm_reopen' && $confirm == 'yes' && $permissiontoadd) {
 
 
 // Action update object
-if ($action == 'update') {
+if ($action == 'update' && $permissiontoadd) {
 	if (!empty($cancel)) {
 		header("Location: ".$_SERVER['PHP_SELF']."?id=".urlencode($id));
 		exit;
@@ -175,7 +178,7 @@ if ($action == 'update') {
 
 
 // Action add/create object
-if ($action == 'add') {
+if ($action == 'add' && $permissiontoadd) {
 	if (!empty($cancel)) {
 		header("Location: index.php");
 		exit;
@@ -235,7 +238,7 @@ if ($action == 'add') {
 }
 
 // Action delete object
-if ($action == 'confirm_delete' && GETPOST("confirm") == "yes" && $user->rights->don->supprimer) {
+if ($action == 'confirm_delete' && GETPOST("confirm") == "yes" && $permissiontodelete) {
 	$object->fetch($id);
 	$result = $object->delete($user);
 	if ($result > 0) {
@@ -248,7 +251,7 @@ if ($action == 'confirm_delete' && GETPOST("confirm") == "yes" && $user->rights-
 }
 
 // Action validation
-if ($action == 'valid_promesse') {
+if ($action == 'valid_promesse' && $permissiontoadd) {
 	$object->fetch($id);
 	if ($object->valid_promesse($id, $user->id) >= 0) {
 		setEventMessages($langs->trans("DonationValidated", $object->ref), null);
@@ -259,7 +262,7 @@ if ($action == 'valid_promesse') {
 }
 
 // Action cancel
-if ($action == 'set_cancel') {
+if ($action == 'set_cancel' && $permissiontoadd) {
 	$object->fetch($id);
 	if ($object->set_cancel($id) >= 0) {
 		$action = '';
@@ -269,7 +272,9 @@ if ($action == 'set_cancel') {
 }
 
 // Action set paid
-if ($action == 'set_paid') {
+if ($action == 'set_paid' && $permissiontoadd) {
+	$modepayment = GETPOSTINT('modepayment');
+
 	$object->fetch($id);
 	if ($object->setPaid($id, $modepayment) >= 0) {
 		$action = '';

@@ -1077,16 +1077,27 @@ class Account extends CommonObject
 	/**
 	 *  Delete bank account from database
 	 *
-	 *	@param	User	$user	User deleting
-	 *  @return int             <0 if KO, >0 if OK
+	 * @param	User	$user		User deleting
+	 * @param	int		$notrigger	1=Does not execute triggers, 0= execute triggers
+	 * @return	int 				Return integer <0 if KO, >0 if OK
 	 */
-	public function delete(User $user = null)
+	public function delete(User $user = null, $notrigger = 0)
 	{
 		global $conf;
 
 		$error = 0;
 
 		$this->db->begin();
+
+		if (!$notrigger) {
+			// Call trigger
+			$result = $this->call_trigger('BANKACCOUNTLINE_DELETE', $user);
+			if ($result < 0) {
+				$this->db->rollback();
+				return -1;
+			}
+			// End call triggers
+		}
 
 		// Delete link between tag and bank account
 		if (!$error) {
