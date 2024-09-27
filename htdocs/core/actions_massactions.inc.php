@@ -1213,6 +1213,134 @@ if (!$error && $massaction == 'generate_doc' && $permissiontoread) {
 	}
 }
 
+if (!$error && ($action == 'downloadVcf' && $confirm == 'yes') && $permissiontoadd) {
+	require_once DOL_DOCUMENT_ROOT.'/core/class/vcard.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+	// Security check
+	$result = restrictedArea($user, 'contact', $id, 'socpeople&societe');
+	$nbok = 0;
+	$dirfortmpfile = $conf->societe->dir_temp ? $conf->societe->dir_temp : '';
+	if (empty($dirfortmpfile)) {
+		setEventMessages($langs->trans("ErrorNoTmpDir", ''), null, 'errors');
+		$error++;
+	}
+	if (!$error) {
+		if (!extension_loaded('zip')) {
+			setEventMessages('PHPZIPExtentionNotLoaded', null, 'errors');
+		} else {
+			dol_mkdir($dirfortmpfile);
+			$zipname = $dirfortmpfile.'/'.dol_print_date(dol_now(), 'dayrfc', 'tzuserrel').'_export_vcf.zip';
+			dol_delete_file($zipname);
+			$zip = new ZipArchive;
+			$res = $zip->open($zipname, ZipArchive::OVERWRITE | ZipArchive::CREATE);
+			if ($res) {
+				$company = new Societe($db);
+				$v = new vCard();
+				$v->setProdId('Dolibarr '.DOL_VERSION);
+				foreach ($toselect as $toselectid) {
+					$result = $object->fetch($toselectid);
+					if ($result > 0) {
+						$result = $company->fetch($object->socid);
+						if ($result > 0) {
+							$v->setUid('DOLIBARR-CONTACTID-'.$object->id);
+							$v->setName($object->lastname, $object->firstname, "", $object->civility, "");
+							$v->setFormattedName($object->getFullName($langs, 1));
+							$v->setPhoneNumber($object->phone_pro, "TYPE=WORK;VOICE");
+							$v->setPhoneNumber($object->phone_mobile, "TYPE=CELL;VOICE");
+							$v->setPhoneNumber($object->fax, "TYPE=WORK;FAX");
+							$country = $object->country_code ? $object->country : '';
+							$v->setAddress("", "", $object->address, $object->town, $object->state, $object->zip, $country, "TYPE=WORK;POSTAL");
+							$v->setLabel("", "", $object->address, $object->town, $object->state, $object->zip, $country, "TYPE=WORK");
+							$v->setEmail($object->email);
+							$v->setNote($object->note);
+							$v->setTitle($object->poste);
+							// Data from linked company
+							if ($company->id) {
+								$v->setURL($company->url, "TYPE=WORK");
+								if (!$object->phone_pro) {
+									$v->setPhoneNumber($company->phone, "TYPE=WORK;VOICE");
+								}
+								if (!$object->fax) {
+									$v->setPhoneNumber($company->fax, "TYPE=WORK;FAX");
+								}
+								if (!$object->zip) {
+									$v->setAddress("", "", $company->address, $company->town, $company->state, $company->zip, $company->country, "TYPE=WORK;POSTAL");
+								}
+								// when company e-mail is empty, use only contact e-mail
+								if (empty(trim($company->email))) {
+									// was set before, don't set twice
+								} elseif (empty(trim($object->email))) {
+									// when contact e-mail is empty, use only company e-mail
+									$v->setEmail($company->email);
+								} else {
+									$tmpcontact = explode("@", trim($object->email));
+									$tmpcompany = explode("@", trim($company->email));
+									if (strtolower(end($tmpcontact)) == strtolower(end($tmpcompany))) {
+										// when e-mail domain of contact and company are the same, use contact e-mail at first (and company e-mail at second)
+										$v->setEmail($object->email);
+										// support by Microsoft Outlook (2019 and possible earlier)
+										$v->setEmail($company->email, 'INTERNET');
+									} else {
+										// when e-mail of contact and company complete different use company e-mail at first (and contact e-mail at second)
+										$v->setEmail($company->email);
+										// support by Microsoft Outlook (2019 and possible earlier)
+										$v->setEmail($object->email, 'INTERNET');
+									}
+								}
+								// Si contact lie a un tiers non de type "particulier"
+								if ($company->typent_code != 'TE_PRIVATE') {
+									$v->setOrg($company->name);
+								}
+							}
+							// Personal informations
+							$v->setPhoneNumber($object->phone_perso, "TYPE=HOME;VOICE");
+							if ($object->birthday) {
+								$v->setBirthday($object->birthday);
+							}
+							$output = $v->getVCard();
+							$filename = trim(urldecode($v->getFileName())); // "Nom prenom.vcf"
+							$filenameurlencoded = dol_sanitizeFileName($filename);
+							$file = $dirfortmpfile."/".$filenameurlencoded;
+							$fp = fopen($file, "w");
+							fputs($fp, $output);
+							fclose($fp);
+							dolChmod($file);
+							if (file_exists($file)) {
+								$zip->addFile($file, 'vcf/'.$filenameurlencoded);
+							}
+							$nbok++;
+						} else {
+							setEventMessages($object->error, $object->errors, 'errors');
+						}
+					} else {
+						setEventMessages($object->error, $object->errors, 'errors');
+						$error++;
+						break;
+					}
+				}
+				$zip->close();
+				// Then download the zipped file.
+				header('Content-Type: application/zip');
+				header('Content-disposition: attachment; filename='.basename($zipname));
+				header('Content-Length: '.filesize($zipname));
+				readfile($zipname);
+				dol_delete_file($zipname);
+				if ($nbok > 1) {
+					setEventMessages($langs->trans("vcfDownloaded", $nbok), null);
+				} else {
+					setEventMessages($langs->trans("noVcfDownloaded"), null, 'errors');
+				}
+				dol_delete_dir_recursive($dirfortmpfile, 0, 0, 1);
+				$toselect = array();
+				$action = 'list';
+				$massaction = '';
+			} else {
+				setEventMessages($langs->trans("FailedToOpenFile", $zipname), null, 'errors');
+			}
+		}
+	}
+}
+
 if (!$error && ($action == 'affecttag' && $confirm == 'yes') && $permissiontoadd) {
 	$db->begin();
 

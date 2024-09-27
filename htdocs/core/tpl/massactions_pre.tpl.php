@@ -31,6 +31,10 @@
 // $sendto
 // $withmaindocfilemail
 
+if ($massaction == 'presendvcf') {
+	print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans("ConfirmMassSendVcf"), $langs->trans("ConfirmMassSendVcfQuestion", count($toselect)), "downloadVcf", null, 'yes', 0, 200, 500, 1);
+}
+
 if ($massaction == 'predeletedraft') {
 	print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans("ConfirmMassDraftDeletion"), $langs->trans("ConfirmMassDeletionQuestion", count($toselect)), "delete", null, '', 0, 200, 500, 1);
 }

@@ -861,7 +861,10 @@ if (!empty($permissiontodelete)) {
 if (isModEnabled('category') && $user->hasRight('societe', 'creer')) {
 	$arrayofmassactions['preaffecttag'] = img_picto('', 'category', 'class="pictofixedwidth"').$langs->trans("AffectTag");
 }
-if (in_array($massaction, array('presend', 'predelete','preaffecttag'))) {
+if (!empty($permissiontoadd)) {
+	$arrayofmassactions['presendvcf'] = img_picto('', 'vcard.png', 'class="pictofixedwidth"').$langs->trans("Download").' '.$langs->trans("VCard");
+}
+if (in_array($massaction, array('presend', 'predelete', 'preaffecttag', 'presendvcf'))) {
 	$arrayofmassactions = array();
 }
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
