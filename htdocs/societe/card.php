@@ -531,6 +531,34 @@ if (empty($reshook)) {
 			$object->client					= GETPOST('client', 'int');
 			$object->fournisseur			= GETPOST('fournisseur', 'int');
 
+			if ($action == 'add') {
+				// for prospect, customer or supplier
+				if ($object->client > 0 || $object->fournisseur > 0) {
+					$form = new Form($db);
+					$form->load_cache_types_paiements();
+
+					$paymentTermId = GETPOSTINT('cond_reglement_id');
+					$paymentTypeId = GETPOSTINT('mode_reglement_id');
+					if ($object->client > 0) {
+						$object->cond_reglement_id = $paymentTermId;
+
+						$filterPaymentTypeIdArr = array(0, 2, 3); // allow payment type for customer (filter is "CRDT" in "Form::select_types_paiements()" method)
+						if (!empty($form->cache_types_paiements[$paymentTypeId]) && isset($form->cache_types_paiements[$paymentTypeId]['type']) && in_array($form->cache_types_paiements[$paymentTypeId]['type'], $filterPaymentTypeIdArr)) {
+							$object->mode_reglement_id = $paymentTypeId;
+						}
+					}
+
+					if ($object->fournisseur > 0) {
+						$object->cond_reglement_supplier_id	= $paymentTermId;
+
+						$filterPaymentTypeIdArr = array(1, 2, 3); // allow payment type for supplier (filter is "DBIT" in "Form::select_types_paiements()" method)
+						if (!empty($form->cache_types_paiements[$paymentTypeId]) && isset($form->cache_types_paiements[$paymentTypeId]['type']) && in_array($form->cache_types_paiements[$paymentTypeId]['type'], $filterPaymentTypeIdArr)) {
+							$object->mode_reglement_supplier_id = $paymentTypeId;
+						}
+					}
+				}
+			}
+
 			$object->commercial_id			= GETPOST('commercial_id', 'int');
 			$object->default_lang			= GETPOST('default_lang');
 
