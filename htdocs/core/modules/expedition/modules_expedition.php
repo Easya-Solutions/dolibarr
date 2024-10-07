@@ -37,6 +37,21 @@
 abstract class ModelePdfExpedition extends CommonDocGenerator
 {
 	/**
+	 * @var int Volume Weight position X
+	 */
+	public $posxweightvol;
+
+	/**
+	 * @var int Picture position X
+	 */
+	public $posxpicture;
+
+	/**
+	 * @var int Qty ordered position X
+	 */
+	public $posxqtyordered;
+
+	/**
 	 * @var string Error code (or message)
 	 */
 	public $error = '';

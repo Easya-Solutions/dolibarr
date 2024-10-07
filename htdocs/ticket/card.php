@@ -980,7 +980,7 @@ if ($action == 'create' || $action == 'presend') {
 			}
 			$morehtmlref .= $form->form_thirdparty($url_page_current.'?track_id='.$object->track_id, $object->socid, $action == 'editcustomer' ? 'editcustomer' : 'none', '', 1, 0, 0, array(), 1);
 			if (!empty($object->socid)) {
-				$morehtmlref .= ' - <a href="'.DOL_URL_ROOT.'/ticket/list.php?socid='.$object->socid.'&sortfield=t.datec&sortorder=desc">'.img_picto($langs->trans("Tickets"), 'ticket', 'class="pictofixedwidth"').' '.$langs->trans("TicketHistory").'</a>';
+				$morehtmlref .= ' - <a href="'.DOL_URL_ROOT.'/ticket/list.php?socid='.$object->socid.'&sortfield=t.datec&sortorder=desc'.(getDolGlobalString('TICKET_CLIENT_OTHER_TICKET_ONLY_OPEN')?'&search_fk_statut[]=openall':'').'">'.img_picto($langs->trans("Tickets"), 'ticket', 'class="pictofixedwidth"').' '.$langs->trans("TicketHistory").'</a>';
 			}
 		}
 
@@ -1129,26 +1129,12 @@ if ($action == 'create' || $action == 'presend') {
 		print '</td>';
 		print '</tr>';
 
-		// Timing (Duration sum of linked fichinter)
+		// Duration (Sum of linked fichinter)
 		if (isModEnabled('ficheinter')) {
-			$object->fetchObjectLinked();
-			$num = count($object->linkedObjects);
-			$timing = 0;
-			$foundinter = 0;
-			if ($num) {
-				foreach ($object->linkedObjects as $objecttype => $objects) {
-					if ($objecttype == "fichinter") {
-						foreach ($objects as $fichinter) {
-							$foundinter++;
-							$timing += $fichinter->duration;
-						}
-					}
-				}
-			}
 			print '<tr><td>';
 			print $form->textwithpicto($langs->trans("TicketDurationAuto"), $langs->trans("TicketDurationAutoInfos"), 1);
 			print '</td><td>';
-			print $foundinter ? convertSecondToTime($timing, 'all', getDolGlobalString('MAIN_DURATION_OF_WORKDAY')) : '';
+			print (isset($object->duration) ? convertSecondToTime($object->duration, 'all', getDolGlobalString('MAIN_DURATION_OF_WORKDAY')) : '');
 			print '</td></tr>';
 		}
 

@@ -599,3 +599,34 @@ UPDATE llx_rights_def SET perms = 'thirdparty_paymentinformation' WHERE perms = 
 
 -- Fix against empty modules page
 UPDATE llx_const SET value = '' WHERE name LIKE 'MAIN_MODULE_SETUP_ON_LIST_BY_DEFAULT' AND value NOT IN ('common', 'commonkanban');
+
+-- Duration (Sum of linked fichinter) of ticket
+ALTER TABLE llx_ticket ADD COLUMN duration integer AFTER progress;
+UPDATE llx_ticket AS t1 LEFT JOIN (SELECT (CASE WHEN ee.targettype = 'ticket' THEN ee.fk_target ELSE ee.fk_source END) AS rowid, SUM(fd.duree) as duration FROM llx_element_element AS ee LEFT JOIN llx_fichinterdet AS fd ON fd.fk_fichinter = (CASE WHEN ee.targettype = 'fichinter' THEN ee.fk_target ELSE ee.fk_source END) WHERE (ee.sourcetype = 'fichinter' AND ee.targettype = 'ticket') OR (ee.targettype = 'fichinter' AND ee.sourcetype = 'ticket') GROUP BY (CASE WHEN ee.targettype = 'ticket' THEN ee.fk_target ELSE ee.fk_source END)) AS t2 ON t2.rowid = t1.rowid SET t1.duration = t2.duration;
+
+-- Backport MRP develop v21
+-- v19
+UPDATE llx_product_lot SET manufacturing_date = datec WHERE manufacturing_date IS NULL;
+ALTER TABLE llx_product_lot ADD COLUMN qc_frequency integer DEFAULT NULL;
+ALTER TABLE llx_product_lot ADD COLUMN lifetime integer DEFAULT NULL;
+ALTER TABLE llx_mrp_production ADD COLUMN fk_unit integer DEFAULT NULL;
+-- VMYSQL4.1 UPDATE llx_mrp_production as mp INNER JOIN llx_bom_bomline as bbl ON mp.origin_id = bbl.rowid SET mp.fk_unit = bbl.fk_unit WHERE mp.origin_type = 'bomline' AND mk.fk_unit IS NULL;
+-- VMYSQL4.1 UPDATE llx_bom_bomline as bbl INNER JOIN llx_product as p ON p.rowid = bbl.fk_product SET bbl.fk_unit = p.fk_unit WHERE bbl.fk_unit IS NULL;
+CREATE TABLE llx_mrp_production_extrafields
+(
+    rowid                     integer AUTO_INCREMENT PRIMARY KEY,
+    tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_object                 integer NOT NULL,
+    import_key                varchar(14)                          		-- import key
+) ENGINE=innodb;
+ALTER TABLE llx_mrp_production_extrafields ADD INDEX idx_mrp_production_fk_object(fk_object);
+ALTER TABLE llx_bom_bomline ADD COLUMN tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+-- v20
+ALTER TABLE llx_bom_bom_extrafields DROP INDEX idx_bom_bom_extrafields_fk_object;
+ALTER TABLE llx_bom_bom_extrafields ADD UNIQUE INDEX uk_bom_bom_extrafields_fk_object (fk_object);
+ALTER TABLE llx_mrp_mo_extrafields DROP INDEX idx_mrp_mo_fk_object;
+ALTER TABLE llx_mrp_mo_extrafields ADD UNIQUE INDEX uk_mrp_mo_fk_object (fk_object);
+ALTER TABLE llx_mrp_production_extrafields DROP INDEX idx_mrp_production_fk_object;
+ALTER TABLE llx_mrp_production_extrafields ADD UNIQUE INDEX uk_mrp_production_fk_object (fk_object);
+UPDATE llx_mrp_production SET disable_stock_change = 0 WHERE disable_stock_change IS NULL;
+-- v21
