@@ -2520,22 +2520,22 @@ class Form
 	/**
 	 *  Return list of BOM for customer in Ajax if Ajax activated or go to select_produits_list
 	 *
-	 * @param int $selected Preselected BOM id
+	 * @param string	$selected Preselected BOM id
 	 * @param string $htmlname Name of HTML select field (must be unique in page).
 	 * @param int $limit Limit on number of returned lines
 	 * @param int $status Sell status -1=Return all bom, 0=Draft BOM, 1=Validated BOM
 	 * @param int $type type of the BOM (-1=Return all BOM, 0=Return disassemble BOM, 1=Return manufacturing BOM)
-	 * @param string $showempty '' to not show empty line. Translation key to show an empty line. '1' show empty line with no text.
+	 * @param string|int<0,1>	$showempty	'' to not show empty line. Translation key to show an empty line. '1' show empty line with no text.
 	 * @param string $morecss Add more css on select
 	 * @param string $nooutput No print, return the output into a string
 	 * @param int $forcecombo Force to use combo box
-	 * @param array $TProducts Add filter on a defined product
+	 * @param string[]	$TProducts Add filter on a defined product
 	 * @return        void|string
 	 */
 	public function select_bom($selected = '', $htmlname = 'bom_id', $limit = 0, $status = 1, $type = 0, $showempty = '1', $morecss = '', $nooutput = '', $forcecombo = 0, $TProducts = [])
 	{
 		// phpcs:enable
-		global $conf, $user, $langs, $db;
+		global $db;
 
 		require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
@@ -2553,22 +2553,34 @@ class Form
 		$sql = 'SELECT b.rowid, b.ref, b.label, b.fk_product';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'bom_bom as b';
 		$sql .= ' WHERE b.entity IN (' . getEntity('bom') . ')';
-		if (!empty($status)) $sql .= ' AND status = ' . (int) $status;
-		if (!empty($type)) $sql .= ' AND bomtype = ' . (int) $type;
-		if (!empty($TProducts)) $sql .= ' AND fk_product IN (' . $this->db->sanitize(implode(',', $TProducts)) . ')';
-		if (!empty($limit)) $sql .= ' LIMIT ' . (int) $limit;
+		if (!empty($status)) {
+			$sql .= ' AND status = ' . (int) $status;
+		}
+		if (!empty($type)) {
+			$sql .= ' AND bomtype = ' . (int) $type;
+		}
+		if (!empty($TProducts)) {
+			$sql .= ' AND fk_product IN (' . $this->db->sanitize(implode(',', $TProducts)) . ')';
+		}
+		if (!empty($limit)) {
+			$sql .= ' LIMIT ' . (int) $limit;
+		}
 		$resql = $db->query($sql);
 		if ($resql) {
 			if ($showempty) {
 				$out .= '<option value="-1"';
-				if (empty($selected)) $out .= ' selected';
+				if (empty($selected)) {
+					$out .= ' selected';
+				}
 				$out .= '>&nbsp;</option>';
 			}
 			while ($obj = $db->fetch_object($resql)) {
 				$product = new Product($db);
 				$res = $product->fetch($obj->fk_product);
 				$out .= '<option value="' . $obj->rowid . '"';
-				if ($obj->rowid == $selected) $out .= 'selected';
+				if ($obj->rowid == $selected) {
+					$out .= 'selected';
+				}
 				$out .= '>' . $obj->ref . ' - ' . $product->label . ' - ' . $obj->label . '</option>';
 			}
 		} else {
@@ -3381,9 +3393,12 @@ class Form
 		}
 
 		$sql = "SELECT p.rowid, p.ref, p.label, p.price, p.duration, p.fk_product_type, p.stock, p.tva_tx as tva_tx_sale, p.default_vat_code as default_vat_code_sale,";
-		$sql .= " pfp.ref_fourn, pfp.rowid as idprodfournprice, pfp.price as fprice, pfp.quantity, pfp.remise_percent, pfp.remise, pfp.unitprice,";
-		$sql .= " pfp.fk_supplier_price_expression, pfp.fk_product, pfp.tva_tx, pfp.default_vat_code, pfp.fk_soc, s.nom as name,";
-		$sql .= " pfp.supplier_reputation";
+		$sql .= " pfp.ref_fourn, pfp.rowid as idprodfournprice, pfp.price as fprice, pfp.quantity, pfp.remise_percent, pfp.remise, pfp.unitprice";
+		if (isModEnabled('multicurrency')) {
+			$sql .= ", pfp.multicurrency_code, pfp.multicurrency_unitprice";
+		}
+		$sql .= ", pfp.fk_supplier_price_expression, pfp.fk_product, pfp.tva_tx, pfp.default_vat_code, pfp.fk_soc, s.nom as name";
+		$sql .= ", pfp.supplier_reputation";
 		// if we use supplier description of the products
 		if (!empty($conf->global->PRODUIT_FOURN_TEXTS)) {
 			$sql .= ", pfp.desc_fourn as description";
@@ -3692,6 +3707,10 @@ class Form
 					$optstart .= ' data-tvatx-formated="' . dol_escape_htmltag(price($objp->tva_tx, 0, $langs, 1, -1, 2)) . '"';
 					$optstart .= ' data-default-vat-code="' . dol_escape_htmltag($objp->default_vat_code) . '"';
 					$optstart .= ' data-supplier-ref="' . dol_escape_htmltag($objp->ref_fourn) . '"';
+					if (isModEnabled('multicurrency')) {
+						$optstart .= ' data-multicurrency-code="' . dol_escape_htmltag($objp->multicurrency_code) . '"';
+						$optstart .= ' data-multicurrency-up="' . dol_escape_htmltag($objp->multicurrency_unitprice) . '"';
+					}
 				}
 				$optstart .= ' data-description="' . dol_escape_htmltag($objp->description, 0, 1) . '"';
 
@@ -3713,6 +3732,10 @@ class Form
 					'disabled' => (empty($objp->idprodfournprice) ? true : false),
 					'description' => $objp->description
 				);
+				if (isModEnabled('multicurrency')) {
+					$outarrayentry['multicurrency_code'] = $objp->multicurrency_code;
+					$outarrayentry['multicurrency_unitprice'] = price2num($objp->multicurrency_unitprice, 'MU');
+				}
 
 				$parameters = array(
 					'objp' => &$objp,
@@ -3728,29 +3751,33 @@ class Form
 				// "key" value of json key array is used by jQuery automatically as selected value. Example: 'type' = product or service, 'price_ht' = unit price without tax
 				// "label" value of json key array is used by jQuery automatically as text for combo box
 				$out .= $optstart . ' data-html="' . dol_escape_htmltag($optlabel) . '">' . $optlabel . "</option>\n";
-				array_push(
-					$outarray,
-					array('key' => $outkey,
-						'value' => $outref,
-						'label' => $outvallabel,
-						'qty' => $outqty,
-						'price_qty_ht' => price2num($objp->fprice, 'MU'),        // Keep higher resolution for price for the min qty
-						'price_qty_ht_locale' => price($objp->fprice),
-						'price_unit_ht' => price2num($objp->unitprice, 'MU'),    // This is used to fill the Unit Price
-						'price_unit_ht_locale' => price($objp->unitprice),
-						'price_ht' => price2num($objp->unitprice, 'MU'),        // This is used to fill the Unit Price (for compatibility)
-						'tva_tx_formated' => price($objp->tva_tx),
-						'tva_tx' => price2num($objp->tva_tx),
-						'default_vat_code' => $objp->default_vat_code,
-						'discount' => $outdiscount,
-						'type' => $outtype,
-						'duration_value' => $outdurationvalue,
-						'duration_unit' => $outdurationunit,
-						'disabled' => (empty($objp->idprodfournprice) ? true : false),
-						'description' => $objp->description
-					)
+				$outarraypush = array(
+					'key' => $outkey,
+					'value' => $outref,
+					'label' => $outvallabel,
+					'qty' => $outqty,
+					'price_qty_ht' => price2num($objp->fprice, 'MU'),        // Keep higher resolution for price for the min qty
+					'price_qty_ht_locale' => price($objp->fprice),
+					'price_unit_ht' => price2num($objp->unitprice, 'MU'),    // This is used to fill the Unit Price
+					'price_unit_ht_locale' => price($objp->unitprice),
+					'price_ht' => price2num($objp->unitprice, 'MU'),        // This is used to fill the Unit Price (for compatibility)
+					'tva_tx_formated' => price($objp->tva_tx),
+					'tva_tx' => price2num($objp->tva_tx),
+					'default_vat_code' => $objp->default_vat_code,
+					'discount' => $outdiscount,
+					'type' => $outtype,
+					'duration_value' => $outdurationvalue,
+					'duration_unit' => $outdurationunit,
+					'disabled' => (empty($objp->idprodfournprice) ? true : false),
+					'description' => $objp->description
 				);
-				// Exemple of var_dump $outarray
+				if (isModEnabled('multicurrency')) {
+					$outarraypush['multicurrency_code'] = $objp->multicurrency_code;
+					$outarraypush['multicurrency_unitprice'] = price2num($objp->multicurrency_unitprice, 'MU');
+				}
+				array_push($outarray, $outarraypush);
+
+				// Example of var_dump $outarray
 				// array(1) {[0]=>array(6) {[key"]=>string(1) "2" ["value"]=>string(3) "ppp"
 				//           ["label"]=>string(76) "ppp (<strong>f</strong>ff2) - ppp - 20,00 Euros/1unité (20,00 Euros/unité)"
 				//      	 ["qty"]=>string(1) "1" ["discount"]=>string(1) "0" ["disabled"]=>bool(false)
@@ -5268,7 +5295,7 @@ class Form
 							$h = isset($input['hours']) ? $input['hours'] : 1;
 							$m = isset($input['minutes']) ? $input['minutes'] : 1;
 						}
-						$more .= $this->selectDate($input['value'], $input['name'], $h, $m, 0, '', 1, $addnowlink);
+						$more .= $this->selectDate($input['value'] ?? -1, $input['name'], $h, $m, 0, '', 1, $addnowlink);
 						$more .= '</div></div>'."\n";
 						$formquestion[] = array('name'=>$input['name'].'day');
 						$formquestion[] = array('name'=>$input['name'].'month');
@@ -5373,7 +5400,10 @@ class Form
 				$jsforcursor .= 'jQuery("html,body,#id-container").addClass("cursorwait");' . "\n";
 			}
 
-			$postconfirmas = 'GET';
+			// BEGIN EASYA ONLY CHANGE
+			// $postconfirmas = 'GET'; // Added by Eldy with message "Fix regression using confirm as POST (pb with cursor and download file)". I do not encounter any problem but I need long formconfirms.
+			$postconfirmas = (getDolGlobalInt('EASYA_SEND_FORMCONFIRM_AS_POST') ? 'POST' : 'GET');
+			// END EASYA ONLY CHANGE
 
 			$formconfirm .= '
                     resizable: false,
@@ -5941,9 +5971,9 @@ class Form
 			print '</form>';
 		} else {
 			if (!empty($rate)) {
-				print price($rate, 1, $langs, 1, 0);
+				print price($rate, 1, $langs, 0, 0);
 				if ($currency && $rate != 1) {
-					print ' &nbsp; (' . price($rate, 1, $langs, 1, 0) . ' ' . $currency . ' = 1 ' . $conf->currency . ')';
+					print ' &nbsp; (' . price($rate, 1, $langs, 0, 0) . ' ' . $currency . ' = 1 ' . $conf->currency . ')';
 				}
 			} else {
 				print 1;
@@ -6352,7 +6382,7 @@ class Form
 				if (!empty($user) && $user->admin && preg_match('/\'(..)\'/', $country_code, $reg)) {
 					$langs->load("errors");
 					$new_country_code = $reg[1];
-					$country_id = dol_getIdFromCode($this->db, $new_country_code, 'c_pays', 'code', 'rowid');
+					$country_id = dol_getIdFromCode($this->db, $new_country_code, 'c_country', 'code', 'rowid');
 					$this->error .= '<br>'.$langs->trans("ErrorFixThisHere", DOL_URL_ROOT.'/admin/dict.php?id=10'.($country_id > 0 ? '&countryidforinsert='.$country_id : ''));
 				}
 				$this->error .= '</span>';
@@ -6429,16 +6459,35 @@ class Form
 		} else {
 			$code_country = "'" . $mysoc->country_code . "'"; // Pour compatibilite ascendente
 		}
-		if (!empty($conf->global->SERVICE_ARE_ECOMMERCE_200238EC)) {    // If option to have vat for end customer for services is on
+		// begin => backport from v19
+		if (getDolGlobalString('SERVICE_ARE_ECOMMERCE_200238EC')) {    // If option to have vat for end customer for services is on
 			require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
-			if (!isInEEC($societe_vendeuse) && (!is_object($societe_acheteuse) || (isInEEC($societe_acheteuse) && !$societe_acheteuse->isACompany()))) {
+			// If SERVICE_ARE_ECOMMERCE_200238EC=1 combo list vat rate of purchaser and seller countries
+			// If SERVICE_ARE_ECOMMERCE_200238EC=2 combo list only the vat rate of the purchaser country
+			$selectVatComboMode = getDolGlobalString('SERVICE_ARE_ECOMMERCE_200238EC');
+			if (isInEEC($societe_vendeuse) && isInEEC($societe_acheteuse) && !$societe_acheteuse->isACompany()) {
 				// We also add the buyer country code
 				if (is_numeric($type)) {
 					if ($type == 1) { // We know product is a service
-						$code_country .= ",'" . $societe_acheteuse->country_code . "'";
+						switch ($selectVatComboMode) {
+							case '1':
+								$code_country .= ",'" . $societe_acheteuse->country_code . "'";
+								break;
+							case '2':
+								$code_country = "'" . $societe_acheteuse->country_code . "'";
+								break;
+						}
 					}
 				} elseif (!$idprod) {  // We don't know type of product
-					$code_country .= ",'" . $societe_acheteuse->country_code . "'";
+					switch ($selectVatComboMode) {
+						case '1':
+							$code_country .= ",'" . $societe_acheteuse->country_code . "'";
+							break;
+						case '2':
+							$code_country = "'" . $societe_acheteuse->country_code . "'";
+							break;
+					}
+		// end => backport from v19
 				} else {
 					$prodstatic = new Product($this->db);
 					$prodstatic->fetch($idprod);
@@ -8987,6 +9036,7 @@ class Form
 				// Output template part (modules that overwrite templates must declare this into descriptor)
 				$dirtpls = array_merge($conf->modules_parts['tpl'], array('/' . $tplpath . '/tpl'));
 				foreach ($dirtpls as $reldir) {
+					$reldir = rtrim($reldir, '/');
 					if ($nboftypesoutput == ($nbofdifferenttypes - 1)) {    // No more type to show after
 						global $noMoreLinkedObjectBlockAfter;
 						$noMoreLinkedObjectBlockAfter = 1;
@@ -10634,7 +10684,7 @@ class Form
 	 *
 	 * @param string $save_label Alternative label for save button
 	 * @param string $cancel_label Alternative label for cancel button
-	 * @param array $morebuttons Add additional buttons between save and cancel
+	 * @param 	array<array{addclass?:string,name?:string,label_key?:string}> $morebuttons 		Add additional buttons between save and cancel
 	 * @param bool $withoutdiv Option to remove enclosing centered div
 	 * @param string $morecss More CSS
 	 * @param string $dol_openinpopup If the button are shown in a context of a page shown inside a popup, we put here the string name of popup.

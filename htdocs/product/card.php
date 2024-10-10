@@ -73,6 +73,10 @@ if (isModEnabled('accounting')) {
 }
 if (isModEnabled('bom')) {
 	require_once DOL_DOCUMENT_ROOT.'/bom/class/bom.class.php';
+	$langs->load("mrp");
+}
+if (isModEnabled('workstation')) {
+	require_once DOL_DOCUMENT_ROOT.'/workstation/class/workstation.class.php';
 }
 
 // Load translation files required by the page
@@ -179,6 +183,9 @@ if (!empty($canvas)) {
 // Security check
 $fieldvalue = (!empty($id) ? $id : (!empty($ref) ? $ref : ''));
 $fieldtype = (!empty($id) ? 'rowid' : 'ref');
+
+// Initialize a technical object to manage hooks of page. Note that conf->hooks_modules contains an array of hook context
+$hookmanager->initHooks(array('productcard', 'globalcard'));
 
 if ($object->id > 0) {
 	if ($object->type == $object::TYPE_PRODUCT) {
@@ -562,6 +569,7 @@ if (empty($reshook)) {
 			$object->status             	 = GETPOST('statut');
 			$object->status_buy = GETPOST('statut_buy');
 			$object->status_batch = GETPOST('status_batch');
+			$object->sell_or_eat_by_mandatory = GETPOST('sell_or_eat_by_mandatory', 'int');
 			$object->batch_mask = GETPOST('batch_mask');
 
 			$object->barcode_type = GETPOST('fk_barcode_type');
@@ -761,6 +769,7 @@ if (empty($reshook)) {
 				$object->status                 = GETPOST('statut', 'int');
 				$object->status_buy             = GETPOST('statut_buy', 'int');
 				$object->status_batch = GETPOST('status_batch', 'aZ09');
+				$object->sell_or_eat_by_mandatory = GETPOST('sell_or_eat_by_mandatory', 'int');
 				$object->batch_mask = GETPOST('batch_mask', 'alpha');
 				$object->fk_default_warehouse   = GETPOST('fk_default_warehouse', 'int');
 				$object->fk_default_workstation   = GETPOST('fk_default_workstation', 'int');
@@ -800,7 +809,7 @@ if (empty($reshook)) {
 				} else {
 					$object->fk_default_bom = null;
 				}
-				
+
 				// managed_in_stock
 				$object->stockable_product   = GETPOSTISSET('stockable_product');
 
@@ -954,6 +963,43 @@ if (empty($reshook)) {
 							}
 						}
 
+						if (!$error && isModEnabled('bom') && $user->hasRight('bom', 'write')) {
+							$defbomidac = 0; // to avoid cloning same BOM twice
+							if (GETPOST('clone_defbom') && $object->fk_default_bom > 0) {
+								$bomstatic = new BOM($db);
+								$bomclone = $bomstatic->createFromClone($user, $object->fk_default_bom);
+								if ((int) $bomclone < 0) {
+									setEventMessages($langs->trans('ErrorProductClone').' : '.$langs->trans('ErrorProductCloneBom'), null, 'warnings');
+								} else {
+									$defbomidac = $object->fk_default_bom;
+									$clone->fk_default_bom = $bomclone->id;
+									$clone->update($id, $user);
+									$bomclone->fk_product = $id;
+									$bomclone->label = $langs->trans('BOMofRef', $clone->ref);
+									$bomclone->update($user);
+									$bomclone->validate($user);
+								}
+							}
+							if (GETPOST('clone_otherboms')) {
+								$bomstatic = new BOM($db);
+								$bomlist = $bomstatic->fetchAll("", "", 0, 0, 'fk_product:=:'.(int) $object->id);
+								if (is_array($bomlist)) {
+									foreach ($bomlist as $bom2clone) {
+										if ($bom2clone->id != $defbomidac) { // to avoid cloning same BOM twice
+											$bomclone = $bomstatic->createFromClone($user, $bom2clone->id);
+											if ((int) $bomclone < 0) {
+												setEventMessages($langs->trans('ErrorProductClone').' : '.$langs->trans('ErrorProductCloneBom'), null, 'warnings');
+											} else {
+												$bomclone->fk_product = $id;
+												$bomclone->label = $langs->trans('BOMofRef', $clone->ref);
+												$bomclone->update($user);
+												$bomclone->validate($user);
+											}
+										}
+									}
+								}
+							}
+						}
 						// $clone->clone_fournisseurs($object->id, $id);
 					} else {
 						if ($clone->error == 'ErrorProductAlreadyExists') {
@@ -1246,7 +1292,10 @@ $formcompany = new FormCompany($db);
 if (isModEnabled('accounting')) {
 	$formaccounting = new FormAccounting($db);
 }
-
+$sellOrEatByMandatoryList = null;
+if (isModEnabled('productbatch')) {
+	$sellOrEatByMandatoryList = Product::getSellOrEatByMandatoryList();
+}
 
 $title = $langs->trans('ProductServiceCard');
 
@@ -1446,6 +1495,13 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 					print '</td></tr>';
 				}
 			}
+
+			// SellBy / EatBy mandatory list
+			if (!empty($sellOrEatByMandatoryList)) {
+				print '<tr><td>'.$langs->trans('BatchSellOrEatByMandatoryList', $langs->trans('SellByDate'), $langs->trans('EatByDate')).'</td><td>';
+				print $form->selectarray('sell_or_eat_by_mandatory', $sellOrEatByMandatoryList, GETPOST('sell_or_eat_by_mandatory', 'int'));
+				print '</td></tr>';
+			}
 		}
 
 		$showbarcode = isModEnabled('barcode');
@@ -1493,7 +1549,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 			print '</td></tr>';
 		}
 
-		if ($type != 1 && isModEnabled('stock')) {
+		if (($type != 1 || getDolGlobalInt('STOCK_SUPPORTS_SERVICES')) && isModEnabled('stock')) {
 			// Default warehouse
 			print '<tr><td>'.$langs->trans("DefaultWarehouse").'</td><td>';
 			print img_picto($langs->trans("DefaultWarehouse"), 'stock', 'class="pictofixedwidth"');
@@ -2010,6 +2066,18 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 						print '</td></tr>';
 					}
 				}
+
+				// SellBy / EatBy mandatory list
+				if (!empty($sellOrEatByMandatoryList)) {
+					if (GETPOSTISSET('sell_or_eat_by_mandatory')) {
+						$sellOrEatByMandatorySelectedId = GETPOST('sell_or_eat_by_mandatory', 'int');
+					} else {
+						$sellOrEatByMandatorySelectedId = $object->sell_or_eat_by_mandatory;
+					}
+					print '<tr><td>'.$langs->trans('BatchSellOrEatByMandatoryList', $langs->trans('SellByDate'), $langs->trans('EatByDate')).'</td><td>';
+					print $form->selectarray('sell_or_eat_by_mandatory', $sellOrEatByMandatoryList, $sellOrEatByMandatorySelectedId);
+					print '</td></tr>';
+				}
 			}
 
 			// Barcode
@@ -2060,7 +2128,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 			}
 
 			// Stock
-			if ($object->isProduct() && isModEnabled('stock')) {
+			if (($object->isProduct() || getDolGlobalInt('STOCK_SUPPORTS_SERVICES')) && isModEnabled('stock')) {
 				// Default warehouse
 				print '<tr><td>'.$langs->trans("DefaultWarehouse").'</td><td>';
 				print img_picto($langs->trans("DefaultWarehouse"), 'stock', 'class="pictofixedwidth"');
@@ -2459,6 +2527,10 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 						print '</td></tr>';
 					}
 				}
+
+				print '<tr><td>'.$langs->trans('BatchSellOrEatByMandatoryList', $langs->trans('SellByDate'), $langs->trans('EatByDate')).'</td><td>';
+				print $object->getSellOrEatByMandatoryLabel();
+				print '</td></tr>';
 			}
 
 			if (empty($conf->global->PRODUCT_DISABLE_ACCOUNTING)) {
@@ -2574,7 +2646,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 			}
 
 			// Default warehouse
-			if ($object->isProduct() && isModEnabled('stock')) {
+			if (($object->isProduct() || getDolGlobalInt('STOCK_SUPPORTS_SERVICES')) && isModEnabled('stock')) {
 				$warehouse = new Entrepot($db);
 				$warehouse->fetch($object->fk_default_warehouse);
 
@@ -2591,7 +2663,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 				print '<tr><td>'.$langs->trans("DefaultWorkstation").'</td><td>';
 				print (!empty($workstation->id) ? $workstation->getNomUrl(1) : '');
 				print '</td>';
-			} 
+			}
 
 			// View stockable_product
 			if (($object->isProduct() || ($object->isService() && !empty($conf->global->STOCK_SUPPORTS_SERVICES))) && !empty($conf->stock->enabled)) {
@@ -2822,7 +2894,16 @@ if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->d
 	if (!empty($conf->global->PRODUIT_SOUSPRODUITS)) {
 		$formquestionclone[] = array('type' => 'checkbox', 'name' => 'clone_composition', 'label' => $langs->trans('CloneCompositionProduct'), 'value' => 1);
 	}
-
+	if (isModEnabled('bom') && $user->hasRight('bom', 'write')) {
+		if ($object->fk_default_bom > 0) {
+			$formquestionclone[] = array('type' => 'checkbox', 'name' => 'clone_defbom', 'label' => $langs->trans("CloneDefBomProduct"), 'value' => getDolGlobalInt('BOM_CLONE_DEFBOM'));
+		}
+		$bomstatic = new BOM($db);
+		$bomlist = $bomstatic->fetchAll("", "", 0, 0, 'fk_product:=:'.(int) $object->id);
+		if (is_array($bomlist) && count($bomlist) > 0) {
+			$formquestionclone[] = array('type' => 'checkbox', 'name' => 'clone_otherboms', 'label' => $langs->trans("CloneOtherBomsProduct"), 'value' => 0);
+		}
+	}
 	$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneProduct', $object->ref), 'confirm_clone', $formquestionclone, 'yes', 'action-clone', 350, 600);
 }
 

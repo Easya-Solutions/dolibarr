@@ -185,8 +185,8 @@ if (empty($reshook)) {
 
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes' && $usercancreate) {
-		if (1 == 0 && !GETPOST('clone_content') && !GETPOST('clone_receivers')) {
-			setEventMessages($langs->trans("NoCloneOptionsSpecified"), null, 'errors');
+		if (!($socid > 0)) {
+			setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentitiesnoconv('IdThirdParty')), null, 'errors');
 		} else {
 			if ($object->id > 0) {
 				// Because createFromClone modifies the object, we must clone it so that we can restore it later
@@ -194,6 +194,22 @@ if (empty($reshook)) {
 
 				$result = $object->createFromClone($user, $socid);
 				if ($result > 0) {
+					$warningMsgLineList = array();
+					// check all product lines are to sell otherwise add a warning message for each product line is not to sell
+					foreach ($object->lines as $line) {
+						if (!is_object($line->product)) {
+							$line->fetch_product();
+						}
+						if (is_object($line->product) && $line->product->id > 0) {
+							if (empty($line->product->status)) {
+								$warningMsgLineList[$line->id] = $langs->trans('WarningLineProductNotToSell', $line->product->ref);
+							}
+						}
+					}
+					if (!empty($warningMsgLineList)) {
+						setEventMessages('', $warningMsgLineList, 'warnings');
+					}
+
 					header("Location: ".$_SERVER['PHP_SELF'].'?id='.$result);
 					exit;
 				} else {
@@ -607,7 +623,7 @@ if (empty($reshook)) {
 				$object->generateDocument($object->model_pdf, $outputlangs, $hidedetails, $hidedesc, $hideref);
 			}
 		}
-	} elseif ($action == 'set_incoterms' && isModEnabled('incoterm')) {
+	} elseif ($action == 'set_incoterms' && isModEnabled('incoterm') && $usercancreate) {
 		// Set incoterm
 		$result = $object->setIncoterms(GETPOST('incoterm_id', 'int'), GETPOST('location_incoterms', 'alpha'));
 		if ($result < 0) {
@@ -635,6 +651,15 @@ if (empty($reshook)) {
 		$result = $object->setDiscount($user, price2num(GETPOST('remise_percent'), '', 2));
 	} elseif ($action == 'setremiseabsolue' && $usercancreate) {
 		$result = $object->set_remise_absolue($user, price2num(GETPOST('remise_absolue'), 'MU', 2));
+	} elseif ($action == 'addline' && GETPOST('submitforalllines', 'aZ09') && (GETPOST('alldate_start', 'alpha') || GETPOST('alldate_end', 'alpha')) && $usercancreate) {
+		// Define date start and date end for all line
+		$alldate_start = dol_mktime(GETPOST('alldate_starthour'), GETPOST('alldate_startmin'), 0, GETPOST('alldate_startmonth'), GETPOST('alldate_startday'), GETPOST('alldate_startyear'));
+		$alldate_end = dol_mktime(GETPOST('alldate_endhour'), GETPOST('alldate_endmin'), 0, GETPOST('alldate_endmonth'), GETPOST('alldate_endday'), GETPOST('alldate_endyear'));
+		foreach ($object->lines as $line) {
+			if ($line->product_type == 1) { // only service line
+				$result = $object->updateline($line->id, $line->desc, $line->subprice, $line->qty, $line->remise_percent, $line->tva_tx, $line->localtax1_tx, $line->localtax2_tx, 'HT', $line->info_bits, $alldate_start, $alldate_end, $line->product_type, $line->fk_parent_line, 0, $line->fk_fournprice, $line->pa_ht, $line->label, $line->special_code, $line->array_options, $line->fk_unit, $line->multicurrency_subprice);
+			}
+		}
 	} elseif ($action == 'addline' && GETPOST('submitforalllines', 'alpha') && GETPOST('vatforalllines', 'alpha') !== '') {
 		// Define vat_rate
 		$vat_rate = (GETPOST('vatforalllines') ? GETPOST('vatforalllines') : 0);
@@ -866,8 +891,8 @@ if (empty($reshook)) {
 					}
 				}
 
-				$tmpvat = price2num(preg_replace('/\s*\(.*\)/', '', $tva_tx));
-				$tmpprodvat = price2num(preg_replace('/\s*\(.*\)/', '', $prod->tva_tx));
+				$tmpvat = (float) price2num(preg_replace('/\s*\(.*\)/', '', $tva_tx));
+				$tmpprodvat = (float) price2num(preg_replace('/\s*\(.*\)/', '', $prod->tva_tx));
 
 				// Set unit price to use
 				if (!empty($price_ht) || $price_ht === '0') {
@@ -983,7 +1008,7 @@ if (empty($reshook)) {
 			}
 
 			$info_bits = 0;
-			if ($tva_npr) {
+			if (!empty($tva_npr)) {
 				$info_bits |= 0x01;
 			}
 
@@ -2770,7 +2795,9 @@ if ($action == 'create' && $usercancreate) {
 			print '<td class="titlefieldmiddle">' . $langs->transcountry("AmountLT1", $mysoc->country_code) . '</td>';
 			print '<td class="nowrap amountcard right">' . price($object->total_localtax1, '', $langs, 0, -1, -1, $conf->currency) . '</td>';
 			if (isModEnabled("multicurrency") && ($object->multicurrency_code && $object->multicurrency_code != $conf->currency)) {
-				print '<td class="nowrap amountcard right">' . price($object->total_localtax1, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
+				$object->multicurrency_total_localtax1 = price2num($object->total_localtax1 * $object->multicurrency_tx, 'MT');
+
+				print '<td class="nowrap amountcard right">' . price($object->multicurrency_total_localtax1, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
 			}
 			print '</tr>';
 
@@ -2780,7 +2807,9 @@ if ($action == 'create' && $usercancreate) {
 				print '<td>' . $langs->transcountry("AmountLT2", $mysoc->country_code) . '</td>';
 				print '<td class="nowrap amountcard right">' . price($object->total_localtax2, '', $langs, 0, -1, -1, $conf->currency) . '</td>';
 				if (isModEnabled("multicurrency") && ($object->multicurrency_code && $object->multicurrency_code != $conf->currency)) {
-					print '<td class="nowrap amountcard right">' . price($object->total_localtax2, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
+					$object->multicurrency_total_localtax2 = price2num($object->total_localtax2 * $object->multicurrency_tx, 'MT');
+
+					print '<td class="nowrap amountcard right">' . price($object->multicurrency_total_localtax2, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
 				}
 				print '</tr>';
 			}

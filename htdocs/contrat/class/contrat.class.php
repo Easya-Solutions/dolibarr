@@ -1553,7 +1553,7 @@ class Contrat extends CommonObject
 
 
 			// if buy price not defined, define buyprice as configured in margin admin
-			if ($this->pa_ht == 0) {
+			if (empty($this->pa_ht)) {
 				if (($result = $this->defineBuyPrice($pu_ht, $remise_percent, $fk_product)) < 0) {
 					return $result;
 				} else {
@@ -1621,13 +1621,15 @@ class Contrat extends CommonObject
 					$contractline->id = $contractlineid;
 					$result = $contractline->insertExtraFields();
 					if ($result < 0) {
-						$this->error[] = $contractline->error;
+						$this->errors = array_merge($this->errors, $contractline->errors);
+						$this->error = $contractline->error;
 						$error++;
 					}
 				}
 
 				if (empty($error)) {
 					// Call trigger
+					$this->context['line_id'] = $contractlineid;
 					$result = $this->call_trigger('LINECONTRACT_INSERT', $user);
 					if ($result < 0) {
 						$error++;
@@ -1750,7 +1752,7 @@ class Contrat extends CommonObject
 		}
 
 		// if buy price not defined, define buyprice as configured in margin admin
-		if ($this->pa_ht == 0) {
+		if (empty($this->pa_ht)) {
 			if (($result = $this->defineBuyPrice($pu, $remise_percent)) < 0) {
 				return $result;
 			} else {
@@ -1821,6 +1823,7 @@ class Contrat extends CommonObject
 
 			if (empty($error)) {
 				// Call trigger
+				$this->context['line_id'] = $rowid;
 				$result = $this->call_trigger('LINECONTRACT_MODIFY', $user);
 				if ($result < 0) {
 					$this->db->rollback();
@@ -1857,6 +1860,7 @@ class Contrat extends CommonObject
 
 		if ($this->statut >= 0) {
 			// Call trigger
+			$this->context['line_id'] = $idline;
 			$result = $this->call_trigger('LINECONTRACT_DELETE', $user);
 			if ($result < 0) {
 				return -1;
@@ -2965,6 +2969,7 @@ class ContratLigne extends CommonObjectLine
 	public $date_end_real; // date end real
 
 	public $tva_tx;
+	public $txtva;
 	public $vat_src_code;
 	public $localtax1_tx;
 	public $localtax2_tx;
@@ -3283,6 +3288,7 @@ class ContratLigne extends CommonObjectLine
 				$this->statut = $obj->statut;
 				$this->product_ref = $obj->product_ref;
 				$this->product_label = $obj->product_label;
+				if (!isset($obj->product_description)) $obj->product_description = '';
 				$this->product_description = $obj->product_description;
 				$this->product_type = $obj->product_type;
 				$this->label = $obj->label; // deprecated. We do not use this field. Only ref and label of product, and description of contract line

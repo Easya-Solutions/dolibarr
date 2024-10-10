@@ -277,6 +277,9 @@ if (empty($reshook) && $action == 'add') {
 		$datef = dol_mktime(GETPOST("p2hour", 'int'), GETPOST("p2min", 'int'), GETPOST("apsec", 'int'), GETPOST("p2month", 'int'), GETPOST("p2day", 'int'), GETPOST("p2year", 'int'), 'tzuserrel');
 	}
 
+	//set end date to now if percentage is set to 100 and end date not set
+	$datef = (!$datef && $percentage == 100)?dol_now():$datef;
+
 	// Check parameters
 	if (!$datef && $percentage == 100) {
 		$error++; $donotclearsession = 1;
@@ -712,6 +715,9 @@ if (empty($reshook) && $action == 'update') {
 			$datef = dol_mktime($fulldayevent ? '23' : GETPOST("p2hour", 'int'), $fulldayevent ? '59' : GETPOST("p2min", 'int'), $fulldayevent ? '59' : GETPOST("apsec", 'int'), GETPOST("p2month", 'int'), GETPOST("p2day", 'int'), GETPOST("p2year", 'int'), 'tzuser');
 		}
 
+		//set end date to now if percentage is set to 100 and end date not set
+		$datef = (!$datef && $percentage == 100)?dol_now():$datef;
+		
 		if ($object->elementtype == 'ticket') {	// code should be TICKET_MSG, TICKET_MSG_PRIVATE, TICKET_MSG_SENTBYMAIL, TICKET_MSG_PRIVATE_SENTBYMAIL
 			if ($private) {
 				if ($object->code == 'TICKET_MSG') {
@@ -1000,7 +1006,7 @@ if (empty($reshook) && GETPOST('actionmove', 'alpha') == 'mupdate') {
 
 	$newdate = GETPOST('newdate', 'alpha');
 	if (empty($newdate) || strpos($newdate, 'dayevent_') != 0) {
-		header("Location: ".$backtopage);
+		header("Location: ".$backtopage, true, 307);
 		exit;
 	}
 
@@ -1085,7 +1091,7 @@ if (empty($reshook) && GETPOST('actionmove', 'alpha') == 'mupdate') {
 		}
 	}
 	if (!empty($backtopage)) {
-		header("Location: ".$backtopage);
+		header("Location: ".$backtopage, true, 307);
 		exit;
 	} else {
 		$action = '';
@@ -1336,11 +1342,7 @@ if ($action == 'create') {
 		print $form->selectDate($datep, 'ap', 1, 1, 1, "action", 1, 2, 0, 'fulldaystart', '', '', '', 1, '', '', 'tzuserrel');
 	}
 	print ' <span class="hideonsmartphone">&nbsp; &nbsp; - &nbsp; &nbsp;</span> ';
-	if (GETPOST("afaire") == 1) {
-		print $form->selectDate($datef, 'p2', 1, 1, 1, "action", 1, 0, 0, 'fulldayend', '', '', '', 1, '', '', 'tzuserrel');
-	} else {
-		print $form->selectDate($datef, 'p2', 1, 1, 1, "action", 1, 0, 0, 'fulldayend', '', '', '', 1, '', '', 'tzuserrel');
-	}
+	print $form->selectDate($datef, 'p2', 1, 1, 1, "action", 1, 2, 0, 'fulldayend', '', '', '', 1, '', '', 'tzuserrel');
 	print '</td></tr>';
 
 	print '<tr><td class="">&nbsp;</td><td></td></tr>';
@@ -1446,8 +1448,14 @@ if ($action == 'create') {
 			$preselectedids[GETPOST('contactid', 'int')] = GETPOST('contactid', 'int');
 		}
 		if ($origin=='contact') $preselectedids[GETPOST('originid', 'int')] = GETPOST('originid', 'int');
+		// select "all" or "none" contact by default
+		if (getDolGlobalInt('MAIN_ACTIONCOM_CAN_ADD_ANY_CONTACT')) {
+			$select_contact_default = 0; // select "all" contacts by default : avoid to use it if there is a lot of contacts
+		} else {
+			$select_contact_default = -1; // select "none" by default
+		}
 		print img_picto('', 'contact', 'class="paddingrightonly"');
-		print $form->selectcontacts(empty($conf->global->MAIN_ACTIONCOM_CAN_ADD_ANY_CONTACT) ? GETPOST('socid', 'int') : 0, $preselectedids, 'socpeopleassigned[]', 1, '', '', 0, 'minwidth300 quatrevingtpercent', false, 0, array(), false, 'multiple', 'contactid');
+		print $form->selectcontacts(GETPOSTISSET('socid') ? GETPOSTINT('socid') : $select_contact_default, $preselectedids, 'socpeopleassigned[]', 1, '', '', 0, 'minwidth300 quatrevingtpercent', false, 0, array(), false, 'multiple', 'contactid');
 		print '</td></tr>';
 	}
 
@@ -1837,20 +1845,12 @@ if ($id > 0) {
 		print '</td><td td colspan="3">';
 		$tzforfullday = getDolGlobalString('MAIN_STORE_FULL_EVENT_IN_GMT');
 		if (GETPOST("afaire") == 1) {
-			print $form->selectDate($datep ? $datep : $object->datep, 'ap', 1, 1, 0, "action", 1, 1, 0, 'fulldaystart', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
-		} elseif (GETPOST("afaire") == 2) {
-			print $form->selectDate($datep ? $datep : $object->datep, 'ap', 1, 1, 1, "action", 1, 1, 0, 'fulldaystart', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
+			print $form->selectDate($datep ? $datep : $object->datep, 'ap', 1, 1, 0, "action", 1, 2, 0, 'fulldaystart', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
 		} else {
-			print $form->selectDate($datep ? $datep : $object->datep, 'ap', 1, 1, 1, "action", 1, 1, 0, 'fulldaystart', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
+			print $form->selectDate($datep ? $datep : $object->datep, 'ap', 1, 1, 1, "action", 1, 2, 0, 'fulldaystart', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
 		}
 		print ' <span class="hideonsmartphone">&nbsp; &nbsp; - &nbsp; &nbsp;</span> ';
-		if (GETPOST("afaire") == 1) {
-			print $form->selectDate($datef ? $datef : $object->datef, 'p2', 1, 1, 1, "action", 1, 0, 0, 'fulldayend', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
-		} elseif (GETPOST("afaire") == 2) {
-			print $form->selectDate($datef ? $datef : $object->datef, 'p2', 1, 1, 1, "action", 1, 0, 0, 'fulldayend', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
-		} else {
-			print $form->selectDate($datef ? $datef : $object->datef, 'p2', 1, 1, 1, "action", 1, 0, 0, 'fulldayend', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
-		}
+		print $form->selectDate($datef ? $datef : $object->datef, 'p2', 1, 1, 1, "action", 1, 2, 0, 'fulldayend', '', '', '', 1, '', '', $object->fulldayevent ? ($tzforfullday ? $tzforfullday : 'tzuserrel') : 'tzuserrel');
 		print '</td></tr>';
 
 		print '<tr><td class="">&nbsp;</td><td></td></tr>';
@@ -2229,9 +2229,10 @@ if ($id > 0) {
 
 		// Type
 		if (!empty($conf->global->AGENDA_USE_EVENT_TYPE)) {
+			$labeltype = ($langs->transnoentities("Action".$object->type_code) != "Action".$object->type_code) ? $langs->transnoentities("Action".$object->type_code) : $object->type_label;
 			print '<tr><td class="titlefield">'.$langs->trans("Type").'</td><td>';
 			print $object->getTypePicto();
-			print $langs->trans("Action".$object->type_code);
+			print $labeltype;
 			print '</td></tr>';
 		}
 

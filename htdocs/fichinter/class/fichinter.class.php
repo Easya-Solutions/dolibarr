@@ -592,7 +592,8 @@ class Fichinter extends CommonObject
 			$sql .= ", date_valid = '".$this->db->idate($now)."'";
 			$sql .= ", fk_user_valid = ".($user->id > 0 ? (int) $user->id : "null");
 			$sql .= " WHERE rowid = ".((int) $this->id);
-			$sql .= " AND entity = ".((int) $conf->entity);
+			$sql .= " AND entity = ".((int) $this->entity);
+
 			$sql .= " AND fk_statut = 0";
 
 			dol_syslog(get_class($this)."::setValid", LOG_DEBUG);
@@ -620,7 +621,7 @@ class Fichinter extends CommonObject
 
 					// Now we rename also files into index
 					$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'ficheinter/".$this->db->escape($this->newref)."'";
-					$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'ficheinter/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
+					$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'ficheinter/".$this->db->escape($this->ref)."' and entity = ".((int) $this->entity);
 					$resql = $this->db->query($sql);
 					if (!$resql) {
 						$error++; $this->error = $this->db->lasterror();
@@ -1802,11 +1803,9 @@ class FichinterLigne extends CommonObjectLine
 	 */
 	public function update_total()
 	{
+		global $user;
+
 		// phpcs:enable
-		global $conf;
-
-		$this->db->begin();
-
 		$sql = "SELECT SUM(duree) as total_duration, min(date) as dateo, max(date) as datee ";
 		$sql .= " FROM ".MAIN_DB_PREFIX."fichinterdet";
 		$sql .= " WHERE fk_fichinter=".((int) $this->fk_fichinter);
@@ -1819,6 +1818,10 @@ class FichinterLigne extends CommonObjectLine
 			if (!empty($obj->total_duration)) {
 				$total_duration = $obj->total_duration;
 			}
+			$this->db->free($resql);
+
+			$error = 0;
+			$this->db->begin();
 
 			$sql = "UPDATE ".MAIN_DB_PREFIX."fichinter";
 			$sql .= " SET duree = ".((int) $total_duration);
@@ -1828,17 +1831,67 @@ class FichinterLigne extends CommonObjectLine
 
 			dol_syslog("FichinterLigne::update_total", LOG_DEBUG);
 			$resql = $this->db->query($sql);
-			if ($resql) {
-				$this->db->commit();
-				return 1;
-			} else {
+			if (!$resql) {
 				$this->error = $this->db->error();
 				$this->db->rollback();
+				$error++;
+			}
+
+			if (!$error && isModEnabled('ticket')) {
+				// Get linked tickets
+				require_once DOL_DOCUMENT_ROOT . '/fichinter/class/fichinter.class.php';
+				$intervention = new Fichinter($this->db);
+				$intervention->id = $this->fk_fichinter;
+				$intervention->fetchObjectLinked(null, "ticket");
+				if (!empty($intervention->linkedObjects["ticket"])) {
+					// Get tickets duration
+					$sql = "SELECT " . $this->db->ifsql("ee.targettype = 'ticket'", "ee.fk_target", "ee.fk_source") . " AS rowid, SUM(fd.duree) as duration";
+					$sql .= " FROM llx_element_element AS ee";
+					$sql .= " LEFT JOIN llx_fichinterdet AS fd ON " . $this->db->ifsql("ee.targettype = 'fichinter'", "ee.fk_target", "ee.fk_source") . " = fd.fk_fichinter";
+					$sql .= " WHERE (ee.sourcetype = 'fichinter' AND ee.targettype = 'ticket') OR (ee.targettype = 'fichinter' AND ee.sourcetype = 'ticket')";
+					$sql .= " AND " . $this->db->ifsql("ee.targettype = 'ticket'", "ee.fk_target", "ee.fk_source") . " IN (" . $this->db->sanitize(implode(',', $intervention->linkedObjectsIds["ticket"])) . ")";
+					$sql .= " GROUP BY " . $this->db->ifsql("ee.targettype = 'ticket'", "ee.fk_target", "ee.fk_source");
+
+					dol_syslog("FichinterLigne::update_total get tickets duration", LOG_DEBUG);
+					$resql = $this->db->query($sql);
+					if (!$resql) {
+						$this->error = $this->db->error();
+						$error++;
+					} else {
+						$durations = array();
+						while ($obj = $this->db->fetch_object($resql)) {
+							$durations[$obj->rowid] = $obj->duration;
+						}
+
+						// Update tickets duration
+						foreach ($intervention->linkedObjects["ticket"] as $ticket) {
+							/**
+							 * @var Ticket $ticket
+							 */
+							$ticket->oldcopy = dol_clone($ticket);
+							$ticket->duration = $durations[$ticket->id] ?? null;
+
+							$result = $ticket->update($user);
+							if ($result < 0) {
+								$this->error = $ticket->error;
+								$this->errors = $ticket->errors;
+								$error++;
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			if ($error) {
+				$this->db->rollback();
 				return -2;
+			} else {
+				$this->db->commit();
+				return 1;
 			}
 		} else {
 			$this->error = $this->db->error();
-			$this->db->rollback();
 			return -1;
 		}
 	}

@@ -34,31 +34,32 @@
 function get_tz_array()
 {
 	$tzarray = array(
-		-11=>"Pacific/Midway",
-		-10=>"Pacific/Fakaofo",
-		-9=>"America/Anchorage",
-		-8=>"America/Los_Angeles",
-		-7=>"America/Dawson_Creek",
-		-6=>"America/Chicago",
-		-5=>"America/Bogota",
-		-4=>"America/Anguilla",
-		-3=>"America/Araguaina",
-		-2=>"America/Noronha",
-		-1=>"Atlantic/Azores",
-		0=>"Africa/Abidjan",
-		1=>"Europe/Paris",
-		2=>"Europe/Helsinki",
-		3=>"Europe/Moscow",
-		4=>"Asia/Dubai",
-		5=>"Asia/Karachi",
-		6=>"Indian/Chagos",
-		7=>"Asia/Jakarta",
-		8=>"Asia/Hong_Kong",
-		9=>"Asia/Tokyo",
-		10=>"Australia/Sydney",
-		11=>"Pacific/Noumea",
-		12=>"Pacific/Auckland",
-		13=>"Pacific/Enderbury"
+		-11 => "Pacific/Pago_Pago",
+		-10 => "Pacific/Honolulu",
+		-9 => "America/Anchorage",
+		-8 => "America/Los_Angeles",
+		-7 => "America/Dawson_Creek",
+		-6 => "America/Chicago",
+		-5 => "America/Bogota",
+		-4 => "America/Asuncion",
+		-3 => "America/Araguaina",
+		-2 => "America/Noronha",
+		-1 => "Atlantic/Azores",
+		0 => "Europe/London",
+		1 => "Europe/Paris",
+		2 => "Europe/Helsinki",
+		3 => "Europe/Moscow",
+		4 => "Asia/Dubai",
+		5 => "Asia/Karachi",
+		6 => "Indian/Chagos",
+		7 => "Asia/Jakarta",
+		8 => "Asia/Hong_Kong",
+		9 => "Asia/Tokyo",
+		10 => "Australia/Sydney",
+		11 => "Pacific/Noumea",
+		12 => "Pacific/Auckland",
+		13 => "Pacific/Fakaofo",
+		14 => "Pacific/Kiritimati"
 	);
 	return $tzarray;
 }
@@ -326,20 +327,34 @@ function convertSecondToTime($iSecond, $format = 'all', $lengthOfDay = 86400, $l
 /**	  	Convert duration to hour
  *
  *    	@param      int		$duration_value		Duration value
- *    	@param      int		$duration_unit		Duration unit
+ *    	@param      string	$duration_unit		Duration unit
  *      @return     int $result
  */
 function convertDurationtoHour($duration_value, $duration_unit)
 {
 	$result = 0;
 
-	if ($duration_unit == 's') $result = $duration_value / 3600;
-	if ($duration_unit == 'i') $result = $duration_value / 60;
-	if ($duration_unit == 'h') $result = $duration_value;
-	if ($duration_unit == 'd') $result = $duration_value * 24;
-	if ($duration_unit == 'w') $result = $duration_value * 24 * 7;
-	if ($duration_unit == 'm') $result = $duration_value * 730.484;
-	if ($duration_unit == 'y') $result = $duration_value * 365 * 24;
+	if ($duration_unit == 's') {
+		$result = $duration_value / 3600;
+	}
+	if ($duration_unit == 'i') {
+		$result = $duration_value / 60;
+	}
+	if ($duration_unit == 'h') {
+		$result = $duration_value;
+	}
+	if ($duration_unit == 'd') {
+		$result = $duration_value * 24;
+	}
+	if ($duration_unit == 'w') {
+		$result = $duration_value * 24 * 7;
+	}
+	if ($duration_unit == 'm') {
+		$result = $duration_value * 730.484;
+	}
+	if ($duration_unit == 'y') {
+		$result = $duration_value * 365 * 24;
+	}
 
 	return $result;
 }

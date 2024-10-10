@@ -756,7 +756,7 @@ class Reception extends CommonObject
 				// qty wished in order supplier (origin)
 				foreach ($this->commandeFournisseur->lines as $origin_line) {
 					// exclude lines not qualified for reception
-					if (empty($conf->global->STOCK_SUPPORTS_SERVICES) && $origin_line->product_type > 0) {
+					if ((!getDolGlobalString('STOCK_SUPPORTS_SERVICES') && $origin_line->product_type > 0) || $origin_line->product_type > 1) {
 						continue;
 					}
 
@@ -852,6 +852,19 @@ class Reception extends CommonObject
 				return -1;
 			} elseif (empty($product->status_batch) && !empty($batch)) {
 				$this->error = $langs->trans('ErrorProductDoesNotNeedBatchNumber', $product->ref);
+				return -1;
+			}
+
+			// check sell-by / eat-by date is mandatory
+			$errorMsgArr = Productlot::checkSellOrEatByMandatoryFromProductAndDates($product, $sellby, $eatby);
+			if (!empty($errorMsgArr)) {
+				$errorMessage = '<b>' . $product->ref . '</b> : ';
+				$errorMessage .= '<ul>';
+				foreach ($errorMsgArr as $errorMsg) {
+					$errorMessage .= '<li>' . $errorMsg . '</li>';
+				}
+				$errorMessage .= '</ul>';
+				$this->error = $errorMessage;
 				return -1;
 			}
 		}

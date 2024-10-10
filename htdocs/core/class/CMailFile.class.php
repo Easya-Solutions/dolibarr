@@ -80,19 +80,20 @@ class CMailFile
 	 */
 	public $errors = array();
 
-	public $smtps; // Contains SMTPs object (if this method is used)
-	public $phpmailer; // Contains PHPMailer object (if this method is used)
+
+	/**
+	 * @var SMTPS (if this method is used)
+	 */
+	public $smtps;
+	/**
+	 * @var Swift_Mailer (if the method is used)
+	 */
+	public $mailer;
 
 	/**
 	 * @var Swift_SmtpTransport
 	 */
 	public $transport;
-
-	/**
-	 * @var Swift_Mailer
-	 */
-	public $mailer;
-
 	/**
 	 * @var Swift_Plugins_Loggers_ArrayLogger
 	 */
@@ -107,9 +108,13 @@ class CMailFile
 	//! Defined background directly in body tag
 	public $bodyCSS;
 
+	/**
+	 * @var string	Message-ID of the email to send (generated)
+	 */
 	public $msgid;
 	public $headers;
 	public $message;
+
 	/**
 	 * @var array fullfilenames list (full path of filename on file system)
 	 */
@@ -513,13 +518,15 @@ class CMailFile
 			//$this->message = new Swift_SignedMessage();
 			// Adding a trackid header to a message
 			$headers = $this->message->getHeaders();
+
 			$headers->addTextHeader('X-Dolibarr-TRACKID', $this->trackid.'@'.$host);
 			$this->msgid = time().'.swiftmailer-dolibarr-'.$this->trackid.'@'.$host;
 			$headerID = $this->msgid;
 			$msgid = $headers->get('Message-ID');
 			$msgid->setId($headerID);
-			$headers->addIdHeader('References', $headerID);
-			// TODO if (!empty($moreinheader)) ...
+
+			// Add 'References:' header
+			//$headers->addIdHeader('References', $headerID);
 
 			// Give the message a subject
 			try {
@@ -651,7 +658,6 @@ class CMailFile
 			$this->error = 'Bad value for sendmode';
 		}
 	}
-
 
 	/**
 	 * Send mail that was prepared by constructor.
@@ -888,7 +894,7 @@ class CMailFile
 				}
 			} elseif ($this->sendmode == 'smtps') {
 				if (!is_object($this->smtps)) {
-					$this->error = "Failed to send mail with smtps lib to HOST=".$server.", PORT=".$conf->global->$keyforsmtpport."<br>Constructor of object CMailFile was not initialized without errors.";
+					$this->error = "Failed to send mail with smtps lib to HOST=".ini_get('SMTP').", PORT=".$conf->global->$keyforsmtpport."<br>Constructor of object CMailFile was not initialized without errors.";
 					dol_syslog("CMailFile::sendfile: mail end error=".$this->error, LOG_ERR);
 					return false;
 				}
@@ -1184,9 +1190,10 @@ class CMailFile
 				$res = true;
 				if (!empty($this->error) || !empty($this->errors) || !$result) {
 					if (!empty($failedRecipients)) {
-						$this->errors[] = 'Transport failed for the following addresses: "' . join('", "', $failedRecipients) . '".';
+						$this->error = 'Transport failed for the following addresses: "' . join('", "', $failedRecipients) . '".';
+						$this->errors[] = $this->error;
 					}
-					dol_syslog("CMailFile::sendfile: mail end error=".$this->error, LOG_ERR);
+					dol_syslog("CMailFile::sendfile: mail end error=". join(' ', $this->errors), LOG_ERR);
 					$res = false;
 
 					if (!empty($conf->global->MAIN_MAIL_DEBUG)) {
@@ -1451,7 +1458,7 @@ class CMailFile
 			// References is kept in response and Message-ID is returned into In-Reply-To:
 			$this->msgid = time().'.phpmail-dolibarr-'.$trackid.'@'.$host;
 			$out .= 'Message-ID: <'.$this->msgid.">".$this->eol2; // Uppercase seems replaced by phpmail
-			$out .= 'References: <'.$this->msgid.">".$this->eol2;
+			//$out .= 'References: <'.$this->msgid.">".$this->eol2;
 			$out .= 'X-Dolibarr-TRACKID: '.$trackid.'@'.$host.$this->eol2;
 		} else {
 			$this->msgid = time().'.phpmail@'.$host;

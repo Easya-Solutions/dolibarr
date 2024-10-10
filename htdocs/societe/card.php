@@ -216,12 +216,17 @@ if (empty($reshook)) {
 					'tva_intra', 'effectif_id', 'forme_juridique', 'remise_percent', 'remise_supplier_percent', 'mode_reglement_supplier_id', 'cond_reglement_supplier_id', 'name_bis',
 					'stcomm_id', 'outstanding_limit', 'price_level', 'parent', 'default_lang', 'ref', 'ref_ext', 'import_key', 'fk_incoterms', 'fk_multicurrency',
 					'code_client', 'code_fournisseur', 'code_compta', 'code_compta_fournisseur',
-					'model_pdf', 'fk_projet'
+					'model_pdf', 'fk_projet', 'typent_id'
 				);
 				foreach ($listofproperties as $property) {
 					if (empty($object->$property)) {
 						$object->$property = $soc_origin->$property;
 					}
+				}
+
+				if ($object->typent_id == -1)
+				{
+					$object->typent_id = $soc_origin->typent_id;
 				}
 
 				// Concat some data
@@ -472,7 +477,7 @@ if (empty($reshook)) {
 			}
 			$object->entity					= (GETPOSTISSET('entity') ? GETPOST('entity', 'int') : $conf->entity);
 			$object->name_alias				= GETPOST('name_alias', 'alphanohtml');
-			$object->parent					= GETPOST('parent_company_id', 'int');
+			$object->parent					= GETPOSTISSET('parent_company_id') ? GETPOST('parent_company_id', 'int') : $object->parent;
 			$object->address				= GETPOST('address', 'alphanohtml');
 			$object->zip					= GETPOST('zipcode', 'alphanohtml');
 			$object->town					= GETPOST('town', 'alphanohtml');
@@ -503,6 +508,10 @@ if (empty($reshook)) {
 			$object->code_client			= GETPOSTISSET('customer_code') ?GETPOST('customer_code', 'alpha') : GETPOST('code_client', 'alpha');
 			$object->code_fournisseur		= GETPOSTISSET('supplier_code') ?GETPOST('supplier_code', 'alpha') : GETPOST('code_fournisseur', 'alpha');
 			$object->capital				= GETPOST('capital', 'alphanohtml');
+			if ($action == 'add') {
+				$object->cond_reglement_id	= GETPOSTINT('cond_reglement_id');
+				$object->mode_reglement_id	= GETPOSTINT('mode_reglement_id');
+			}
 			$object->barcode				= GETPOST('barcode', 'alphanohtml');
 
 			$object->tva_intra				= GETPOST('tva_intra', 'alphanohtml');
@@ -1139,6 +1148,16 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 		$object->email				= GETPOST('email', 'custom', 0, FILTER_SANITIZE_EMAIL);
 		$object->url				= GETPOST('url', 'custom', 0, FILTER_SANITIZE_URL);
 		$object->capital			= GETPOST('capital', 'alphanohtml');
+		$paymentTermId = GETPOSTINT('cond_reglement_id'); // can be set by default values on create page and not already in get or post variables
+		if (empty($paymentTermId) && !GETPOSTISSET('cond_reglement_id')) {
+			$paymentTermId = getDolGlobalString('MAIN_DEFAULT_PAYMENT_TERM_ID');
+		}
+		$object->cond_reglement_id	= $paymentTermId;
+		$paymentTypeId = GETPOSTINT('mode_reglement_id'); // can be set by default values on create page and not already in get or post variables
+		if (empty($paymentTypeId) && !GETPOSTISSET('mode_reglement_id')) {
+			$paymentTypeId = getDolGlobalString('MAIN_DEFAULT_PAYMENT_TYPE_ID');
+		}
+		$object->mode_reglement_id 	= $paymentTypeId;
 		$object->barcode			= GETPOST('barcode', 'alphanohtml');
 		$object->idprof1			= GETPOST('idprof1', 'alphanohtml');
 		$object->idprof2			= GETPOST('idprof2', 'alphanohtml');
@@ -1261,7 +1280,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
                         	document.formsoc.private.value=1;
                         });
 
-						var canHaveCategoryIfNotCustomerProspectSupplier = ' . (empty($conf->global->THIRDPARTY_CAN_HAVE_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT) ? '0' : '1') . ';
+						var canHaveCustomerCategoryIfNotCustomerProspect = ' . (getDolGlobalInt('THIRDPARTY_CAN_HAVE_CUSTOMER_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT') ? '1' : '0') . ';
 
 						init_customer_categ();
 			  			$("#customerprospect").change(function() {
@@ -1269,7 +1288,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 						});
 						function init_customer_categ() {
 								console.log("is customer or prospect = "+jQuery("#customerprospect").val());
-								if (jQuery("#customerprospect").val() == 0 && !canHaveCategoryIfNotCustomerProspectSupplier)
+								if (jQuery("#customerprospect").val() == 0 && !canHaveCustomerCategoryIfNotCustomerProspect)
 								{
 									jQuery(".visibleifcustomer").hide();
 								}
@@ -1818,6 +1837,20 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 			print '</tr>';
 		}
 
+		// Payment terms of the settlement
+		print '<tr>';
+		print '<td>'.$form->editfieldkey('PaymentConditions', 'cond_reglement_id', '', $object, 0).'</td>';
+		print '<td colspan="3" class="maxwidthonsmartphone">';
+		print $form->getSelectConditionsPaiements($object->cond_reglement_id, 'cond_reglement_id', 1, 1, 1, '', $object->deposit_percent);
+		print '</td></tr>';
+
+		// Payment mode
+		print '<tr>';
+		print '<td>'.$form->editfieldkey('PaymentMode', 'mode_reglement_id', '', $object, 0).'</td>';
+		print '<td colspan="3" class="maxwidthonsmartphone">';
+		print $form->select_types_paiements($object->mode_reglement_id, 'mode_reglement_id', '', 0, 1, 1, 0, 1);
+		print '</td></tr>';
+
 		// Incoterms
 		if (isModEnabled('incoterm')) {
 			print '<tr>';
@@ -1883,7 +1916,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 		print '<td colspan="3" class="maxwidthonsmartphone">';
 		$userlist = $form->select_dolusers('', '', 0, null, 0, '', '', '0', 0, 0, 'AND u.statut = 1', 0, '', '', 0, 2);
 		// Note: If user has no right to "see all thirdparties", we force selection of sale representative to him, so after creation he can see the record.
-		$selected = (count(GETPOST('commercial', 'array')) > 0 ? GETPOST('commercial', 'array') : (GETPOST('commercial', 'int') > 0 ? array(GETPOST('commercial', 'int')) : (empty($user->rights->societe->client->voir) ? array($user->id) : array())));
+		$selected = (count(GETPOST('commercial', 'array')) > 0 ? GETPOST('commercial', 'array') : (GETPOST('commercial', 'int') > 0 ? array(GETPOST('commercial', 'int')) : array($user->id)));
 		print img_picto('', 'user').$form->multiselectarray('commercial', $userlist, $selected, null, null, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
 		print '</td></tr>';
 
@@ -2124,7 +2157,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
     				}
     			});
 
-				var canHaveCategoryIfNotCustomerProspectSupplier = ' . (empty($conf->global->THIRDPARTY_CAN_HAVE_CUSTOMER_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT) ? '0' : '1') . ';
+				var canHaveCustomerCategoryIfNotCustomerProspect = ' . (getDolGlobalInt('THIRDPARTY_CAN_HAVE_CUSTOMER_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT') ? '1' : '0') . ';
 
 				init_customer_categ();
 	  			$("#customerprospect").change(function() {
@@ -2132,7 +2165,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 				});
        			function init_customer_categ() {
 					console.log("is customer or prospect = "+jQuery("#customerprospect").val());
-					if (jQuery("#customerprospect").val() == 0 && !canHaveCategoryIfNotCustomerProspectSupplier)
+					if (jQuery("#customerprospect").val() == 0 && !canHaveCustomerCategoryIfNotCustomerProspect)
 					{
 						jQuery(".visibleifcustomer").hide();
 					}
@@ -3016,7 +3049,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 		// Tags / categories
 		if (isModEnabled('categorie') && $user->hasRight('categorie', 'lire')) {
 			// Customer
-			if ($object->prospect || $object->client || !empty($conf->global->THIRDPARTY_CAN_HAVE_CUSTOMER_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT)) {
+			if ($object->prospect || $object->client || getDolGlobalInt('THIRDPARTY_CAN_HAVE_CUSTOMER_CATEGORY_EVEN_IF_NOT_CUSTOMER_PROSPECT')) {
 				print '<tr><td>'.$langs->trans("CustomersCategoriesShort").'</td>';
 				print '<td>';
 				print $form->showCategories($object->id, Categorie::TYPE_CUSTOMER, 1);

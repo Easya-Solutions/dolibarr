@@ -179,8 +179,8 @@ if (empty($reshook)) {
 
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes' && $usercancreate) {
-		if (!GETPOST('socid', 3)) {
-			setEventMessages($langs->trans("NoCloneOptionsSpecified"), null, 'errors');
+		if (!($socid > 0)) {
+			setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentitiesnoconv('IdThirdParty')), null, 'errors');
 		} else {
 			if ($object->id > 0) {
 				if (!empty($conf->global->PROPAL_CLONE_DATE_DELIVERY)) {
@@ -223,6 +223,22 @@ if (empty($reshook)) {
 
 				$result = $object->createFromClone($user, $socid, (GETPOSTISSET('entity') ? GETPOST('entity', 'int') : null), (GETPOST('update_prices', 'aZ') ? true : false), (GETPOST('update_desc', 'aZ') ? true : false));
 				if ($result > 0) {
+					$warningMsgLineList = array();
+					// check all product lines are to sell otherwise add a warning message for each product line is not to sell
+					foreach ($object->lines as $line) {
+						if (!is_object($line->product)) {
+							$line->fetch_product();
+						}
+						if (is_object($line->product) && $line->product->id > 0) {
+							if (empty($line->product->status)) {
+								$warningMsgLineList[$line->id] = $langs->trans('WarningLineProductNotToSell', $line->product->ref);
+							}
+						}
+					}
+					if (!empty($warningMsgLineList)) {
+						setEventMessages('', $warningMsgLineList, 'warnings');
+					}
+
 					header("Location: ".$_SERVER['PHP_SELF'].'?id='.$result);
 					exit();
 				} else {
@@ -909,6 +925,15 @@ if (empty($reshook)) {
 				}
 			}
 		}
+	} elseif ($action == 'addline' && GETPOST('submitforalllines', 'aZ09') && (GETPOST('alldate_start', 'alpha') || GETPOST('alldate_end', 'alpha')) && $usercancreate) {
+		// Define date start and date end for all line
+		$alldate_start = dol_mktime(GETPOST('alldate_starthour'), GETPOST('alldate_startmin'), 0, GETPOST('alldate_startmonth'), GETPOST('alldate_startday'), GETPOST('alldate_startyear'));
+		$alldate_end = dol_mktime(GETPOST('alldate_endhour'), GETPOST('alldate_endmin'), 0, GETPOST('alldate_endmonth'), GETPOST('alldate_endday'), GETPOST('alldate_endyear'));
+		foreach ($object->lines as $line) {
+			if ($line->product_type == 1) { // only service line
+				$result = $object->updateline($line->id, $line->subprice, $line->qty, $line->remise_percent, $line->tva_tx, $line->localtax1_tx, $line->localtax2_tx, $line->desc, 'HT', $line->info_bits, $line->special_code, $line->fk_parent_line, 0, $line->fk_fournprice, $line->pa_ht, $line->label, $line->product_type, $alldate_start, $alldate_end, $line->array_options, $line->fk_unit, $line->multicurrency_subprice);
+			}
+		}
 	} elseif ($action == 'addline' && GETPOST('submitforalllines', 'alpha') && GETPOST('vatforalllines', 'alpha') !== '' && $usercancreate) {
 		// Define a vat_rate for all lines
 		$vat_rate = (GETPOST('vatforalllines') ? GETPOST('vatforalllines') : 0);
@@ -1171,6 +1196,10 @@ if (empty($reshook)) {
 				if (!empty($price_ht) || (string) $price_ht === '0') {
 					$pu_ht = price2num($price_ht, 'MU');
 					$pu_ttc = price2num($pu_ht * (1 + ((float) $tmpvat / 100)), 'MU');
+				} elseif (!empty($price_ht_devise) || (string) $price_ht_devise === '0') {
+					$pu_ht_devise = price2num($price_ht_devise, 'MU');
+					$pu_ht = '';
+					$pu_ttc = '';
 				} elseif (!empty($price_ttc) || (string) $price_ttc === '0') {
 					$pu_ttc = price2num($price_ttc, 'MU');
 					$pu_ht = price2num($pu_ttc / (1 + ((float) $tmpvat / 100)), 'MU');
@@ -1635,14 +1664,15 @@ if (empty($reshook)) {
 		$result = $object->setWarehouse(GETPOST('warehouse_id', 'int'));
 	} elseif ($action == 'update_extras') {
 		$object->oldcopy = dol_clone($object, 2);
+		$attribute_name = GETPOST('attribute', 'restricthtml');
 
 		// Fill array 'array_options' with data from update form
-		$ret = $extrafields->setOptionalsFromPost(null, $object, GETPOST('attribute', 'restricthtml'));
+		$ret = $extrafields->setOptionalsFromPost(null, $object, $attribute_name);
 		if ($ret < 0) {
 			$error++;
 		}
 		if (!$error) {
-			$result = $object->insertExtraFields('PROPAL_MODIFY');
+			$result = $object->updateExtraField($attribute_name, 'PROPAL_MODIFY');
 			if ($result < 0) {
 				setEventMessages($object->error, $object->errors, 'errors');
 				$error++;
@@ -2872,7 +2902,9 @@ if ($action == 'create') {
 		print '<td class="titlefieldmiddle">' . $langs->transcountry("AmountLT1", $mysoc->country_code) . '</td>';
 		print '<td class="nowrap amountcard right">' . price($object->total_localtax1, '', $langs, 0, -1, -1, $conf->currency) . '</td>';
 		if (isModEnabled("multicurrency") && ($object->multicurrency_code && $object->multicurrency_code != $conf->currency)) {
-			print '<td class="nowrap amountcard right">' . price($object->total_localtax1, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
+			$object->multicurrency_total_localtax1 = price2num($object->total_localtax1 * $object->multicurrency_tx, 'MT');
+
+			print '<td class="nowrap amountcard right">' . price($object->multicurrency_total_localtax1, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
 		}
 		print '</tr>';
 
@@ -2881,7 +2913,9 @@ if ($action == 'create') {
 			print '<td>' . $langs->transcountry("AmountLT2", $mysoc->country_code) . '</td>';
 			print '<td class="nowrap amountcard right">' . price($object->total_localtax2, '', $langs, 0, -1, -1, $conf->currency) . '</td>';
 			if (isModEnabled("multicurrency") && ($object->multicurrency_code && $object->multicurrency_code != $conf->currency)) {
-				print '<td class="nowrap amountcard right">' . price($object->total_localtax2, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
+				$object->multicurrency_total_localtax2 = price2num($object->total_localtax2 * $object->multicurrency_tx, 'MT');
+
+				print '<td class="nowrap amountcard right">' . price($object->multicurrency_total_localtax2, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
 			}
 			print '</tr>';
 		}

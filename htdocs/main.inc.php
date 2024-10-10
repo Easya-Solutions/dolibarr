@@ -349,7 +349,7 @@ if (!defined('NOSESSION')) {
 		session_set_cookie_params($sessioncookieparams);
 	}
 	session_name($sessionname);
-	session_start();	// This call the open and read of session handler
+	dol_session_start();	// This call the open and read of session handler
 	//exit;	// this exist generates a call to write and close
 }
 
@@ -526,14 +526,14 @@ if (!defined('NOTOKENRENEWAL') && !defined('NOSESSION')) {
 	}
 }
 
-//dol_syslog("aaaa - ".defined('NOCSRFCHECK')." - ".$dolibarr_nocsrfcheck." - ".$conf->global->MAIN_SECURITY_CSRF_WITH_TOKEN." - ".$_SERVER['REQUEST_METHOD']." - ".GETPOST('token', 'alpha'));
+//dol_syslog("CSRF info: ".defined('NOCSRFCHECK')." - ".$dolibarr_nocsrfcheck." - ".$conf->global->MAIN_SECURITY_CSRF_WITH_TOKEN." - ".$_SERVER['REQUEST_METHOD']." - ".GETPOST('token', 'alpha'));
 
 // Check validity of token, only if option MAIN_SECURITY_CSRF_WITH_TOKEN enabled or if constant CSRFCHECK_WITH_TOKEN is set into page
 if ((!defined('NOCSRFCHECK') && empty($dolibarr_nocsrfcheck) && getDolGlobalInt('MAIN_SECURITY_CSRF_WITH_TOKEN')) || defined('CSRFCHECK_WITH_TOKEN')) {
 	// Array of action code where CSRFCHECK with token will be forced (so token must be provided on url request)
 	$sensitiveget = false;
 	if ((GETPOSTISSET('massaction') || GETPOST('action', 'aZ09')) && getDolGlobalInt('MAIN_SECURITY_CSRF_WITH_TOKEN') >= 3) {
-		// All GET actions and mass actions are processed as sensitive.
+		// All GET actions (except the listed exception) and mass actions are processed as sensitive.
 		if (GETPOSTISSET('massaction') || !in_array(GETPOST('action', 'aZ09'), array('create', 'createsite', 'createcard', 'edit', 'editvalidator', 'file_manager', 'presend', 'presend_addmessage', 'preview', 'specimen'))) {	// We exclude some action that are legitimate
 			$sensitiveget = true;
 		}
@@ -548,8 +548,8 @@ if ((!defined('NOCSRFCHECK') && empty($dolibarr_nocsrfcheck) && getDolGlobalInt(
 		if (in_array(GETPOST('action', 'aZ09'), $arrayofactiontoforcetokencheck)) {
 			$sensitiveget = true;
 		}
-		// We also match for value with just a simple string that must match
-		if (preg_match('/^(add|classify|close|confirm|copy|del|disable|enable|remove|set|unset|update|save)/', GETPOST('action', 'aZ09'))) {
+		// We also need a valid token for actions matching one of these values
+		if (preg_match('/^(confirm_)?(add|classify|close|confirm|copy|del|disable|enable|remove|set|unset|update|save)/', GETPOST('action', 'aZ09'))) {
 			$sensitiveget = true;
 		}
 	}
@@ -713,7 +713,7 @@ if (!defined('NOLOGIN')) {
 		// If in demo mode, we check we go to home page through the public/demo/index.php page
 		if (!empty($dolibarr_main_demo) && $_SERVER['PHP_SELF'] == DOL_URL_ROOT.'/index.php') {  // We ask index page
 			if (empty($_SERVER['HTTP_REFERER']) || !preg_match('/public/', $_SERVER['HTTP_REFERER'])) {
-				dol_syslog("Call index page from another url than demo page (call is done from page ".$_SERVER['HTTP_REFERER'].")");
+				dol_syslog("Call index page from another url than demo page (call is done from page ".(empty($_SERVER['HTTP_REFERER']) ? '' : $_SERVER['HTTP_REFER']).")");
 				$url = '';
 				$url .= ($url ? '&' : '').($dol_hide_topmenu ? 'dol_hide_topmenu='.$dol_hide_topmenu : '');
 				$url .= ($url ? '&' : '').($dol_hide_leftmenu ? 'dol_hide_leftmenu='.$dol_hide_leftmenu : '');
@@ -793,7 +793,7 @@ if (!defined('NOLOGIN')) {
 		if (GETPOST("username", "alpha", $allowedmethodtopostusername)) {	// For posting the login form
 			$goontestloop = true;
 		}
-		if (GETPOST('openid_mode', 'alpha', 1)) {	// For openid_connect ?
+		if (GETPOST('openid_mode', 'alpha')) {	// For openid_connect ?
 			$goontestloop = true;
 		}
 		if (GETPOST('beforeoauthloginredirect', 'int') || GETPOST('afteroauthloginreturn')) {	// For oauth login
@@ -909,7 +909,7 @@ if (!defined('NOLOGIN')) {
 			session_destroy();
 			session_set_cookie_params(0, '/', null, (empty($dolibarr_main_force_https) ? false : true), true); // Add tag secure and httponly on session cookie
 			session_name($sessionname);
-			session_start();
+			dol_session_start();
 
 			if ($resultFetchUser == 0) {
 				// Load translation files required by page
@@ -993,10 +993,11 @@ if (!defined('NOLOGIN')) {
 				// User validity dates are no more valid
 				dol_syslog("The user login has a validity between [".$user->datestartvalidity." and ".$user->dateendvalidity."], curren date is ".dol_now());
 			}
-							session_destroy();
-							session_set_cookie_params(0, '/', null, (empty($dolibarr_main_force_https) ? false : true), true); // Add tag secure and httponly on session cookie
-							session_name($sessionname);
-							session_start();
+
+			session_destroy();
+			session_set_cookie_params(0, '/', null, (empty($dolibarr_main_force_https) ? false : true), true); // Add tag secure and httponly on session cookie
+			session_name($sessionname);
+			dol_session_start();
 
 			if ($resultFetchUser == 0) {
 				$langs->loadLangs(array('main', 'errors'));
@@ -1744,6 +1745,7 @@ function top_htmlhead($head, $title = '', $disablejs = 0, $disablehead = 0, $arr
 		}
 		// Refresh value of MAIN_IHM_PARAMS_REV before forging the parameter line.
 		if (GETPOST('dol_resetcache')) {
+			include_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 			dolibarr_set_const($db, "MAIN_IHM_PARAMS_REV", getDolGlobalInt('MAIN_IHM_PARAMS_REV') + 1, 'chaine', 0, '', $conf->entity);
 		}
 
@@ -2164,17 +2166,18 @@ function top_menu($head, $title = '', $target = '', $disablejs = 0, $disablehead
 
 			if (isset($_POST) && is_array($_POST)) {
 				foreach ($_POST as $key => $value) {
+					$key = preg_replace('/[^a-z0-9_\.\-\[\]]/i', '', $key);
 					if (in_array($key, array('action', 'massaction', 'password'))) {
 						continue;
 					}
 					if (!is_array($value)) {
 						if ($value !== '') {
-							$qs .= '&'.$key.'='.urlencode($value);
+							$qs .= '&'.urlencode($key).'='.urlencode($value);
 						}
 					} else {
 						foreach ($value as $value2) {
 							if (($value2 !== '') && (!is_array($value2))) {
-								$qs .= '&'.$key.'[]='.urlencode($value2);
+								$qs .= '&'.urlencode($key).'[]='.urlencode($value2);
 							}
 						}
 					}
@@ -2242,7 +2245,12 @@ function top_menu($head, $title = '', $target = '', $disablejs = 0, $disablehead
 		}
 
 		if (empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
-			$text = '<span class="aversion"><span class="hideonsmartphone small">'.DOL_VERSION.'</span></span>';
+			if (! empty($conf->global->EASYA_VERSION)) {
+				$appli = $langs->trans("Easya") . ' '. $conf->global->EASYA_VERSION;
+				$text = '<span class="aversion"><span class="hideonsmartphone small">'.$conf->global->EASYA_VERSION.'</span></span>';
+			} else {
+				$text = '<span class="aversion"><span class="hideonsmartphone small">'.DOL_VERSION.'</span></span>';
+			}
 			$toprightmenu .= $form->textwithtooltip('', $appli, 2, 1, $text, 'login_block_elem', 2);
 		}
 
@@ -2583,12 +2591,16 @@ function top_menu_quickadd()
 	// accesskey is for Windows or Linux:  ALT + key for chrome, ALT + SHIFT + KEY for firefox
 	// accesskey is for Mac:               CTRL + key for all browsers
 	$stringforfirstkey = $langs->trans("KeyboardShortcut");
-	if ($conf->browser->name == 'chrome') {
-		$stringforfirstkey .= ' ALT +';
-	} elseif ($conf->browser->name == 'firefox') {
-		$stringforfirstkey .= ' ALT + SHIFT +';
-	} else {
+	if ($conf->browser->os === 'macintosh') {
 		$stringforfirstkey .= ' CTL +';
+	} else {
+		if ($conf->browser->name == 'chrome') {
+			$stringforfirstkey .= ' ALT +';
+		} elseif ($conf->browser->name == 'firefox') {
+			$stringforfirstkey .= ' ALT + SHIFT +';
+		} else {
+			$stringforfirstkey .= ' CTL +';
+		}
 	}
 
 	$html .= '<!-- div for quick add link -->
@@ -2613,10 +2625,18 @@ function top_menu_quickadd()
 
             // Key map shortcut
             $(document).keydown(function(event){
-                  if ( event.which === 76 && event.ctrlKey && event.shiftKey ){
-                     console.log(\'control + shift + l : trigger open quick add dropdown\');
-                     openQuickAddDropDown(event);
-                  }
+				var ostype = "'.$conf->browser->os.'";
+				if (ostype === "macintosh") {
+					if ( event.which === 65 && event.ctrlKey ) {
+						console.log(\'control + a : trigger open quick add dropdown\');
+						openQuickAddDropDown(event);
+					}
+				} else {
+					if ( event.which === 65 && event.ctrlKey && event.shiftKey ) {
+						console.log(\'control + shift + a : trigger open quick add dropdown\');
+						openQuickAddDropDown(event);
+					}
+				}
             });
 
             var openQuickAddDropDown = function(event) {
@@ -2828,12 +2848,16 @@ function top_menu_bookmark()
 	// accesskey is for Windows or Linux:  ALT + key for chrome, ALT + SHIFT + KEY for firefox
 	// accesskey is for Mac:               CTRL + key for all browsers
 	$stringforfirstkey = $langs->trans("KeyboardShortcut");
-	if ($conf->browser->name == 'chrome') {
-		$stringforfirstkey .= ' ALT +';
-	} elseif ($conf->browser->name == 'firefox') {
-		$stringforfirstkey .= ' ALT + SHIFT +';
-	} else {
+	if ($conf->browser->os === 'macintosh') {
 		$stringforfirstkey .= ' CTL +';
+	} else {
+		if ($conf->browser->name == 'chrome') {
+			$stringforfirstkey .= ' ALT +';
+		} elseif ($conf->browser->name == 'firefox') {
+			$stringforfirstkey .= ' ALT + SHIFT +';
+		} else {
+			$stringforfirstkey .= ' CTL +';
+		}
 	}
 
 	if (!defined('JS_JQUERY_DISABLE_DROPDOWN') && !empty($conf->use_javascript_ajax)) {	    // This may be set by some pages that use different jquery version to avoid errors
@@ -2871,11 +2895,19 @@ function top_menu_bookmark()
 	            });
 
 	            // Key map shortcut
-	            jQuery(document).keydown(function(event){
-	                  if( event.which === 77 && event.ctrlKey && event.shiftKey ){
-	                     console.log("Click on control + shift + m : trigger open bookmark dropdown");
-	                     openBookMarkDropDown(event);
-	                  }
+	            jQuery(document).keydown(function(event) {
+					var ostype = "'.$conf->browser->os.'";
+					if (ostype === "macintosh") {
+						if ( event.which === 66 && event.ctrlKey ) {
+							console.log("Click on control + b : trigger open bookmark dropdown");
+							openBookMarkDropDown(event);
+						}
+					} else {
+						if ( event.which === 66 && event.ctrlKey && event.shiftKey ) {
+							console.log("Click on control + shift + b : trigger open bookmark dropdown");
+							openBookMarkDropDown(event);
+						}
+					}
 	            });
 
 	            var openBookMarkDropDown = function(event) {

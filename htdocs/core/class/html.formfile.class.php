@@ -845,6 +845,7 @@ class FormFile
 					} else {
 						$out .= '<span class="spanoverflow">';
 					}
+					$out .= $imgpreview;
 					$out .= '<a class="documentdownload paddingright" href="'.$documenturl.'?modulepart='.$modulepart.'&file='.urlencode($relativepath).($param ? '&'.$param : '').'"';
 
 					$mime = dol_mimetype($relativepath, '', 0);
@@ -857,7 +858,6 @@ class FormFile
 					$out .= dol_trunc($file["name"], 150);
 					$out .= '</a>';
 					$out .= '</span>'."\n";
-					$out .= $imgpreview;
 					$out .= '</td>';
 
 					// Show file size
@@ -1291,6 +1291,12 @@ class FormFile
 			$i = 0;
 			$nboflines = 0;
 			$lastrowid = 0;
+			$parametersByDefault = array(
+				'modulepart'=> $modulepart,
+				'relativepath'=> $relativepath,
+				'permtoedit' => $permtoeditline,
+				'permonobject' => $permonobject,
+			);
 			foreach ($filearray as $key => $file) {      // filearray must be only files here
 				if ($file['name'] != '.'
 						&& $file['name'] != '..'
@@ -1298,10 +1304,29 @@ class FormFile
 					if (array_key_exists('rowid', $filearray[$key]) && $filearray[$key]['rowid'] > 0) {
 						$lastrowid = $filearray[$key]['rowid'];
 					}
-					$filepath = $relativepath.$file['name'];
+
+					// get specific parameters from file attributes if set or get default ones
+					$modulepart = ($file['modulepart'] ?? $parametersByDefault['modulepart']);
+					$relativepath = ($file['relativepath'] ?? $parametersByDefault['relativepath']);
+					$permtoeditline = ($file['permtoedit'] ?? $parametersByDefault['permtoedit']);
+					$permonobject = ($file['permonobject'] ?? $parametersByDefault['permonobject']);
+
+					// Note: for supplier invoice, $modulepart may be already 'facture_fournisseur' and $relativepath may be already '6/1/SI2210-0013/'
+					if (empty($relativepath) || empty($modulepart)) {
+						$filepath = $file['level1name'].'/'.$file['name'];
+					} else {
+						$filepath = $relativepath.$file['name'];
+					}
+					if (empty($modulepart)) {
+						$modulepart = basename(dirname($file['path']));
+					}
+					if (empty($relativepath)) {
+						$relativepath = preg_replace('/\/(.+)/', '', $filepath) . '/';
+					}
 
 					$editline = 0;
 					$nboflines++;
+
 					print '<!-- Line list_of_documents '.$key.' relativepath = '.$relativepath.' -->'."\n";
 					// Do we have entry into database ?
 
@@ -1311,6 +1336,10 @@ class FormFile
 
 					// File name
 					print '<td class="minwith200 tdoverflowmax500">';
+					// Preview link
+					if (!$editline) {
+						print $this->showPreview($file, $modulepart, $filepath, 0, '&entity='.(!empty($object->entity) ? $object->entity : $conf->entity), 'paddingright') . "\n";
+					}
 
 					// Show file name with link to download
 					//print "XX".$file['name'];	//$file['name'] must be utf8
@@ -1328,7 +1357,7 @@ class FormFile
 						print $relativepath;
 					}
 					//print dol_trunc($file['name'],$maxlength,'middle');
-					if (GETPOST('action', 'aZ09') == 'editfile' && $file['name'] == basename(GETPOST('urlfile', 'alpha'))) {
+					if (GETPOST('action', 'aZ09') == 'editfile' && $file['name'] == basename(GETPOST('urlfile', 'alpha')) && dirname($filepath) == dirname(GETPOST('urlfile', 'alpha'))) {
 						print '</a>';
 						$section_dir = dirname(GETPOST('urlfile', 'alpha'));
 						if (!preg_match('/\/$/', $section_dir)) {
@@ -1376,6 +1405,9 @@ class FormFile
 							}
 							if (!dol_is_file($file['path'].'/'.$smallfile)) {
 								$smallfile = getImageFileNameForSize($file['name'], '_small', '.png'); // For backward compatibility of old thumbs that were created with filename in lower case and with .png extension
+							}
+							if (!dol_is_file($file['path'].'/'.$smallfile)) {
+								$smallfile = getImageFileNameForSize($file['name'], ''); // This is in case no _small image exist
 							}
 							//print $file['path'].'/'.$smallfile.'<br>';
 
@@ -1523,7 +1555,7 @@ class FormFile
 						}
 					} else {
 						print '<td class="right">';
-						print '<input type="hidden" name="ecmfileid" value="'.$filearray[$key]['rowid'].'">';
+						print '<input type="hidden" name="ecmfileid" value="'.(empty($filearray[$key]['rowid']) ? '' : $filearray[$key]['rowid']).'">';
 						print '<input type="submit" class="button button-save smallpaddingimp" name="renamefilesave" value="'.dol_escape_htmltag($langs->trans("Save")).'">';
 						print '<input type="submit" class="button button-cancel smallpaddingimp" name="cancel" value="'.dol_escape_htmltag($langs->trans("Cancel")).'">';
 						print '</td>';

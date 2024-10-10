@@ -33,6 +33,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT."/core/lib/company.lib.php";
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncomm.class.php';
 if (isModEnabled('project')) {
 	include_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
@@ -73,8 +74,16 @@ if (!$sortfield) {
 $object = new Ticket($db);
 $result = $object->fetch($id, $ref, $track_id);
 
-if ($result < 0) {
+$res = 0;
+if (GETPOSTISSET("urlfile") && dirname(GETPOST('urlfile', 'alpha', 0, null, null, 1)) != $object->ref) {
+	$objectMsg = new ActionComm($db);
+	$res = $objectMsg->fetch(0, dirname(GETPOST('urlfile', 'alpha', 0, null, null, 1)));
+}
+
+if ($result < 0 || $res < 0) {
 	setEventMessages($object->error, $object->errors, 'errors');
+} elseif ($res > 0) {
+	$upload_dir = $conf->agenda->dir_output.'/'.dol_sanitizeFileName($objectMsg->ref);
 } else {
 	$upload_dir = $conf->ticket->dir_output."/".dol_sanitizeFileName($object->ref);
 }
@@ -87,7 +96,7 @@ if ($user->socid > 0 && ($object->fk_soc != $user->socid)) {
 	accessforbidden();
 }
 // or for unauthorized internals users
-if (!$user->socid && !empty($conf->global->TICKET_LIMIT_VIEW_ASSIGNED_ONLY) && $object->fk_user_assign != $user->id && empty($user->rights->ticket->manage)) {
+if (!$user->socid && getDolGlobalString('TICKET_LIMIT_VIEW_ASSIGNED_ONLY') && $object->fk_user_assign != $user->id && empty($user->rights->ticket->manage)) {
 	accessforbidden();
 }
 
@@ -132,7 +141,7 @@ if ($object->id) {
 		print dol_get_fiche_end();
 	}
 
-	if (!$user->socid && !empty($conf->global->TICKET_LIMIT_VIEW_ASSIGNED_ONLY)) {
+	if (!$user->socid && getDolGlobalString('TICKET_LIMIT_VIEW_ASSIGNED_ONLY')) {
 		$object->next_prev_filter = "te.fk_user_assign = ".((int) $user->id);
 	} elseif ($user->socid > 0) {
 		$object->next_prev_filter = "te.fk_soc = ".((int) $user->socid);
@@ -202,8 +211,12 @@ if ($object->id) {
 
 	print dol_get_fiche_end();
 
+	if (!empty($object->ref) && $object->ref != basename($upload_dir)) {
+		$upload_dir = $conf->ticket->dir_output."/".dol_sanitizeFileName($object->ref);
+	}
 	// Build file list
 	$filearray = dol_dir_list($upload_dir, "files", 0, '', '\.meta$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
+	
 	$totalsize = 0;
 	foreach ($filearray as $key => $file) {
 		$totalsize += $file['size'];
@@ -216,6 +229,58 @@ if ($object->id) {
 	$param = '&id='.$object->id;
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
+
+	// same as above for every messages
+	$sql = 'SELECT id FROM '.MAIN_DB_PREFIX.'actioncomm';
+	$sql .= " WHERE fk_element = ".(int) $object->id." AND elementtype = 'ticket'";
+	$resql = $db->query($sql);
+	if ($resql) {
+		$filearray = array();
+		$numrows = $db->num_rows($resql);
+		for ($i=0; $i < $numrows; $i++) {
+			$upload_msg_dir = $conf->agenda->dir_output.'/'.$db->fetch_row($resql)[0];
+			$file_msg = dol_dir_list($upload_msg_dir, "files", 0, '', '\.meta$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
+			if (count($file_msg)) {
+				// add specific module part and user rights for delete
+				foreach ($file_msg as $key => $file) {
+					$file_msg[$key]['modulepart'] = 'actions';
+					$file_msg[$key]['relativepath'] = $file['level1name'].'/'; // directory without file name
+					$file_msg[$key]['permtoedit'] = $permtoedit;
+					$file_msg[$key]['permonobject'] = $permtoedit;
+				}
+				$filearray = array_merge($file_msg, $filearray);
+			}
+		}
+	}
+	$totalsize = 0;
+	foreach ($filearray as $key => $file) {
+		$totalsize += $file['size'];
+	}
+
+	$param = '&id='.$object->id;
+	$formfile = new FormFile($db);
+	// List of document
+	$formfile->list_of_documents(
+		$filearray,
+		null,
+		'actions',
+		$param,
+		0,
+		'', // relative path with no file. For example "0/1"
+		$user->rights->ticket->write,
+		0,
+		'',
+		0,
+		$langs->trans("TicketDocumentsLinkedToMessages"),
+		'',
+		0,
+		$user->rights->ticket->write,
+		$upload_dir,
+		$sortfield,
+		$sortorder,
+		1
+	);
+
 } else {
 	accessforbidden('', 0, 1);
 }

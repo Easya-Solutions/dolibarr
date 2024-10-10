@@ -619,6 +619,19 @@ abstract class CommonObject
 	public $user_modification_id;
 
 
+	/**
+	 * @var int ID
+	 * @deprecated	Use $user_creation_id
+	 */
+	public $fk_user_creat;
+
+	/**
+	 * @var int ID
+	 * @deprecated 	Use $user_modification_id
+	 */
+	public $fk_user_modif;
+
+
 	public $next_prev_filter;
 
 	/**
@@ -3114,7 +3127,7 @@ abstract class CommonObject
 				while ($row = $this->db->fetch_row($resql)) {
 					$rows[] = $row[0];
 					if (!empty($includealltree)) {
-						$rows = array_merge($rows, $this->getChildrenOfLine($row[0]), $includealltree);
+						$rows = array_merge($rows, $this->getChildrenOfLine($row[0], $includealltree));
 					}
 				}
 			}
@@ -3513,7 +3526,7 @@ abstract class CommonObject
 	 *  @param	Societe	$seller				If roundingadjust is '0' or '1' or maybe 'auto', it means we recalculate total for lines before calculating total for object and for this, we need seller object (used to analyze lines to check corrupted data).
 	 *	@return	int    			           	<0 if KO, >0 if OK
 	 */
-	public function update_price($exclspec = 0, $roundingadjust = 'none', $nodatabaseupdate = 0, $seller = null)
+	public function update_price($exclspec = 0, $roundingadjust = 'auto', $nodatabaseupdate = 0, $seller = null)
 	{
 		// phpcs:enable
 		global $conf, $hookmanager, $action;
@@ -3527,6 +3540,8 @@ abstract class CommonObject
 		} // reshook = 0 => execute normal code
 
 		// Some external module want no update price after a trigger because they have another method to calculate the total (ex: with an extrafield)
+		$isElementForSupplier = false;
+		$roundTotalConstName = 'MAIN_ROUNDOFTOTAL_NOT_TOTALOFROUND'; // const for customer by default
 		$MODULE = "";
 		if ($this->element == 'propal') {
 			$MODULE = "MODULE_DISALLOW_UPDATE_PRICE_PROPOSAL";
@@ -3535,11 +3550,17 @@ abstract class CommonObject
 		} elseif ($this->element == 'facture' || $this->element == 'invoice') {
 			$MODULE = "MODULE_DISALLOW_UPDATE_PRICE_INVOICE";
 		} elseif ($this->element == 'facture_fourn' || $this->element == 'supplier_invoice' || $this->element == 'invoice_supplier' || $this->element == 'invoice_supplier_rec') {
+			$isElementForSupplier = true;
 			$MODULE = "MODULE_DISALLOW_UPDATE_PRICE_SUPPLIER_INVOICE";
 		} elseif ($this->element == 'order_supplier' || $this->element == 'supplier_order') {
+			$isElementForSupplier = true;
 			$MODULE = "MODULE_DISALLOW_UPDATE_PRICE_SUPPLIER_ORDER";
 		} elseif ($this->element == 'supplier_proposal') {
+			$isElementForSupplier = true;
 			$MODULE = "MODULE_DISALLOW_UPDATE_PRICE_SUPPLIER_PROPOSAL";
+		}
+		if ($isElementForSupplier === true) {
+			$roundTotalConstName = 'MAIN_ROUNDOFTOTAL_NOT_TOTALOFROUND_SUPPLIER'; // const for supplier
 		}
 
 		if (!empty($MODULE)) {
@@ -3556,8 +3577,8 @@ abstract class CommonObject
 		include_once DOL_DOCUMENT_ROOT.'/core/lib/price.lib.php';
 
 		$forcedroundingmode = $roundingadjust;
-		if ($forcedroundingmode == 'auto' && isset($conf->global->MAIN_ROUNDOFTOTAL_NOT_TOTALOFROUND)) {
-			$forcedroundingmode = getDolGlobalString('MAIN_ROUNDOFTOTAL_NOT_TOTALOFROUND');
+		if ($forcedroundingmode == 'auto' && isset($conf->global->{$roundTotalConstName})) {
+			$forcedroundingmode = getDolGlobalString($roundTotalConstName);
 		} elseif ($forcedroundingmode == 'auto') {
 			$forcedroundingmode = '0';
 		}
@@ -3571,6 +3592,7 @@ abstract class CommonObject
 		$fieldlocaltax1 = 'total_localtax1';
 		$fieldlocaltax2 = 'total_localtax2';
 		$fieldup = 'subprice';
+		$base_price_type = 'HT';
 		if ($this->element == 'facture_fourn' || $this->element == 'invoice_supplier') {
 			$fieldtva = 'tva';
 			$fieldup = 'pu_ht';
@@ -3579,7 +3601,14 @@ abstract class CommonObject
 			$fieldup = 'pu_ht';
 		}
 		if ($this->element == 'expensereport') {
+			// force rounding mode to 1
+			// otherwise when you set MAIN_ROUNDOFTOTAL_NOT_TOTALOFROUND to 1
+			// you have 2 lines with same TTC amounts (6,2 Unit price TTC and VAT rate 20%)
+			// on the first line you got 5,17 on HT total
+			// when you got 5,16 on HT total and 1,04 on VAT total to get 6,20 on TTT total (see #30051)
+			$forcedroundingmode = '0';
 			$fieldup = 'value_unit';
+			$base_price_type = 'TTC';
 		}
 
 		$sql = "SELECT rowid, qty, ".$fieldup." as up, remise_percent, total_ht, ".$fieldtva." as total_tva, total_ttc, ".$fieldlocaltax1." as total_localtax1, ".$fieldlocaltax2." as total_localtax2,";
@@ -3631,7 +3660,7 @@ abstract class CommonObject
 				if (empty($reshook) && $forcedroundingmode == '0') {	// Check if data on line are consistent. This may solve lines that were not consistent because set with $forcedroundingmode='auto'
 					// This part of code is to fix data. We should not call it too often.
 					$localtax_array = array($obj->localtax1_type, $obj->localtax1_tx, $obj->localtax2_type, $obj->localtax2_tx);
-					$tmpcal = calcul_price_total($obj->qty, $obj->up, $obj->remise_percent, $obj->vatrate, $obj->localtax1_tx, $obj->localtax2_tx, 0, 'HT', $obj->info_bits, $obj->product_type, $seller, $localtax_array, (isset($obj->situation_percent) ? $obj->situation_percent : 100), $multicurrency_tx);
+					$tmpcal = calcul_price_total($obj->qty, $obj->up, $obj->remise_percent, $obj->vatrate, $obj->localtax1_tx, $obj->localtax2_tx, 0, $base_price_type, $obj->info_bits, $obj->product_type, $seller, $localtax_array, (isset($obj->situation_percent) ? $obj->situation_percent : 100), $multicurrency_tx);
 
 					$diff_when_using_price_ht = price2num($tmpcal[1] - $obj->total_tva, 'MT', 1); // If price was set with tax price and unit price HT has a low number of digits, then we may have a diff on recalculation from unit price HT.
 					$diff_on_current_total = price2num($obj->total_ttc - $obj->total_ht - $obj->total_tva - $obj->total_localtax1 - $obj->total_localtax2, 'MT', 1);
@@ -3648,7 +3677,7 @@ abstract class CommonObject
 						}
 						$obj->total_tva = $tmpcal[1];
 						$obj->total_ttc = $tmpcal[2];
-					} elseif ($diff_when_using_price_ht && $roundingadjust == '0') {
+					} elseif ($diff_when_using_price_ht) {
 						// After calculation from HT, total is consistent but we have found a difference between VAT part in calculation and into database and
 						// we ask to force the use of rounding on line (like done on calculation) so we force update of line
 						$sqlfix = "UPDATE ".$this->db->prefix().$this->table_element_line." SET ".$fieldtva." = ".price2num((float) $tmpcal[1]).", total_ttc = ".price2num((float) $tmpcal[2])." WHERE rowid = ".((int) $obj->rowid);
@@ -3685,7 +3714,11 @@ abstract class CommonObject
 				$total_ttc_by_vats[$obj->vatrate] += $obj->total_ttc;
 
 				if ($forcedroundingmode == '1') {	// Check if we need adjustement onto line for vat. TODO This works on the company currency but not on foreign currency
-					$tmpvat = price2num($total_ht_by_vats[$obj->vatrate] * $obj->vatrate / 100, 'MT', 1);
+					if ($base_price_type == 'TTC') {
+						$tmpvat = price2num($total_ttc_by_vats[$obj->vatrate] * $obj->vatrate / (100 + $obj->vatrate), 'MT', 1);
+					} else {
+						$tmpvat = price2num($total_ht_by_vats[$obj->vatrate] * $obj->vatrate / 100, 'MT', 1);
+					}
 					$diff = price2num($total_tva_by_vats[$obj->vatrate] - $tmpvat, 'MT', 1);
 					//print 'Line '.$i.' rowid='.$obj->rowid.' vat_rate='.$obj->vatrate.' total_ht='.$obj->total_ht.' total_tva='.$obj->total_tva.' total_ttc='.$obj->total_ttc.' total_ht_by_vats='.$total_ht_by_vats[$obj->vatrate].' total_tva_by_vats='.$total_tva_by_vats[$obj->vatrate].' (new calculation = '.$tmpvat.') total_ttc_by_vats='.$total_ttc_by_vats[$obj->vatrate].($diff?" => DIFF":"")."<br>\n";
 					if ($diff) {
@@ -3697,8 +3730,13 @@ abstract class CommonObject
 							$error++;
 							break;
 						}
-						$sqlfix = "UPDATE ".$this->db->prefix().$this->table_element_line." SET ".$fieldtva." = ".price2num($obj->total_tva - $diff).", total_ttc = ".price2num($obj->total_ttc - $diff)." WHERE rowid = ".((int) $obj->rowid);
-						dol_syslog('We found a difference of '.$diff.' for line rowid = '.$obj->rowid.". We fix the total_vat and total_ttc of line by running sqlfix = ".$sqlfix);
+						if ($base_price_type == 'TTC') {
+							$sqlfix = "UPDATE ".$this->db->prefix().$this->table_element_line." SET ".$fieldtva." = ".price2num($obj->total_tva - (float) $diff).", total_ht = ".price2num($obj->total_ht + (float) $diff)." WHERE rowid = ".((int) $obj->rowid);
+							dol_syslog('We found a difference of '.$diff.' for line rowid = '.$obj->rowid.". We fix the total_vat and total_ht of line by running sqlfix = ".$sqlfix);
+						} else {
+							$sqlfix = "UPDATE ".$this->db->prefix().$this->table_element_line." SET ".$fieldtva." = ".price2num($obj->total_tva - $diff).", total_ttc = ".price2num($obj->total_ttc - $diff)." WHERE rowid = ".((int) $obj->rowid);
+							dol_syslog('We found a difference of '.$diff.' for line rowid = '.$obj->rowid.". We fix the total_vat and total_ttc of line by running sqlfix = ".$sqlfix);
+						}
 
 						$resqlfix = $this->db->query($sqlfix);
 
@@ -3707,9 +3745,14 @@ abstract class CommonObject
 						}
 
 						$this->total_tva = (float) price2num($this->total_tva - $diff, '', 1);
-						$this->total_ttc = (float) price2num($this->total_ttc - $diff, '', 1);
 						$total_tva_by_vats[$obj->vatrate] = (float) price2num($total_tva_by_vats[$obj->vatrate] - $diff, '', 1);
-						$total_ttc_by_vats[$obj->vatrate] = (float) price2num($total_ttc_by_vats[$obj->vatrate] - $diff, '', 1);
+						if ($base_price_type == 'TTC') {
+							$this->total_ht = (float) price2num($this->total_ht + (float) $diff, '', 1);
+							$total_ht_by_vats[$obj->vatrate] = (float) price2num($total_ht_by_vats[$obj->vatrate] + (float) $diff, '', 1);
+						} else {
+							$this->total_ttc = (float) price2num($this->total_ttc - $diff, '', 1);
+							$total_ttc_by_vats[$obj->vatrate] = (float) price2num($total_ttc_by_vats[$obj->vatrate] - $diff, '', 1);
+						}
 					}
 				}
 
@@ -4528,7 +4571,7 @@ abstract class CommonObject
 		$resql = $this->db->query($sql);
 		if ($resql) {
 			$row = $this->db->fetch_row($resql);
-			return $row[0];
+			return (!empty($row[0]) ? $row[0] : 0);
 		}
 
 		return 0;
@@ -6215,7 +6258,7 @@ abstract class CommonObject
 			foreach ($new_array_options as $key => $value) {
 				$attributeKey      = substr($key, 8); // Remove 'options_' prefix
 				$attributeType     = $extrafields->attributes[$this->table_element]['type'][$attributeKey];
-				$attributeLabel    = $extrafields->attributes[$this->table_element]['label'][$attributeKey];
+				$attributeLabel    = $langs->transnoentities($extrafields->attributes[$this->table_element]['label'][$attributeKey]);
 				$attributeParam    = $extrafields->attributes[$this->table_element]['param'][$attributeKey];
 				$attributeRequired = $extrafields->attributes[$this->table_element]['required'][$attributeKey];
 				$attributeUnique   = $extrafields->attributes[$this->table_element]['unique'][$attributeKey];
@@ -6650,6 +6693,7 @@ abstract class CommonObject
 						$this->array_options["options_".$key] = null;
 					}
 					break;
+				case 'price':
 				case 'double':
 					$value = price2num($value);
 					if (!is_numeric($value) && $value != '') {
@@ -6668,9 +6712,6 @@ abstract class CommonObject
 						 $this->array_options[$key] = null;
 					 }
 					 break;*/
-				case 'price':
-					$this->array_options["options_".$key] = price2num($this->array_options["options_".$key]);
-					break;
 				case 'date':
 				case 'datetime':
 					if (empty($this->array_options["options_".$key])) {
@@ -8341,7 +8382,7 @@ abstract class CommonObject
 						}
 
 						// HTML, text, select, integer and varchar: take into account default value in database if in create mode
-						if (in_array($extrafields->attributes[$this->table_element]['type'][$key], array('html', 'text', 'varchar', 'select', 'int', 'boolean'))) {
+						if (in_array($extrafields->attributes[$this->table_element]['type'][$key], array('html', 'text', 'varchar', 'select', 'radio', 'int', 'boolean'))) {
 							if ($action == 'create') {
 								$value = (GETPOSTISSET($keyprefix.'options_'.$key.$keysuffix) || $value) ? $value : $extrafields->attributes[$this->table_element]['default'][$key];
 							}
@@ -8576,7 +8617,7 @@ abstract class CommonObject
 	 * @param  int 		   $origin_id     Old product id (the product to delete)
 	 * @param  int 		   $dest_id       New product id (the product that will received element of the other)
 	 * @param  string[]    $tables        Tables that need to be changed
-	 * @param  int         $ignoreerrors  Ignore errors. Return true even if errors. We need this when replacement can fails like for categories (categorie of old product may already exists on new one)
+	 * @param  int<0,1>		$ignoreerrors	Ignore errors. Return true even if errors. We need this when replacement can fails like for categories (categorie of old product may already exists on new one)
 	 * @return bool						  True if success, False if error
 	 */
 	public static function commonReplaceProduct(DoliDB $dbs, $origin_id, $dest_id, array $tables, $ignoreerrors = 0)
@@ -9060,9 +9101,9 @@ abstract class CommonObject
 
 
 	/**
-	 * Function to prepare a part of the query for insert by returning an array with all properties of object.
+	 * Function to return the array of data key-value from the ->fields and all the ->properties of an object.
 	 *
-	 * Note $this->${field} are set by the page that make the createCommon() or the updateCommon().
+	 * Note: $this->${field} are set by the page that make the createCommon() or the updateCommon().
 	 * $this->${field} should be a clean and string value (so date are formated for SQL insert).
 	 *
 	 * @return array		Array with all values of each properties to update
@@ -9141,7 +9182,7 @@ abstract class CommonObject
 
 		foreach ($this->fields as $field => $info) {
 			if ($this->isDate($info)) {
-				if (is_null($obj->$field) || $obj->$field === '' || $obj->$field === '0000-00-00 00:00:00' || $obj->$field === '1000-01-01 00:00:00') {
+				if (!isset($obj->$field) || is_null($obj->$field) || $obj->$field === '' || $obj->$field === '0000-00-00 00:00:00' || $obj->$field === '1000-01-01 00:00:00') {
 					$this->$field = '';
 				} else {
 					$this->$field = $db->jdate($obj->$field);
@@ -9157,7 +9198,7 @@ abstract class CommonObject
 							$this->$field = (double) $obj->$field;
 						}
 					} else {
-						if (!is_null($obj->$field) || (isset($info['notnull']) && $info['notnull'] == 1)) {
+						if (isset($obj->$field) && (!is_null($obj->$field) || (isset($info['notnull']) && $info['notnull'] == 1))) {
 							$this->$field = (int) $obj->$field;
 						} else {
 							$this->$field = null;
@@ -9172,7 +9213,7 @@ abstract class CommonObject
 						$this->$field = (double) $obj->$field;
 					}
 				} else {
-					if (!is_null($obj->$field) || (isset($info['notnull']) && $info['notnull'] == 1)) {
+					if (isset($obj->$field) && (!is_null($obj->$field) || (isset($info['notnull']) && $info['notnull'] == 1))) {
 						$this->$field = (double) $obj->$field;
 					} else {
 						$this->$field = null;
@@ -9265,6 +9306,11 @@ abstract class CommonObject
 		}
 		if (array_key_exists('fk_user_creat', $fieldvalues) && !($fieldvalues['fk_user_creat'] > 0)) {
 			$fieldvalues['fk_user_creat'] = $user->id;
+			$this->fk_user_creat = $user->id;
+		}
+		if (array_key_exists('user_modification_id', $fieldvalues) && !($fieldvalues['user_modification_id'] > 0)) {
+			$fieldvalues['user_modification_id'] = $user->id;
+			$this->user_modification_id = $user->id;
 		}
 		unset($fieldvalues['rowid']); // The field 'rowid' is reserved field name for autoincrement field so we don't need it into insert.
 		if (array_key_exists('ref', $fieldvalues)) {
@@ -9501,6 +9547,7 @@ abstract class CommonObject
 		if ($resql) {
 			$num_rows = $this->db->num_rows($resql);
 			$i = 0;
+			$this->lines = array();
 			while ($i < $num_rows) {
 				$obj = $this->db->fetch_object($resql);
 				if ($obj) {

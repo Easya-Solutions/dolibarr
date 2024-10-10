@@ -532,7 +532,7 @@ class CommandeFournisseur extends CommonOrder
 		$sql = "SELECT l.rowid, l.fk_commande, l.ref as ref_supplier, l.fk_product, l.product_type, l.label, l.description, l.qty,";
 		$sql .= " l.vat_src_code, l.tva_tx, l.remise_percent, l.subprice,";
 		$sql .= " l.localtax1_tx, l. localtax2_tx, l.localtax1_type, l. localtax2_type, l.total_localtax1, l.total_localtax2,";
-		$sql .= " l.total_ht, l.total_tva, l.total_ttc, l.special_code, l.fk_parent_line, l.rang,";
+		$sql .= " l.total_ht, l.total_tva, l.total_ttc, l.info_bits, l.special_code, l.fk_parent_line, l.rang,";
 		$sql .= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.description as product_desc, p.tobatch as product_tobatch, p.barcode as product_barcode,";
 		$sql .= " l.fk_unit,";
 		$sql .= " l.date_start, l.date_end,";
@@ -633,6 +633,7 @@ class CommandeFournisseur extends CommonOrder
 				$line->multicurrency_total_tva = $objp->multicurrency_total_tva;
 				$line->multicurrency_total_ttc = $objp->multicurrency_total_ttc;
 
+				$line->info_bits      	   = $objp->info_bits;
 				$line->special_code        = $objp->special_code;
 				$line->fk_parent_line      = $objp->fk_parent_line;
 
@@ -2056,7 +2057,7 @@ class CommandeFournisseur extends CommonOrder
 			$this->line->total_localtax2 = $total_localtax2;
 			$this->line->total_ttc = $total_ttc;
 			$this->line->product_type = $type;
-			$this->line->special_code   = (!empty($this->special_code) ? $this->special_code : 0);
+			$this->line->special_code   = (!empty($special_code) ? $special_code : 0);
 			$this->line->origin = $origin;
 			$this->line->origin_id = $origin_id;
 			$this->line->fk_unit = $fk_unit;
@@ -4134,7 +4135,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
 			return -1;
 		}
 
-		$sql1 = 'UPDATE '.MAIN_DB_PREFIX."commandedet SET fk_commandefourndet = NULL WHERE rowid=".((int) $this->id);
+		$sql1 = 'UPDATE '.MAIN_DB_PREFIX."commandedet SET fk_commandefourndet = NULL WHERE fk_commandefourndet=".((int) $this->id);
 		$resql = $this->db->query($sql1);
 		if (!$resql) {
 			$this->db->rollback();

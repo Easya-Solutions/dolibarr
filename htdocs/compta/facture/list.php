@@ -510,7 +510,6 @@ if ($action == 'makepayment_confirm' && $user->hasRight('facture', 'paiement')) 
 				$rsql .= " , ".MAIN_DB_PREFIX."user as u";
 				$rsql .= " WHERE fk_facture = ".((int) $objecttmp->id);
 				$rsql .= " AND pfd.fk_user_demande = u.rowid";
-				$rsql .= " AND pfd.traite = 0";
 				$rsql .= " ORDER BY pfd.date_demande DESC";
 
 				$result_sql = $db->query($rsql);
@@ -1842,6 +1841,9 @@ if ($resql) {
 		$totalarray['val']['f.total_tva'] = 0;
 		$totalarray['val']['f.total_ht'] = 0;
 		$totalarray['val']['f.total_ttc'] = 0;
+		$totalarray['val']['totalam'] = 0;
+		$totalarray['val']['rtp'] = 0;
+
 
 		$with_margin_info = false;
 		if (isModEnabled('margin') && (

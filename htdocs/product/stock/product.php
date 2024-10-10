@@ -150,7 +150,7 @@ if ($reshook < 0) {
 	setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 }
 
-if ($action == 'setcost_price') {
+if ($action == 'setcost_price' && $usercancreate) {
 	if ($id) {
 		$result = $object->fetch($id);
 		$object->cost_price = price2num($cost_price);
@@ -165,7 +165,7 @@ if ($action == 'setcost_price') {
 	}
 }
 
-if ($action == 'addlimitstockwarehouse' && $user->hasRight('produit', 'creer')) {
+if ($action == 'addlimitstockwarehouse' && $usercancreate) {
 	$seuil_stock_alerte = GETPOST('seuil_stock_alerte');
 	$desiredstock = GETPOST('desiredstock');
 
@@ -204,7 +204,7 @@ if ($action == 'addlimitstockwarehouse' && $user->hasRight('produit', 'creer')) 
 	exit;
 }
 
-if ($action == 'delete_productstockwarehouse' && $user->hasRight('produit', 'creer')) {
+if ($action == 'delete_productstockwarehouse' && $usercancreate) {
 	$pse = new ProductStockEntrepot($db);
 
 	$pse->fetch(GETPOST('fk_productstockwarehouse', 'int'));
@@ -216,7 +216,7 @@ if ($action == 'delete_productstockwarehouse' && $user->hasRight('produit', 'cre
 }
 
 // Set stock limit
-if ($action == 'setseuil_stock_alerte' && $user->hasRight('produit', 'creer')) {
+if ($action == 'setseuil_stock_alerte' && $usercancreate) {
 	$object = new Product($db);
 	$result = $object->fetch($id);
 	$object->seuil_stock_alerte = $stocklimit;
@@ -230,7 +230,7 @@ if ($action == 'setseuil_stock_alerte' && $user->hasRight('produit', 'creer')) {
 }
 
 // Set desired stock
-if ($action == 'setdesiredstock' && $user->hasRight('produit', 'creer')) {
+if ($action == 'setdesiredstock' && $usercancreate) {
 	$object = new Product($db);
 	$result = $object->fetch($id);
 	$object->desiredstock = $desiredstock;
@@ -243,8 +243,8 @@ if ($action == 'setdesiredstock' && $user->hasRight('produit', 'creer')) {
 
 
 // Correct stock
-if ($action == "correct_stock" && !$cancel) {
-	if (!(GETPOST("id_entrepot", 'int') > 0)) {
+if ($action == "correct_stock" && !$cancel && $usercancreate) {
+	if (!(GETPOSTINT("id_entrepot") > 0)) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Warehouse")), null, 'errors');
 		$error++;
 		$action = 'correction';
@@ -336,8 +336,8 @@ if ($action == "correct_stock" && !$cancel) {
 }
 
 // Transfer stock from a warehouse to another warehouse
-if ($action == "transfert_stock" && !$cancel) {
-	if (!(GETPOST("id_entrepot", 'int') > 0) || !(GETPOST("id_entrepot_destination", 'int') > 0)) {
+if ($action == "transfert_stock" && !$cancel && $usercancreate) {
+	if (!(GETPOSTINT("id_entrepot") > 0) || !(GETPOSTINT("id_entrepot_destination") > 0)) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Warehouse")), null, 'errors');
 		$error++;
 		$action = 'transfert';
@@ -494,7 +494,7 @@ if ($action == "transfert_stock" && !$cancel) {
 }
 
 // Update batch information
-if ($action == 'updateline' && GETPOST('save') == $langs->trans("Save")) {
+if ($action == 'updateline' && GETPOST('save') == $langs->trans("Save") && $usercancreate) {
 	$pdluo = new Productbatch($db);
 	$result = $pdluo->fetch(GETPOST('pdluoid', 'int'));
 
@@ -522,7 +522,6 @@ if ($action == 'updateline' && GETPOST('save') == $langs->trans("Save")) {
 	header("Location: product.php?id=".$id);
 	exit;
 }
-
 
 
 /*
@@ -611,7 +610,7 @@ if ($id > 0 || $ref) {
 
 		dol_htmloutput_events();
 
-		$linkback = '<a href="'.DOL_URL_ROOT.'/product/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
+		$linkback = '<a href="'.DOL_URL_ROOT.'/product/list.php?restore_lastsearch_values=1&type='.$object->type.'">'.$langs->trans("BackToList").'</a>';
 
 		$shownav = 1;
 		if ($user->socid && !in_array('stock', explode(',', $conf->global->MAIN_MODULES_FOR_EXTERNAL))) {
@@ -1011,8 +1010,10 @@ if (!$variants) {
 	$sql .= " FROM ".MAIN_DB_PREFIX."entrepot as e,";
 	$sql .= " ".MAIN_DB_PREFIX."product_stock as ps";
 	$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = ps.fk_product";
-	$sql .= " WHERE ps.reel != 0";
-	$sql .= " AND ps.fk_entrepot = e.rowid";
+	$sql .= " WHERE ps.fk_entrepot = e.rowid";
+	if (!getDolGlobalInt('STOCK_MOVEMENT_FORCE_DO_NOT_CLEAN_EMPTY_LINES')) {
+		$sql .= " AND ps.reel != 0";
+	}
 	$sql .= " AND e.entity IN (".getEntity('stock').")";
 	$sql .= " AND ps.fk_product = ".((int) $object->id);
 	$sql .= " ORDER BY e.ref";
