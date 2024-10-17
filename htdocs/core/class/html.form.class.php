@@ -10654,13 +10654,14 @@ class Form
 	/**
 	 * selectModelMail
 	 *
-	 * @param string $prefix Prefix
-	 * @param string $modelType Model type
-	 * @param int $default 1=Show also Default mail template
-	 * @param int $addjscombo Add js combobox
-	 * @return  string                HTML select string
+	 * @param	string		$prefix			Prefix
+	 * @param	string		$modelType		Model type
+	 * @param	int<0,1>	$default		1=Show also Default mail template
+	 * @param	int<0,1>	$addjscombo		Add js combobox
+	 * @param   string      $selected       Selected model mail
+	 * @return	string						HTML select string
 	 */
-	public function selectModelMail($prefix, $modelType = '', $default = 0, $addjscombo = 0)
+	public function selectModelMail($prefix, $modelType = '', $default = 0, $addjscombo = 0, $selected = '')
 	{
 		global $langs, $user;
 
@@ -10685,6 +10686,9 @@ class Form
 
 		foreach ($TModels as $id_model => $label_model) {
 			$retstring .= '<option value="' . $id_model . '"';
+			if (!empty($selected) && $selected == $id_model) {
+				$retstring .= "selected";
+			}
 			$retstring .= ">" . $label_model . "</option>";
 		}
 
