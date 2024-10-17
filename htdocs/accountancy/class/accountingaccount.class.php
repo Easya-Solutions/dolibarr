@@ -820,7 +820,28 @@ class AccountingAccount extends CommonObject
 
 			// Level 2 (define $code_p): Search suggested account for product/service (similar code exists in page index.php to make automatic binding)
 			$suggestedaccountingaccountfor = '';
-			if ((($buyer->country_code == $seller->country_code) || empty($buyer->country_code))) {
+// Specifique Client 3194 - Begin
+			if ($type == 'customer' && $buyer->code_compta_client == $conf->global->ACCOUNTING_AFPJR_SELL_INTRA_ACCOUNT_INTERN) {
+				$account_intra = length_accountg($product->accountancy_code_sell);
+				$code_sell_intra = substr($account_intra, 0, 6) . substr($conf->global->ACCOUNTING_AFPJR_SELL_INTRA_FIN, 0, 3);
+				$code_p = $code_sell_intra;
+
+				$aaccount_intra = new AccountingAccount($this->db);
+				$aaccount_intra->fetch('', $code_sell_intra, 1);
+				$suggestedid = $aaccount_intra->rowid;
+				$suggestedaccountingaccountfor = 'prodserv';
+			} elseif ($type == 'customer' && substr($buyer->code_compta_client, 0, 3) == $conf->global->ACCOUNTING_AFPJR_SELL_INTER_RACINE) {
+				$account_inter = length_accountg($product->accountancy_code_sell);
+				$code_sell_inter = substr($account_inter, 0, 6) . substr($conf->global->ACCOUNTING_AFPJR_SELL_INTER_FIN, 0, 3);
+				$code_p = $code_sell_inter;
+
+				$aaccount_inter = new AccountingAccount($this->db);
+				$aaccount_inter->fetch('', $code_sell_inter, 1);
+				$suggestedid = $aaccount_inter->rowid;
+				$suggestedaccountingaccountfor = 'prodserv';
+			}
+// Specifique Client 3194 - End
+			elseif ((($buyer->country_code == $seller->country_code) || empty($buyer->country_code))) {
 				// If buyer in same country than seller (if not defined, we assume it is same country)
 				if ($type == 'customer' && !empty($product->accountancy_code_sell)) {
 					$code_p = $product->accountancy_code_sell;
