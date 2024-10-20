@@ -215,6 +215,7 @@ if ($action == 'order' && GETPOST('valid')) {
 						$line->total_ttc = $line->total_ht + $line->total_tva;
 						$line->remise_percent = $productsupplier->remise_percent;
 						$line->ref_supplier = $productsupplier->ref_supplier;
+						$line->ref_fourn = $productsupplier->ref_supplier;
 						$line->product_type = $productsupplier->type;
 						$line->fk_unit = $productsupplier->fk_unit;
 						$suppliers[$productsupplier->fourn_socid]['lines'][] = $line;
