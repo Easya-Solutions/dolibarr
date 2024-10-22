@@ -198,6 +198,42 @@ function getDolUserInt($key, $default = 0, $tmpuser = null)
 	return (int) (empty($tmpuser->conf->$key) ? $default : $tmpuser->conf->$key);
 }
 
+
+/**
+ * This mapping defines the conversion to the current internal
+ * names from the alternative allowed names (including effectively deprecated
+ * and future new names (not yet used as internal names).
+ *
+ * This allows to map any temporary or future name to the effective internal name.
+ *
+ * The value is typically the name of module's root directory.
+ */
+define(
+	'MODULE_MAPPING',
+	array(
+		// Map deprecated names to new names
+		'adherent' => 'member',  // Has new directory
+		'member_type' => 'adherent_type',   // No directory, but file called adherent_type
+		'banque' => 'bank',   // Has new directory
+		'contrat' => 'contract', // Has new directory
+		'entrepot' => 'stock',   // Has new directory
+		'projet' => 'project', // Has new directory
+		'categorie' => 'category', // Has old directory
+		'commande' => 'order',    // Has old directory
+		'expedition' => 'shipping', // Has old directory
+		'facture' => 'invoice', // Has old directory
+		'fichinter' => 'intervention', // Has old directory
+		'ficheinter' => 'intervention',  // Backup for 'fichinter'
+		'propale' => 'propal', // Has old directory
+		'socpeople' => 'contact', // Has old directory
+		'fournisseur' => 'supplier',  // Has old directory
+
+		'actioncomm' => 'agenda',  // NO module directory (public dir agenda)
+		'product_price' => 'productprice', // NO directory
+		'product_fournisseur_price' => 'productsupplierprice', // NO directory
+	)
+);
+
 /**
  * Is Dolibarr module enabled
  *
@@ -208,23 +244,36 @@ function isModEnabled($module)
 {
 	global $conf;
 
-	// Fix special cases
-	$arrayconv = array(
-		'bank' => 'banque',
-		'category' => 'categorie',
-		'contract' => 'contrat',
-		'project' => 'projet',
-		'delivery_note' => 'expedition'
-	);
-	if (empty($conf->global->MAIN_USE_NEW_SUPPLIERMOD)) {
+	// Fix old names (map to new names)
+	$arrayconv = MODULE_MAPPING;
+	$arrayconvbis = array_flip(MODULE_MAPPING);
+
+	if (!getDolGlobalString('MAIN_USE_NEW_SUPPLIERMOD')) {
+		// Special cases: both use the same module.
 		$arrayconv['supplier_order'] = 'fournisseur';
 		$arrayconv['supplier_invoice'] = 'fournisseur';
 	}
-	if (!empty($arrayconv[$module])) {
-		$module = $arrayconv[$module];
+	// Special case.
+	// @TODO Replace isModEnabled('delivery_note') with
+	// isModEnabled('shipping') && getDolGlobalString('MAIN_SUBMODULE_EXPEDITION')
+	if ($module == 'delivery_note') {
+		if (!getDolGlobalString('MAIN_SUBMODULE_EXPEDITION')) {
+			return false;
+		} else {
+			$module = 'shipping';
+		}
 	}
 
-	return !empty($conf->modules[$module]);
+	$module_alt = $module;
+	if (!empty($arrayconv[$module])) {
+		$module_alt = $arrayconv[$module];
+	}
+	$module_bis = $module;
+	if (!empty($arrayconvbis[$module])) {
+		$module_bis = $arrayconvbis[$module];
+	}
+
+	return !empty($conf->modules[$module]) || !empty($conf->modules[$module_alt]) || !empty($conf->modules[$module_bis]);
 	//return !empty($conf->$module->enabled);
 }
 
@@ -2453,7 +2502,16 @@ function dol_banner_tab($object, $paramid, $morehtml = '', $shownav = 1, $fieldi
 		} else {
 			$morehtmlstatus .= '<span class="statusrefbuy">'.$object->getLibStatut(6, 1).'</span>';
 		}
-	} elseif (in_array($object->element, array('facture', 'invoice', 'invoice_supplier', 'chargesociales', 'loan', 'tva', 'salary'))) {
+	} elseif (in_array($object->element, array('facture', 'invoice', 'invoice_supplier'))) {
+		$totalallpayments = $object->getSommePaiement(0);
+		$totalallpayments += $object->getSumCreditNotesUsed(0);
+		$totalallpayments += $object->getSumDepositsUsed(0);
+		$tmptxt = $object->getLibStatut(6, $totalallpayments);
+		if (empty($tmptxt) || $tmptxt == $object->getLibStatut(3)) {
+			$tmptxt = $object->getLibStatut(5, $totalallpayments);
+		}
+		$morehtmlstatus .= $tmptxt;
+	} elseif (in_array($object->element, array('chargesociales', 'loan', 'tva'))) {
 		$tmptxt = $object->getLibStatut(6, $object->totalpaid);
 		if (empty($tmptxt) || $tmptxt == $object->getLibStatut(3)) {
 			$tmptxt = $object->getLibStatut(5, $object->totalpaid);
@@ -3246,7 +3304,7 @@ function dol_print_email($email, $cid = 0, $socid = 0, $addlink = 0, $max = 64, 
 			$newemail .= 'mailto:';
 		}
 		$newemail .= $email;
-		$newemail .= '">';
+		$newemail .= '" target="_blank">';
 		$newemail .= dol_trunc($email, $max);
 		$newemail .= '</a>';
 		if ($showinvalid && !isValidEmail($email)) {
@@ -5936,9 +5994,10 @@ function price($amount, $form = 0, $outlangs = '', $trunc = 1, $rounding = -1, $
 		$nbdecimal = dol_strlen($decpart);
 	}
 	// Si on depasse max
-	if ($trunc && $nbdecimal > $conf->global->MAIN_MAX_DECIMALS_SHOWN) {
-		$nbdecimal = $conf->global->MAIN_MAX_DECIMALS_SHOWN;
-		if (preg_match('/\.\.\./i', $conf->global->MAIN_MAX_DECIMALS_SHOWN)) {
+	$max_nbdecimal = (int) str_replace('...', '', getDolGlobalString('MAIN_MAX_DECIMALS_SHOWN'));
+	if ($trunc && $nbdecimal > $max_nbdecimal) {
+		$nbdecimal = $max_nbdecimal;
+		if (preg_match('/\.\.\./i', getDolGlobalString('MAIN_MAX_DECIMALS_SHOWN'))) {
 			// Si un affichage est tronque, on montre des ...
 			$end = '...';
 		}
