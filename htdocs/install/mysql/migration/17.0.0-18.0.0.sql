@@ -630,3 +630,11 @@ ALTER TABLE llx_mrp_production_extrafields DROP INDEX idx_mrp_production_fk_obje
 ALTER TABLE llx_mrp_production_extrafields ADD UNIQUE INDEX uk_mrp_production_fk_object (fk_object);
 UPDATE llx_mrp_production SET disable_stock_change = 0 WHERE disable_stock_change IS NULL;
 -- v21
+
+-- ADD fk_soc_rib in prelevement
+ALTER TABLE llx_prelevement_demande ADD COLUMN fk_soc_rib integer DEFAULT NULL;
+ALTER TABLE llx_prelevement_lignes ADD COLUMN fk_soc_rib integer DEFAULT NULL;
+
+-- Update website type
+UPDATE llx_societe_account SET site = 'dolibarr_website' WHERE fk_website > 0 AND site IS NULL;
+ALTER TABLE llx_societe_account MODIFY COLUMN site varchar(128) NOT NULL;
