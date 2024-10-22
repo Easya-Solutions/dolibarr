@@ -1252,7 +1252,7 @@ END;
 						// Date modification
 						if (!empty($arrayfields['pfp.tms']['checked'])) {
 							print '<td class="right nowraponall">';
-							print dol_print_date(($productfourn->fourn_date_modification ? $productfourn->fourn_date_modification : $productfourn->date_modification), "dayhour");
+							print dol_print_date(($productfourn->fourn_date_modification ? $productfourn->fourn_date_modification : $productfourn->date_modification), 'dayhour', 'tzuserrel');
 							print '</td>';
 						}
 

@@ -2407,4 +2407,6 @@ AtBottomOfPage=En bas de page
 FailedAuth=échecs d'authentification
 MaxNumberOfFailedAuth=Max number of failed authentication in 24h to deny login.
 SpecialCharActivation=Activez le bouton pour ouvrir un clavier virtuel pour saisir des caractères spéciaux
+UrlPublicInterfaceLabelAdmin=URL alternative pour l'interface publique
+UrlPublicInterfaceHelpAdmin=Il est possible de définir un alias vers le serveur web et ainsi rendre l'interface publique accessible avec une autre URL (le serveur hôte virtuel doit agir comme un proxy sur l'URL standard)
 ContactsDefaultRoles=Pour les les tiers de type "particulier" un contact peut-être créé simultanément. Définissez ici les rôles qui seront systématiquement attribués à ce contact.
