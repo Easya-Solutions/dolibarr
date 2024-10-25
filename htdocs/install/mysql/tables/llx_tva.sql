@@ -28,7 +28,7 @@ create table llx_tva
   fk_typepayment  integer NULL,
   num_payment     varchar(50),
   label           varchar(255),
-  entity          integer DEFAULT 1 NOT NULL,	-- multi company id
+  entity          integer DEFAULT 1 NOT NULL,    -- multi company id
   note            text,
   paye            smallint default 0 NOT NULL,
   fk_account      integer,

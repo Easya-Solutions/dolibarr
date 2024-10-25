@@ -1,6 +1,6 @@
 -- ===================================================================
--- Copyright (C) 2003-2004	Rodolphe Quiedeville <rodolphe@quiedeville.org>
--- Copyright (C) 2004		Laurent Destailleur  <eldy@users.sourceforge.net>
+-- Copyright (C) 2003-2004    Rodolphe Quiedeville <rodolphe@quiedeville.org>
+-- Copyright (C) 2004        Laurent Destailleur  <eldy@users.sourceforge.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -19,20 +19,20 @@
 
 create table llx_paiementfourn
 (
-  rowid					integer AUTO_INCREMENT PRIMARY KEY,
-  ref					varchar(30),
-  entity				integer DEFAULT 1,
-  tms					timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  datec					datetime,          -- date de creation de l'enregistrement
-  datep					datetime,          -- date de paiement
-  amount				double(24,8) DEFAULT 0,    -- montant
-  multicurrency_amount	double(24,8) DEFAULT 0,    -- multicurrency amount
-  fk_user_author		integer,           -- auteur
-  fk_user_modif 		integer,
-  fk_paiement			integer NOT NULL,  -- moyen de paiement
-  num_paiement			varchar(50),       -- numero de paiement (cheque)
-  note					text,
-  fk_bank				integer NOT NULL,
-  statut				smallint NOT NULL DEFAULT 0,
-  model_pdf				varchar(255)
+  rowid                    integer AUTO_INCREMENT PRIMARY KEY,
+  ref                    varchar(30),
+  entity                integer DEFAULT 1,
+  tms                    timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  datec                    datetime,          -- date de creation de l'enregistrement
+  datep                    datetime,          -- date de paiement
+  amount                double(24,8) DEFAULT 0,    -- montant
+  multicurrency_amount    double(24,8) DEFAULT 0,    -- multicurrency amount
+  fk_user_author        integer,           -- auteur
+  fk_user_modif         integer,
+  fk_paiement            integer NOT NULL,  -- moyen de paiement
+  num_paiement            varchar(50),       -- numero de paiement (cheque)
+  note                    text,
+  fk_bank                integer NOT NULL,
+  statut                smallint NOT NULL DEFAULT 0,
+  model_pdf                varchar(255)
 )ENGINE=innodb;

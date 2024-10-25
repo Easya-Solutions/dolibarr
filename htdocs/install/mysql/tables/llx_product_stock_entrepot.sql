@@ -1,6 +1,6 @@
 -- ============================================================================
--- Copyright (C) 2003      Rodolphe Quiedeville	<rodolphe@quiedeville.org>
--- Copyright (C) 2009-2016 Laurent Destailleur	<eldy@users.sourceforge.net>
+-- Copyright (C) 2003      Rodolphe Quiedeville    <rodolphe@quiedeville.org>
+-- Copyright (C) 2009-2016 Laurent Destailleur    <eldy@users.sourceforge.net>
 -- Copyright (C) 2012      Juanjo Menent        <jmenent@2byte.es>
 --
 -- This program is free software; you can redistribute it and/or modify
@@ -20,12 +20,12 @@
 
 create table llx_product_warehouse_properties
 (
-  rowid           		integer AUTO_INCREMENT PRIMARY KEY,
-  tms             		timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_product      		integer NOT NULL,
-  fk_entrepot     		integer NOT NULL,
+  rowid                   integer AUTO_INCREMENT PRIMARY KEY,
+  tms                     timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  fk_product              integer NOT NULL,
+  fk_entrepot             integer NOT NULL,
   seuil_stock_alerte    float DEFAULT '0',
-  desiredstock    		float DEFAULT '0',
-  import_key      		varchar(14)               -- Import key
+  desiredstock            float DEFAULT '0',
+  import_key              varchar(14)               -- Import key
 )ENGINE=innodb;
 

@@ -74,10 +74,10 @@ ALTER TABLE llx_menu MODIFY leftmenu varchar(100) NULL;
 
 CREATE TABLE llx_c_availability
 (
-	rowid		integer	 	AUTO_INCREMENT PRIMARY KEY,
-	code		varchar(30) NOT NULL,
-	label		varchar(60) NOT NULL,
-	active		tinyint 	DEFAULT 1  NOT NULL
+    rowid        integer         AUTO_INCREMENT PRIMARY KEY,
+    code        varchar(30) NOT NULL,
+    label        varchar(60) NOT NULL,
+    active        tinyint     DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 ALTER TABLE llx_c_availability ADD UNIQUE INDEX uk_c_availability(code);
@@ -86,10 +86,10 @@ ALTER TABLE llx_c_availability ADD UNIQUE INDEX uk_c_availability(code);
 DROP table llx_c_demand_reason;
 CREATE TABLE llx_c_input_reason
 (
-	rowid		integer	 	AUTO_INCREMENT PRIMARY KEY,
-	code		varchar(30) NOT NULL,
-	label		varchar(60) NOT NULL,
-	active		tinyint 	DEFAULT 1  NOT NULL
+    rowid        integer         AUTO_INCREMENT PRIMARY KEY,
+    code        varchar(30) NOT NULL,
+    label        varchar(60) NOT NULL,
+    active        tinyint     DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 ALTER TABLE llx_c_input_reason ADD UNIQUE INDEX uk_c_input_reason(code);
@@ -134,7 +134,7 @@ ALTER TABLE llx_usergroup_user ADD CONSTRAINT fk_usergroup_user_fk_usergroup FOR
 -- V4.1 DELETE FROM llx_product_fournisseur where fk_product NOT IN (SELECT rowid from llx_product);
 ALTER TABLE llx_product_fournisseur ADD CONSTRAINT fk_product_fournisseur_fk_product FOREIGN KEY (fk_product) REFERENCES llx_product (rowid);
 
-ALTER TABLE llx_commande ADD COLUMN ref_int	varchar(30) AFTER ref_ext;
+ALTER TABLE llx_commande ADD COLUMN ref_int    varchar(30) AFTER ref_ext;
 ALTER TABLE llx_facture ADD COLUMN ref_int varchar(30) AFTER ref_ext;
 ALTER TABLE llx_societe ADD COLUMN ref_int varchar(60) AFTER ref_ext;
 ALTER TABLE llx_expedition ADD COLUMN ref_ext varchar(30) AFTER fk_soc;
@@ -143,7 +143,7 @@ ALTER TABLE llx_livraison ADD COLUMN ref_ext varchar(30) AFTER fk_soc;
 ALTER TABLE llx_livraison ADD COLUMN ref_int varchar(30) AFTER ref_ext;
 
 INSERT INTO llx_c_shipment_mode (rowid,code,libelle,description,active) VALUES (4,'LETTREMAX','Lettre Max','Courrier Suivi et Lettre Max',0);
-INSERT INTO llx_c_actioncomm (id, code, type, libelle, module, position) VALUES ( 10, 'AC_SHIP', 'system', 'Send shipping by email'	,'shipping', 11);
+INSERT INTO llx_c_actioncomm (id, code, type, libelle, module, position) VALUES ( 10, 'AC_SHIP', 'system', 'Send shipping by email'    ,'shipping', 11);
 
 ALTER TABLE llx_actioncomm DROP INDEX idx_actioncomm_fk_facture;
 ALTER TABLE llx_actioncomm DROP INDEX idx_actioncomm_fk_supplier_order;
@@ -161,12 +161,12 @@ ALTER TABLE llx_c_departements MODIFY COLUMN cheflieu    varchar(50);
 DROP table llx_c_action_trigger;
 create table llx_c_action_trigger
 (
-  rowid			integer AUTO_INCREMENT PRIMARY KEY,
-  code			varchar(32)				NOT NULL,
-  label			varchar(128)			NOT NULL,
-  description	varchar(255),
-  elementtype	varchar(16) 			NOT NULL,
-  rang			integer		DEFAULT 0
+  rowid            integer AUTO_INCREMENT PRIMARY KEY,
+  code            varchar(32)                NOT NULL,
+  label            varchar(128)            NOT NULL,
+  description    varchar(255),
+  elementtype    varchar(16)             NOT NULL,
+  rang            integer        DEFAULT 0
   
 )ENGINE=innodb;
 ALTER TABLE llx_c_action_trigger ADD UNIQUE INDEX uk_action_trigger_code (code);

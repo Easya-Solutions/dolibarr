@@ -34,26 +34,26 @@ ALTER TABLE llx_actioncomm MODIFY COLUMN code varchar(50);
 DROP TABLE llx_ticket_logs;
 
 CREATE TABLE llx_pos_cash_fence(
-	rowid INTEGER AUTO_INCREMENT PRIMARY KEY,
-	entity INTEGER DEFAULT 1 NOT NULL,
-	ref VARCHAR(64),
-	label VARCHAR(255),
-	opening double(24,8) default 0,
-	cash double(24,8) default 0,
-	card double(24,8) default 0,
-	cheque double(24,8) default 0,
-	status INTEGER,
-	date_creation DATETIME NOT NULL,
-	date_valid DATETIME,
-	day_close INTEGER,
-	month_close INTEGER,
-	year_close INTEGER,
-	posmodule VARCHAR(30),
-	posnumber VARCHAR(30),
-	fk_user_creat integer,
-	fk_user_valid integer,
-	tms TIMESTAMP NOT NULL,
-	import_key VARCHAR(14)
+    rowid INTEGER AUTO_INCREMENT PRIMARY KEY,
+    entity INTEGER DEFAULT 1 NOT NULL,
+    ref VARCHAR(64),
+    label VARCHAR(255),
+    opening double(24,8) default 0,
+    cash double(24,8) default 0,
+    card double(24,8) default 0,
+    cheque double(24,8) default 0,
+    status INTEGER,
+    date_creation DATETIME NOT NULL,
+    date_valid DATETIME,
+    day_close INTEGER,
+    month_close INTEGER,
+    year_close INTEGER,
+    posmodule VARCHAR(30),
+    posnumber VARCHAR(30),
+    fk_user_creat integer,
+    fk_user_valid integer,
+    tms TIMESTAMP NOT NULL,
+    import_key VARCHAR(14)
 ) ENGINE=innodb;
 
 
@@ -81,12 +81,12 @@ insert into llx_c_action_trigger (code,label,description,elementtype,rang) value
 
 create table llx_mailing_unsubscribe
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  entity			integer DEFAULT 1 NOT NULL,	         -- multi company id
-  email				varchar(255),
-  unsubscribegroup	varchar(128) DEFAULT '',
-  ip				varchar(128),
-  date_creat		datetime,                            -- creation date
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  entity            integer DEFAULT 1 NOT NULL,             -- multi company id
+  email                varchar(255),
+  unsubscribegroup    varchar(128) DEFAULT '',
+  ip                varchar(128),
+  date_creat        datetime,                            -- creation date
   tms               timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )ENGINE=innodb;
 
@@ -123,13 +123,13 @@ ALTER TABLE llx_c_units ADD COLUMN unit_type varchar(10);
 
 -- Create if table dos not exists
 CREATE TABLE llx_c_units(
-	rowid integer AUTO_INCREMENT PRIMARY KEY,
-	code varchar(3),
-	scale integer,
-	label varchar(50),
-	short_label varchar(5),
-	unit_type varchar(10),
-	active tinyint DEFAULT 1 NOT NULL
+    rowid integer AUTO_INCREMENT PRIMARY KEY,
+    code varchar(3),
+    scale integer,
+    label varchar(50),
+    short_label varchar(5),
+    unit_type varchar(10),
+    active tinyint DEFAULT 1 NOT NULL
 ) ENGINE=innodb;
 
 ALTER TABLE llx_c_units ADD UNIQUE uk_c_units_code(code);
@@ -211,26 +211,26 @@ UPDATE llx_expensereport set paid = 1 WHERE fk_statut = 6 and paid = 0;
 
 
 CREATE TABLE llx_bom_bom(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	entity integer DEFAULT 1 NOT NULL,
-	ref varchar(128) NOT NULL, 
-	label varchar(255), 
-	description text, 
-	note_public text, 
-	note_private text, 
-	fk_product integer,
-	qty double(24,8),
-	efficiency double(8,4),
-	date_creation datetime NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	date_valid datetime, 
-	fk_user_creat integer NOT NULL, 
-	fk_user_modif integer, 
-	fk_user_valid integer, 
-	import_key varchar(14), 
-	status integer NOT NULL
-	-- END MODULEBUILDER FIELDS
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    entity integer DEFAULT 1 NOT NULL,
+    ref varchar(128) NOT NULL, 
+    label varchar(255), 
+    description text, 
+    note_public text, 
+    note_private text, 
+    fk_product integer,
+    qty double(24,8),
+    efficiency double(8,4),
+    date_creation datetime NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    date_valid datetime, 
+    fk_user_creat integer NOT NULL, 
+    fk_user_modif integer, 
+    fk_user_valid integer, 
+    import_key varchar(14), 
+    status integer NOT NULL
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 ALTER TABLE llx_bom_bom ADD COLUMN efficiency double(8,4) DEFAULT 1;
@@ -242,21 +242,21 @@ create table llx_bom_bom_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 CREATE TABLE llx_bom_bomline(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	fk_bom integer NOT NULL,
-	fk_product integer NOT NULL,
-	fk_bom_child integer NULL,
-	description text,
-	import_key varchar(14), 
-	qty double(24,8) NOT NULL,
-	efficiency double(8,4) NOT NULL DEFAULT 1,
-	position integer NOT NULL
-	-- END MODULEBUILDER FIELDS
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+    fk_bom integer NOT NULL,
+    fk_product integer NOT NULL,
+    fk_bom_child integer NULL,
+    description text,
+    import_key varchar(14), 
+    qty double(24,8) NOT NULL,
+    efficiency double(8,4) NOT NULL DEFAULT 1,
+    position integer NOT NULL
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 ALTER TABLE llx_bom_bomline ADD COLUMN efficiency double(8,4) DEFAULT 1;
@@ -268,7 +268,7 @@ create table llx_bom_bomline_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_bom_bom ADD INDEX idx_bom_bom_rowid (rowid);
@@ -337,40 +337,40 @@ create table llx_reception
   rowid                 integer AUTO_INCREMENT PRIMARY KEY,
   tms                   timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   ref                   varchar(30)        NOT NULL,
-  entity                integer  DEFAULT 1 NOT NULL,	-- multi company id
+  entity                integer  DEFAULT 1 NOT NULL,    -- multi company id
   fk_soc                integer            NOT NULL,
-  fk_projet  		integer  DEFAULT NULL,
+  fk_projet          integer  DEFAULT NULL,
 
-  ref_ext               varchar(30),					-- reference into an external system (not used by dolibarr)
-  ref_int				varchar(30),					-- reference into an internal system (used by dolibarr to store extern id like paypal info)
-  ref_supplier          varchar(30),					-- customer number
+  ref_ext               varchar(30),                    -- reference into an external system (not used by dolibarr)
+  ref_int                varchar(30),                    -- reference into an internal system (used by dolibarr to store extern id like paypal info)
+  ref_supplier          varchar(30),                    -- customer number
 
-  date_creation         datetime,						-- date de creation
-  fk_user_author        integer,						-- author of creation
-  fk_user_modif         integer,						-- author of last change
-  date_valid            datetime,						-- date de validation
-  fk_user_valid         integer,						-- valideur
-  date_delivery			datetime	DEFAULT NULL,		-- date planned of delivery
+  date_creation         datetime,                        -- date de creation
+  fk_user_author        integer,                        -- author of creation
+  fk_user_modif         integer,                        -- author of last change
+  date_valid            datetime,                        -- date de validation
+  fk_user_valid         integer,                        -- valideur
+  date_delivery            datetime    DEFAULT NULL,        -- date planned of delivery
   date_reception       datetime,
   fk_shipping_method    integer,
   tracking_number       varchar(50),
-  fk_statut             smallint	DEFAULT 0,			-- 0 = draft, 1 = validated, 2 = billed or closed depending on WORKFLOW_BILL_ON_SHIPMENT option
+  fk_statut             smallint    DEFAULT 0,            -- 0 = draft, 1 = validated, 2 = billed or closed depending on WORKFLOW_BILL_ON_SHIPMENT option
   billed                smallint    DEFAULT 0,
 
-  height                float,							-- height
-  width                 float,							-- with
-  size_units            integer,						-- unit of all sizes (height, width, depth)
-  size                  float,							-- depth
-  weight_units          integer,						-- unit of weight
-  weight                float,							-- weight
+  height                float,                            -- height
+  width                 float,                            -- with
+  size_units            integer,                        -- unit of all sizes (height, width, depth)
+  size                  float,                            -- depth
+  weight_units          integer,                        -- unit of weight
+  weight                float,                            -- weight
   note_private          text,
   note_public           text,
   model_pdf             varchar(255),
-  fk_incoterms          integer,						-- for incoterms
-  location_incoterms    varchar(255),					-- for incoterms
+  fk_incoterms          integer,                        -- for incoterms
+  location_incoterms    varchar(255),                    -- for incoterms
 
-  import_key			varchar(14),
-  extraparams			varchar(255)							-- for other parameters with json format
+  import_key            varchar(14),
+  extraparams            varchar(255)                            -- for other parameters with json format
 )ENGINE=innodb;
 
 ALTER TABLE llx_reception ADD UNIQUE INDEX idx_reception_uk_ref (ref, entity);
@@ -385,7 +385,7 @@ create table llx_reception_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_reception_extrafields ADD INDEX idx_reception_extrafields (fk_object);

@@ -4,7 +4,7 @@
 -- when current version is 5.0.0 or higher.
 --
 -- To rename a table:       ALTER TABLE llx_table RENAME TO llx_table_new;
--- 							-- VPGSQL8.2 ALTER SEQUENCE IF EXISTS llx_table_rowid_seq RENAME TO llx_table_new_rowid_seq;
+--                             -- VPGSQL8.2 ALTER SEQUENCE IF EXISTS llx_table_rowid_seq RENAME TO llx_table_new_rowid_seq;
 -- To add a column:         ALTER TABLE llx_table ADD COLUMN newcol varchar(60) NOT NULL DEFAULT '0' AFTER existingcol;
 -- To rename a column:      ALTER TABLE llx_table CHANGE COLUMN oldname newname varchar(60);
 -- To drop a column:        ALTER TABLE llx_table DROP COLUMN oldname;
@@ -34,7 +34,7 @@ UPDATE llx_const SET name = __ENCRYPT('THIRDPARTY_DEFAULT_CREATE_CONTACT')__ WHE
 ALTER TABLE llx_product_lot MODIFY COLUMN entity integer DEFAULT 1;
 UPDATE llx_product_lot SET entity = 1 WHERE entity IS NULL;
 
-ALTER TABLE llx_bank_account ADD COLUMN extraparams		varchar(255);	
+ALTER TABLE llx_bank_account ADD COLUMN extraparams        varchar(255);    
 
 ALTER TABLE llx_societe ALTER COLUMN fk_stcomm SET DEFAULT 0;
 
@@ -73,9 +73,9 @@ ALTER TABLE llx_website ADD COLUMN virtualhost varchar(255) after fk_default_hom
 
 ALTER TABLE llx_chargesociales ADD COLUMN fk_account integer after fk_type;
 ALTER TABLE llx_chargesociales ADD COLUMN fk_mode_reglement integer after fk_account;
-ALTER TABLE llx_chargesociales ADD COLUMN fk_user_author		integer;
+ALTER TABLE llx_chargesociales ADD COLUMN fk_user_author        integer;
 ALTER TABLE llx_chargesociales ADD COLUMN fk_user_modif         integer;
-ALTER TABLE llx_chargesociales ADD COLUMN fk_user_valid			integer;
+ALTER TABLE llx_chargesociales ADD COLUMN fk_user_valid            integer;
 
 
 ALTER TABLE llx_ecm_files ADD COLUMN gen_or_uploaded varchar(12) after cover; 
@@ -107,8 +107,8 @@ ALTER TABLE llx_categorie_project ADD INDEX idx_categorie_project_fk_project (fk
 ALTER TABLE llx_categorie_project ADD CONSTRAINT fk_categorie_project_categorie_rowid FOREIGN KEY (fk_categorie) REFERENCES llx_categorie (rowid);
 ALTER TABLE llx_categorie_project ADD CONSTRAINT fk_categorie_project_fk_project_rowid FOREIGN KEY (fk_project) REFERENCES llx_projet (rowid);
 
-ALTER TABLE llx_societe_remise_except ADD COLUMN entity	integer DEFAULT 1 NOT NULL after rowid;
-ALTER TABLE llx_societe_remise ADD COLUMN entity	integer DEFAULT 1 NOT NULL after rowid;
+ALTER TABLE llx_societe_remise_except ADD COLUMN entity    integer DEFAULT 1 NOT NULL after rowid;
+ALTER TABLE llx_societe_remise ADD COLUMN entity    integer DEFAULT 1 NOT NULL after rowid;
 
 
 create table llx_expensereport_extrafields
@@ -116,7 +116,7 @@ create table llx_expensereport_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_expensereport_extrafields ADD INDEX idx_expensereport_extrafields (fk_object);
@@ -135,7 +135,7 @@ CREATE TABLE llx_product_lot_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_product_lot_extrafields ADD INDEX idx_product_lot_extrafields (fk_object);
@@ -144,18 +144,18 @@ ALTER TABLE llx_website_page MODIFY COLUMN content MEDIUMTEXT;
 
 CREATE TABLE llx_product_warehouse_properties
 (
-  rowid           		integer AUTO_INCREMENT PRIMARY KEY,
-  tms             		timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_product      		integer NOT NULL,
-  fk_entrepot     		integer NOT NULL,
+  rowid                   integer AUTO_INCREMENT PRIMARY KEY,
+  tms                     timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  fk_product              integer NOT NULL,
+  fk_entrepot             integer NOT NULL,
   seuil_stock_alerte    integer DEFAULT 0,
-  desiredstock    		integer DEFAULT 0,
-  import_key      		varchar(14)               -- Import key
+  desiredstock            integer DEFAULT 0,
+  import_key              varchar(14)               -- Import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_accounting_bookkeeping ADD COLUMN entity integer DEFAULT 1 NOT NULL;
 ALTER TABLE llx_accounting_bookkeeping ADD COLUMN fk_user_modif     integer;
-ALTER TABLE llx_accounting_bookkeeping ADD COLUMN date_creation		datetime;
+ALTER TABLE llx_accounting_bookkeeping ADD COLUMN date_creation        datetime;
 ALTER TABLE llx_accounting_bookkeeping ADD COLUMN tms               timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 -- VMYSQL4.3 ALTER TABLE llx_accounting_bookkeeping MODIFY COLUMN numero_compte varchar(32) NOT NULL;
 -- VMYSQL4.3 ALTER TABLE llx_accounting_bookkeeping MODIFY COLUMN code_journal varchar(32) NOT NULL;
@@ -188,7 +188,7 @@ create table llx_resource_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_resource_extrafields ADD INDEX idx_resource_extrafields (fk_object);
@@ -197,13 +197,13 @@ INSERT INTO llx_const (name, value, type, note, visible, entity) values (__ENCRY
 
 INSERT INTO llx_const (name, value, type, note, visible, entity) values (__ENCRYPT('EXPEDITION_ADDON_NUMBER')__, __ENCRYPT('mod_expedition_safor')__, 'chaine','Name for numbering manager for shipments',0,1);
 
-ALTER TABLE llx_bank_account ADD COLUMN note_public     		text;
-ALTER TABLE llx_bank_account ADD COLUMN model_pdf       		varchar(255);
-ALTER TABLE llx_bank_account ADD COLUMN import_key      		varchar(14);
+ALTER TABLE llx_bank_account ADD COLUMN note_public             text;
+ALTER TABLE llx_bank_account ADD COLUMN model_pdf               varchar(255);
+ALTER TABLE llx_bank_account ADD COLUMN import_key              varchar(14);
 
-ALTER TABLE llx_projet ADD COLUMN import_key      	        	varchar(14);
-ALTER TABLE llx_projet_task ADD COLUMN import_key      		    varchar(14);
-ALTER TABLE llx_projet_task_time ADD COLUMN import_key      	varchar(14);
+ALTER TABLE llx_projet ADD COLUMN import_key                      varchar(14);
+ALTER TABLE llx_projet_task ADD COLUMN import_key                  varchar(14);
+ALTER TABLE llx_projet_task_time ADD COLUMN import_key          varchar(14);
 
 
 ALTER TABLE llx_overwrite_trans ADD COLUMN entity integer DEFAULT 1 NOT NULL AFTER rowid;
@@ -218,20 +218,20 @@ create table llx_user_employment
 (
   rowid             integer AUTO_INCREMENT PRIMARY KEY,
   entity            integer DEFAULT 1 NOT NULL, -- multi company id
-  ref				varchar(50),				-- reference
-  ref_ext			varchar(50),				-- reference into an external system (not used by dolibarr)
-  fk_user			integer,
+  ref                varchar(50),                -- reference
+  ref_ext            varchar(50),                -- reference into an external system (not used by dolibarr)
+  fk_user            integer,
   datec             datetime,
   tms               timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat     integer,
   fk_user_modif     integer,
-  job				varchar(128),				-- job position. may be a dictionary
-  status            integer NOT NULL,			-- draft, active, closed
-  salary			double(24,8),				-- last and current value stored into llx_user
-  salaryextra		double(24,8),				-- last and current value stored into llx_user
-  weeklyhours		double(16,8),				-- last and current value stored into llx_user
-  dateemployment    date,						-- last and current value stored into llx_user
-  dateemploymentend date						-- last and current value stored into llx_user
+  job                varchar(128),                -- job position. may be a dictionary
+  status            integer NOT NULL,            -- draft, active, closed
+  salary            double(24,8),                -- last and current value stored into llx_user
+  salaryextra        double(24,8),                -- last and current value stored into llx_user
+  weeklyhours        double(16,8),                -- last and current value stored into llx_user
+  dateemployment    date,                        -- last and current value stored into llx_user
+  dateemploymentend date                        -- last and current value stored into llx_user
 )ENGINE=innodb;
 
 
@@ -251,7 +251,7 @@ DROP TABLE tmp_links_double;
 --select objectid, label, max(rowid) as max_rowid, count(rowid) as count_rowid from llx_links where label is not null group by objectid, label having count(rowid) >= 2;
 CREATE TABLE tmp_links_double AS (SELECT objectid, label, MAX(rowid) AS max_rowid, COUNT(rowid) AS count_rowid FROM llx_links WHERE label IS NOT NULL GROUP BY objectid, label HAVING COUNT(rowid) >= 2);
 --select * from tmp_links_double;
-DELETE FROM llx_links WHERE (rowid, label) IN (SELECT max_rowid, label FROM tmp_links_double);	--update to avoid duplicate, delete to delete
+DELETE FROM llx_links WHERE (rowid, label) IN (SELECT max_rowid, label FROM tmp_links_double);    --update to avoid duplicate, delete to delete
 DROP TABLE tmp_links_double;
 
 ALTER TABLE llx_links ADD UNIQUE INDEX uk_links (objectid,label);
@@ -269,10 +269,10 @@ UPDATE llx_accounting_account SET account_parent = 0 WHERE account_parent = '';
 -- VPGSQL8.2 ALTER TABLE llx_product_price ALTER COLUMN date_price DROP NOT NULL;
 ALTER TABLE llx_product_price ALTER COLUMN date_price SET DEFAULT NULL;
  
-ALTER TABLE llx_product_price ADD COLUMN default_vat_code	varchar(10) after tva_tx;
-ALTER TABLE llx_product_customer_price ADD COLUMN default_vat_code	varchar(10) after tva_tx;
-ALTER TABLE llx_product_customer_price_log ADD COLUMN default_vat_code	varchar(10) after tva_tx;
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN default_vat_code	varchar(10) after tva_tx;
+ALTER TABLE llx_product_price ADD COLUMN default_vat_code    varchar(10) after tva_tx;
+ALTER TABLE llx_product_customer_price ADD COLUMN default_vat_code    varchar(10) after tva_tx;
+ALTER TABLE llx_product_customer_price_log ADD COLUMN default_vat_code    varchar(10) after tva_tx;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN default_vat_code    varchar(10) after tva_tx;
 
 ALTER TABLE llx_events MODIFY COLUMN ip varchar(250);
 

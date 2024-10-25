@@ -1,7 +1,7 @@
 -- =============================================================================
 -- Copyright (C) 2000-2004 Rodolphe Quiedeville <rodolphe@quiedeville.org>
 -- Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
--- Copyright (C) 2012	   Juanjo Menent        <jmenent@2byte.es>
+-- Copyright (C) 2012       Juanjo Menent        <jmenent@2byte.es>
 -- Copyright (C) 2013      Peter Fontaine       <contact@peterfontaine.fr>
 --
 -- This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 create table llx_societe_rib
 (
   rowid          integer AUTO_INCREMENT PRIMARY KEY,
-  type           varchar(32) DEFAULT 'ban' NOT NULL,							-- 'ban' or 'paypal' or 'card' or 'stripe'
+  type           varchar(32) DEFAULT 'ban' NOT NULL,                            -- 'ban' or 'paypal' or 'card' or 'stripe'
   label          varchar(200),
   fk_soc         integer NOT NULL,
   datec          datetime,
@@ -37,7 +37,7 @@ create table llx_societe_rib
   cle_rib        varchar(5),    -- key of bank account
 
   bic            varchar(20),   -- 11 according to ISO 9362 (we keep 20 for backward compatibility)
-  iban_prefix    varchar(34),	-- full iban. 34 according to ISO 13616
+  iban_prefix    varchar(34),    -- full iban. 34 according to ISO 13616
 
   domiciliation  varchar(255),
   proprio        varchar(60),
@@ -48,13 +48,13 @@ create table llx_societe_rib
   currency_code  varchar(3),
 
   -- For BAN direct debit feature
-  rum            varchar(32),	 				-- RUM value to use for SEPA generation
-  date_rum		 date,							-- Date of mandate
+  rum            varchar(32),                     -- RUM value to use for SEPA generation
+  date_rum         date,                            -- Date of mandate
   frstrecur      varchar(16) default 'FRST',    -- 'FRST' or 'RECUR'
 
   --For credit card
-  last_four varchar(4),										-- last 4
-  card_type varchar(255),									-- card type 'VISA', 'MC' , ...
+  last_four varchar(4),                                        -- last 4
+  card_type varchar(255),                                    -- card type 'VISA', 'MC' , ...
   cvn varchar(255),
   exp_date_month INTEGER,
   exp_date_year INTEGER,
@@ -70,13 +70,13 @@ create table llx_societe_rib
   total_amount_of_all_payments double(24,8),
 
   --For Stripe, Stancer, ...
-  stripe_card_ref varchar(128),								-- 'card_...'
-  stripe_account varchar(128),								-- 'pk_live_...'
+  stripe_card_ref varchar(128),                                -- 'card_...'
+  stripe_account varchar(128),                                -- 'pk_live_...'
 
-  ext_payment_site varchar(128),						    -- name of external paymentmode (for example 'StripeLive')
+  ext_payment_site varchar(128),                            -- name of external paymentmode (for example 'StripeLive')
 
   comment        varchar(255),
   ipaddress      varchar(68),
-  status integer NOT NULL DEFAULT 1,						-- 1=ACTIVE, 0=IN_TRASH
+  status integer NOT NULL DEFAULT 1,                        -- 1=ACTIVE, 0=IN_TRASH
   import_key     varchar(14)    -- import key
 )ENGINE=innodb;

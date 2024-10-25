@@ -25,7 +25,7 @@ create table llx_adherent_type_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 ALTER TABLE llx_adherent_type_extrafields ADD INDEX idx_adherent_type_extrafields (fk_object);
 
@@ -68,7 +68,7 @@ alter table llx_don      CHANGE COLUMN adresse address text;
 alter table llx_don      CHANGE COLUMN ville town text;
 alter table llx_don      CHANGE COLUMN prenom firstname varchar(50);
 alter table llx_don      CHANGE COLUMN nom lastname varchar(50);
-alter table llx_don 	  CHANGE COLUMN cp zip varchar(10);
+alter table llx_don       CHANGE COLUMN cp zip varchar(10);
 alter table llx_don      CHANGE COLUMN pays country varchar(50);
 alter table llx_adherent CHANGE COLUMN adresse address text;
 alter table llx_adherent CHANGE COLUMN nom lastname varchar(50);
@@ -138,7 +138,7 @@ create table llx_propal_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 ALTER TABLE llx_propal_extrafields ADD INDEX idx_propal_extrafields (fk_object);
 
@@ -159,8 +159,8 @@ CREATE TABLE llx_c_revenuestamp
   taux              double  NOT NULL,
   note              varchar(128),
   active            tinyint DEFAULT 1 NOT NULL,
-  accountancy_code_sell	varchar(15) DEFAULT NULL,
-  accountancy_code_buy	varchar(15) DEFAULT NULL
+  accountancy_code_sell    varchar(15) DEFAULT NULL,
+  accountancy_code_buy    varchar(15) DEFAULT NULL
 ) ENGINE=innodb;
 
 insert into llx_c_revenuestamp(rowid,fk_pays,taux,note,active) values (101, 10, '0.4', 'Timbre fiscal', 1);
@@ -204,33 +204,33 @@ ALTER TABLE llx_facturedet DROP COLUMN fk_export_compta;
 
 CREATE TABLE llx_cronjob 
 (
-	rowid 			integer AUTO_INCREMENT PRIMARY KEY,
-	tms 			timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	datec 			datetime,
-	jobtype			varchar(10) NOT NULL,
-  	label 			text NOT NULL,
-	command			varchar(255),
-  	classesname 		varchar(255),
-  	objectname		varchar(255),
-  	methodename		varchar(255),
-  	params 			text NOT NULL,
-	md5params 		varchar(32),
-  	module_name 		varchar(255),
-  	priority 		integer DEFAULT 0,
-  	datelastrun 		datetime,
-  	datenextrun 		datetime,
-  	datestart		datetime,
-  	dateend			datetime,
-  	datelastresult      	datetime,
-  	lastresult      	text,
-  	lastoutput      	text,
-  	unitfrequency	 	integer NOT NULL DEFAULT 0,
-  	frequency 		integer NOT NULL DEFAULT 0,
-	nbrun			integer,
-  	status 			integer NOT NULL DEFAULT 1,
-  	fk_user_author 		integer DEFAULT NULL,
-  	fk_user_mod 		integer DEFAULT NULL,
-	note text
+    rowid             integer AUTO_INCREMENT PRIMARY KEY,
+    tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    datec             datetime,
+    jobtype            varchar(10) NOT NULL,
+      label             text NOT NULL,
+    command            varchar(255),
+      classesname         varchar(255),
+      objectname        varchar(255),
+      methodename        varchar(255),
+      params             text NOT NULL,
+    md5params         varchar(32),
+      module_name         varchar(255),
+      priority         integer DEFAULT 0,
+      datelastrun         datetime,
+      datenextrun         datetime,
+      datestart        datetime,
+      dateend            datetime,
+      datelastresult          datetime,
+      lastresult          text,
+      lastoutput          text,
+      unitfrequency         integer NOT NULL DEFAULT 0,
+      frequency         integer NOT NULL DEFAULT 0,
+    nbrun            integer,
+      status             integer NOT NULL DEFAULT 1,
+      fk_user_author         integer DEFAULT NULL,
+      fk_user_mod         integer DEFAULT NULL,
+    note text
 )ENGINE=innodb;
 
 
@@ -248,15 +248,15 @@ ALTER TABLE llx_product_price ADD COLUMN import_key varchar(14) AFTER price_by_q
 DROP TABLE llx_printer_ipp;
 CREATE TABLE llx_printer_ipp 
 (
-	rowid integer AUTO_INCREMENT PRIMARY KEY,
-	tms 	timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	datec 	datetime,
-	printer_name text NOT NULL, 
-	printer_location text NOT NULL,
-	printer_uri varchar(255) NOT NULL,
-	copy integer NOT NULL DEFAULT '1',
-	module varchar(16) NOT NULL,
-	login varchar(32) NOT NULL
+    rowid integer AUTO_INCREMENT PRIMARY KEY,
+    tms     timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    datec     datetime,
+    printer_name text NOT NULL, 
+    printer_location text NOT NULL,
+    printer_uri varchar(255) NOT NULL,
+    copy integer NOT NULL DEFAULT '1',
+    module varchar(16) NOT NULL,
+    login varchar(32) NOT NULL
 ) ENGINE=innodb;
 
 ALTER TABLE llx_socpeople ADD COLUMN ref_ext varchar(128) after entity;
@@ -301,7 +301,7 @@ create table llx_projet_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 ALTER TABLE llx_projet_extrafields ADD INDEX idx_projet_extrafields (fk_object);
 
@@ -310,7 +310,7 @@ create table llx_projet_task_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 ALTER TABLE llx_projet_task_extrafields ADD INDEX idx_projet_task_extrafields (fk_object);
 
@@ -334,10 +334,10 @@ CREATE TABLE llx_opensurvey_sondage (
        format VARCHAR(2),
        mailsonde varchar(2) DEFAULT '0',
        survey_link_visible integer DEFAULT 1,
-	   canedit integer DEFAULT 0,
+       canedit integer DEFAULT 0,
        origin varchar(64),
        tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	   sujet TEXT
+       sujet TEXT
 ) ENGINE=InnoDB;
 CREATE TABLE llx_opensurvey_user_studs (
     id_users INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -378,7 +378,7 @@ create table llx_facture_fourn_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 ALTER TABLE llx_facture_fourn_extrafields ADD INDEX idx_facture_fourn_extrafields (fk_object);
 

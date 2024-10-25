@@ -1,5 +1,5 @@
 -- <Product - Quote - PDF>
--- Copyright (C) 2013	Florian HENRY <florian.henry@open-concept.pro>
+-- Copyright (C) 2013    Florian HENRY <florian.henry@open-concept.pro>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ CREATE TABLE llx_propal_merge_pdf_product (
   rowid integer NOT NULL auto_increment PRIMARY KEY,
   fk_product integer NOT NULL,
   file_name varchar(200) NOT NULL,
-  lang 	varchar(5) DEFAULT NULL,
+  lang     varchar(5) DEFAULT NULL,
   fk_user_author integer DEFAULT NULL,
   fk_user_mod integer NOT NULL,
   datec datetime NOT NULL,

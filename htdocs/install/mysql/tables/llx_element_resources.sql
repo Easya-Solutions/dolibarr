@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2013	Jean-François Ferry	<jfefe@aternatik.fr>
+-- Copyright (C) 2013    Jean-François Ferry    <jfefe@aternatik.fr>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 CREATE TABLE llx_element_resources
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
-  element_id	  integer,
+  element_id      integer,
   element_type    varchar(64),
-  resource_id     integer,			-- id of resource or id of user
-  resource_type	  varchar(64),		-- resource or user
-  busy			  integer,
-  mandatory		  integer,
-  duree				real,               -- total duration of using ressource
+  resource_id     integer,            -- id of resource or id of user
+  resource_type      varchar(64),        -- resource or user
+  busy              integer,
+  mandatory          integer,
+  duree                real,               -- total duration of using ressource
   fk_user_create  integer,
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )ENGINE=innodb;

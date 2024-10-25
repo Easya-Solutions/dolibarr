@@ -4,9 +4,9 @@
 -- Copyright (C) 2004      Benoit Mortier       <benoit.mortier@opensides.be>
 -- Copyright (C) 2004      Guillaume Delecourt  <guillaume.delecourt@opensides.be>
 -- Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
--- Copyright (C) 2007 	   Patrick Raguin       <patrick.raguin@gmail.com>
+-- Copyright (C) 2007        Patrick Raguin       <patrick.raguin@gmail.com>
 -- Copyright (C) 2011-2017 Alexandre Spangaro   <aspangaro@open-dsi.fr>
--- Copyright (C) 2019      swedebugia	        <swedebugia@riseup.net>
+-- Copyright (C) 2019      swedebugia            <swedebugia@riseup.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by

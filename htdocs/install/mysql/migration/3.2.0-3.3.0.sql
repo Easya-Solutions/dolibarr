@@ -26,7 +26,7 @@ ALTER TABLE llx_societe_rib MODIFY COLUMN bic varchar(20);
 
 ALTER TABLE llx_facture_rec ADD COLUMN usenewprice        integer;
 
-ALTER TABLE llx_facture_fourn_det ADD COLUMN remise_percent	real       DEFAULT 0 after qty;
+ALTER TABLE llx_facture_fourn_det ADD COLUMN remise_percent    real       DEFAULT 0 after qty;
 
 ALTER TABLE llx_extrafields MODIFY COLUMN size varchar(8) DEFAULT NULL;
 
@@ -116,12 +116,12 @@ ALTER TABLE llx_ecm_directories ADD CONSTRAINT fk_ecm_directories_fk_user_m FORE
 
 create table llx_element_tag
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  entity			integer DEFAULT 1 NOT NULL,
-  lang				varchar(5) NOT NULL,
-  tag				varchar(255) NOT NULL,
-  fk_element		integer NOT NULL,
-  element			varchar(64) NOT NULL
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  entity            integer DEFAULT 1 NOT NULL,
+  lang                varchar(5) NOT NULL,
+  tag                varchar(255) NOT NULL,
+  fk_element        integer NOT NULL,
+  element            varchar(64) NOT NULL
   
 )ENGINE=innodb;
 
@@ -278,7 +278,7 @@ create table llx_actioncomm_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 ALTER TABLE llx_actioncomm_extrafields ADD INDEX idx_actioncomm_extrafields (fk_object);
 
@@ -339,7 +339,7 @@ create table llx_accountingaccount
   account_number  varchar(20)  NOT NULL,
   account_parent  varchar(20),
   label           varchar(128) NOT NULL,
-  active     	  tinyint DEFAULT 1  NOT NULL
+  active           tinyint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 ALTER TABLE llx_accountingaccount ADD INDEX idx_accountingaccount_fk_pcg_version (fk_pcg_version);
@@ -833,12 +833,12 @@ ALTER TABLE llx_categorie ADD INDEX idx_categorie_label (label);
 -- [ task #559 ] Price by quantity management
 CREATE TABLE llx_product_price_by_qty
 (
-  rowid			integer AUTO_INCREMENT PRIMARY KEY,
-  fk_product_price	integer NOT NULL,
-  date_price		timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  price			double (24,8) DEFAULT 0,
-  price_ttc		double (24,8) DEFAULT 0,
-  qty_min		real DEFAULT 0
+  rowid            integer AUTO_INCREMENT PRIMARY KEY,
+  fk_product_price    integer NOT NULL,
+  date_price        timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  price            double (24,8) DEFAULT 0,
+  price_ttc        double (24,8) DEFAULT 0,
+  qty_min        real DEFAULT 0
 )ENGINE=innodb;
 
 ALTER TABLE llx_product_price ADD COLUMN price_by_qty integer NOT NULL DEFAULT 0;
@@ -912,7 +912,7 @@ create table llx_user_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- member id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_user_extrafields ADD INDEX idx_user_extrafields (fk_object);

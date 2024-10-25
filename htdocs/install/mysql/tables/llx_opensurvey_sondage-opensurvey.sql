@@ -16,19 +16,19 @@
 -- ============================================================================
 
 CREATE TABLE llx_opensurvey_sondage (
-	id_sondage VARCHAR(16) PRIMARY KEY,
-	entity integer DEFAULT 1 NOT NULL,	         -- multi company id
+    id_sondage VARCHAR(16) PRIMARY KEY,
+    entity integer DEFAULT 1 NOT NULL,             -- multi company id
     commentaires text,
-	mail_admin VARCHAR(128),
-	nom_admin VARCHAR(64),
-	fk_user_creat integer NOT NULL,
-	titre TEXT NOT NULL,
-	date_fin DATETIME NULL,
+    mail_admin VARCHAR(128),
+    nom_admin VARCHAR(64),
+    fk_user_creat integer NOT NULL,
+    titre TEXT NOT NULL,
+    date_fin DATETIME NULL,
     status integer DEFAULT 1,
-	format VARCHAR(2) NOT NULL,                 -- 'A' = Text choice (choices are saved into sujet field), 'D' = Date choice (choices are saved into sujet field), 'F' = Form survey
-	mailsonde tinyint NOT NULL DEFAULT 0,
-	allow_comments tinyint NOT NULL DEFAULT 1,
-	allow_spy tinyint NOT NULL DEFAULT 1,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	sujet TEXT									-- Not filled if format = 'F'. Question are into table llx_opensurvey_formquestions
+    format VARCHAR(2) NOT NULL,                 -- 'A' = Text choice (choices are saved into sujet field), 'D' = Date choice (choices are saved into sujet field), 'F' = Form survey
+    mailsonde tinyint NOT NULL DEFAULT 0,
+    allow_comments tinyint NOT NULL DEFAULT 1,
+    allow_spy tinyint NOT NULL DEFAULT 1,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    sujet TEXT                                    -- Not filled if format = 'F'. Question are into table llx_opensurvey_formquestions
 ) ENGINE=innodb;

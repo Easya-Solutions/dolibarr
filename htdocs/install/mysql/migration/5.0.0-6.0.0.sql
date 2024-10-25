@@ -80,20 +80,20 @@ ALTER TABLE llx_extrafields ADD COLUMN fielddefault varchar(255);
 ALTER TABLE llx_c_typent MODIFY COLUMN libelle varchar(64); 
 
 
-ALTER TABLE llx_holiday ADD COLUMN ref	varchar(30) NULL;
-ALTER TABLE llx_holiday ADD COLUMN ref_ext	varchar(255);
+ALTER TABLE llx_holiday ADD COLUMN ref    varchar(30) NULL;
+ALTER TABLE llx_holiday ADD COLUMN ref_ext    varchar(255);
 
 
 CREATE TABLE llx_notify_def_object
 (
-  id				integer AUTO_INCREMENT PRIMARY KEY,
-  entity			integer DEFAULT 1 NOT NULL,		-- multi company id
-  objet_type		varchar(16),					-- 'actioncomm'
-  objet_id			integer NOT NULL,				-- id of parent key
-  type_notif		varchar(16) DEFAULT 'browser',	-- 'browser', 'email', 'sms', 'webservice', ...
-  date_notif		datetime,						-- date notification
-  user_id			integer,						-- notification is for this user
-  moreparam			varchar(255)
+  id                integer AUTO_INCREMENT PRIMARY KEY,
+  entity            integer DEFAULT 1 NOT NULL,        -- multi company id
+  objet_type        varchar(16),                    -- 'actioncomm'
+  objet_id            integer NOT NULL,                -- id of parent key
+  type_notif        varchar(16) DEFAULT 'browser',    -- 'browser', 'email', 'sms', 'webservice', ...
+  date_notif        datetime,                        -- date notification
+  user_id            integer,                        -- notification is for this user
+  moreparam            varchar(255)
 )ENGINE=innodb;
 
 ALTER TABLE llx_facturedet_rec ADD COLUMN vat_src_code varchar(10) DEFAULT '' AFTER tva_tx;
@@ -119,17 +119,17 @@ ALTER TABLE llx_ecm_files ADD INDEX idx_ecm_files_label (label);
 ALTER TABLE llx_expedition ADD COLUMN fk_projet integer DEFAULT NULL after fk_soc;
 
 
-ALTER TABLE llx_holiday ADD COLUMN import_key				varchar(14);
-ALTER TABLE llx_holiday ADD COLUMN extraparams				varchar(255);	
+ALTER TABLE llx_holiday ADD COLUMN import_key                varchar(14);
+ALTER TABLE llx_holiday ADD COLUMN extraparams                varchar(255);    
 
-ALTER TABLE llx_expensereport ADD COLUMN import_key			varchar(14);
-ALTER TABLE llx_expensereport ADD COLUMN extraparams		varchar(255);	
+ALTER TABLE llx_expensereport ADD COLUMN import_key            varchar(14);
+ALTER TABLE llx_expensereport ADD COLUMN extraparams        varchar(255);    
 
-ALTER TABLE llx_actioncomm ADD COLUMN import_key			varchar(14);
-ALTER TABLE llx_actioncomm ADD COLUMN extraparams			varchar(255);	
+ALTER TABLE llx_actioncomm ADD COLUMN import_key            varchar(14);
+ALTER TABLE llx_actioncomm ADD COLUMN extraparams            varchar(255);    
 
 
-ALTER TABLE llx_bank_account ADD COLUMN extraparams		varchar(255);	
+ALTER TABLE llx_bank_account ADD COLUMN extraparams        varchar(255);    
 
 ALTER TABLE llx_bank ADD COLUMN numero_compte varchar(32) NULL; 
 
@@ -167,7 +167,7 @@ ALTER TABLE llx_projet_task_time ADD COLUMN datec date;
 ALTER TABLE llx_projet_task_time ADD COLUMN tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 ALTER TABLE llx_product_price ADD COLUMN fk_multicurrency integer;
-ALTER TABLE llx_product_price ADD COLUMN multicurrency_code	varchar(255);
+ALTER TABLE llx_product_price ADD COLUMN multicurrency_code    varchar(255);
 ALTER TABLE llx_product_price ADD COLUMN multicurrency_tx double(24,8) DEFAULT 1;
 ALTER TABLE llx_product_price ADD COLUMN multicurrency_price double(24,8) DEFAULT NULL;
 ALTER TABLE llx_product_price ADD COLUMN multicurrency_price_ttc double(24,8) DEFAULT NULL;
@@ -256,8 +256,8 @@ ALTER TABLE llx_accounting_bookkeeping CHANGE COLUMN code_tiers thirdparty_code 
 
 --Subledger account
 ALTER TABLE llx_accounting_bookkeeping ADD COLUMN subledger_account varchar(32);
-ALTER TABLE llx_accounting_bookkeeping CHANGE COLUMN thirdparty_label subledger_label varchar(255);    	-- If field was already created, rename it	
-ALTER TABLE llx_accounting_bookkeeping ADD COLUMN subledger_label varchar(255) AFTER subledger_account;	-- If field dod not exists yet
+ALTER TABLE llx_accounting_bookkeeping CHANGE COLUMN thirdparty_label subledger_label varchar(255);        -- If field was already created, rename it    
+ALTER TABLE llx_accounting_bookkeeping ADD COLUMN subledger_label varchar(255) AFTER subledger_account;    -- If field dod not exists yet
 
 UPDATE llx_accounting_bookkeeping SET subledger_account = numero_compte WHERE subledger_account IS NULL;
 
@@ -276,36 +276,36 @@ DROP TABLE llx_accounting_bookkeeping_tmp;
 CREATE TABLE llx_accounting_bookkeeping_tmp 
 (
   rowid                 integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  entity                integer DEFAULT 1 NOT NULL,	-- 					| multi company id
-  doc_date              date NOT NULL,				-- FEC:PieceDate
-  doc_type              varchar(30) NOT NULL,		-- FEC:PieceRef		| facture_client/reglement_client/facture_fournisseur/reglement_fournisseur
-  doc_ref               varchar(300) NOT NULL,		-- 					| facture_client/reglement_client/... reference number
-  fk_doc                integer NOT NULL,			-- 					| facture_client/reglement_client/... rowid
-  fk_docdet             integer NOT NULL,			-- 					| facture_client/reglement_client/... line rowid
-  thirdparty_code       varchar(32),				-- Third party code (customer or supplier) when record is saved (may help debug) 
-  subledger_account     varchar(32),				-- FEC:CompAuxNum	| account number of subledger account
-  subledger_label       varchar(255),				-- FEC:CompAuxLib	| label of subledger account
-  numero_compte         varchar(32),				-- FEC:CompteNum	| account number
-  label_compte          varchar(255) NOT NULL,		-- FEC:CompteLib	| label of account
-  label_operation       varchar(255),				-- FEC:EcritureLib	| label of the operation
-  debit                 double(24,8) NOT NULL,		-- FEC:Debit
-  credit                double(24,8) NOT NULL,		-- FEC:Credit
-  montant               double(24,8) NOT NULL,		-- FEC:Montant (Not necessary)
-  sens                  varchar(1) DEFAULT NULL,	-- FEC:Sens (Not necessary)
-  multicurrency_amount  double(24,8),				-- FEC:Montantdevise
-  multicurrency_code    varchar(255),				-- FEC:Idevise
-  lettering_code        varchar(255),				-- FEC:EcritureLet
-  date_lettering        datetime,					-- FEC:DateLet
-  fk_user_author        integer NOT NULL,			-- 					| user creating
-  fk_user_modif         integer,					-- 					| user making last change
-  date_creation         datetime,					-- FEC:EcritureDate	| creation date
-  tms                   timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,					--					| date last modification 
+  entity                integer DEFAULT 1 NOT NULL,    --                     | multi company id
+  doc_date              date NOT NULL,                -- FEC:PieceDate
+  doc_type              varchar(30) NOT NULL,        -- FEC:PieceRef        | facture_client/reglement_client/facture_fournisseur/reglement_fournisseur
+  doc_ref               varchar(300) NOT NULL,        --                     | facture_client/reglement_client/... reference number
+  fk_doc                integer NOT NULL,            --                     | facture_client/reglement_client/... rowid
+  fk_docdet             integer NOT NULL,            --                     | facture_client/reglement_client/... line rowid
+  thirdparty_code       varchar(32),                -- Third party code (customer or supplier) when record is saved (may help debug) 
+  subledger_account     varchar(32),                -- FEC:CompAuxNum    | account number of subledger account
+  subledger_label       varchar(255),                -- FEC:CompAuxLib    | label of subledger account
+  numero_compte         varchar(32),                -- FEC:CompteNum    | account number
+  label_compte          varchar(255) NOT NULL,        -- FEC:CompteLib    | label of account
+  label_operation       varchar(255),                -- FEC:EcritureLib    | label of the operation
+  debit                 double(24,8) NOT NULL,        -- FEC:Debit
+  credit                double(24,8) NOT NULL,        -- FEC:Credit
+  montant               double(24,8) NOT NULL,        -- FEC:Montant (Not necessary)
+  sens                  varchar(1) DEFAULT NULL,    -- FEC:Sens (Not necessary)
+  multicurrency_amount  double(24,8),                -- FEC:Montantdevise
+  multicurrency_code    varchar(255),                -- FEC:Idevise
+  lettering_code        varchar(255),                -- FEC:EcritureLet
+  date_lettering        datetime,                    -- FEC:DateLet
+  fk_user_author        integer NOT NULL,            --                     | user creating
+  fk_user_modif         integer,                    --                     | user making last change
+  date_creation         datetime,                    -- FEC:EcritureDate    | creation date
+  tms                   timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                    --                    | date last modification 
   import_key            varchar(14),
-  code_journal          varchar(32) NOT NULL,		-- FEC:JournalCode
-  journal_label         varchar(255),				-- FEC:JournalLib
-  piece_num             integer NOT NULL,			-- FEC:EcritureNum
-  validated             tinyint DEFAULT 0 NOT NULL,	-- 					| 0 line not validated / 1 line validated (No deleting / No modification) 
-  date_validated        datetime					-- FEC:ValidDate
+  code_journal          varchar(32) NOT NULL,        -- FEC:JournalCode
+  journal_label         varchar(255),                -- FEC:JournalLib
+  piece_num             integer NOT NULL,            -- FEC:EcritureNum
+  validated             tinyint DEFAULT 0 NOT NULL,    --                     | 0 line not validated / 1 line validated (No deleting / No modification) 
+  date_validated        datetime                    -- FEC:ValidDate
 ) ENGINE=innodb;
 
 ALTER TABLE llx_accounting_bookkeeping_tmp ADD INDEX idx_accounting_bookkeeping_tmp_doc_date (doc_date);
@@ -333,15 +333,15 @@ insert into llx_c_action_trigger (code,label,description,elementtype,rang) value
 insert into llx_c_action_trigger (code,label,description,elementtype,rang) values ('HOLIDAY_APPROVE' ,'Leave request approved','Executed when a leave request is approved','holiday',223);
 
 
-ALTER TABLE llx_societe_remise_except ADD COLUMN fk_invoice_supplier_line	integer;
-ALTER TABLE llx_societe_remise_except ADD COLUMN fk_invoice_supplier		integer;
-ALTER TABLE llx_societe_remise_except ADD COLUMN fk_invoice_supplier_source	integer;
+ALTER TABLE llx_societe_remise_except ADD COLUMN fk_invoice_supplier_line    integer;
+ALTER TABLE llx_societe_remise_except ADD COLUMN fk_invoice_supplier        integer;
+ALTER TABLE llx_societe_remise_except ADD COLUMN fk_invoice_supplier_source    integer;
 
 ALTER TABLE llx_societe_remise_except ADD CONSTRAINT fk_soc_remise_fk_invoice_supplier_line       FOREIGN KEY (fk_invoice_supplier_line) REFERENCES llx_facture_fourn_det (rowid);
 ALTER TABLE llx_societe_remise_except ADD CONSTRAINT fk_societe_remise_fk_invoice_supplier        FOREIGN KEY (fk_invoice_supplier)      REFERENCES llx_facture_fourn (rowid);
 ALTER TABLE llx_societe_remise_except ADD CONSTRAINT fk_societe_remise_fk_invoice_supplier_source FOREIGN KEY (fk_invoice_supplier)      REFERENCES llx_facture_fourn (rowid);
 
-ALTER TABLE llx_facture_rec ADD COLUMN vat_src_code	varchar(10) DEFAULT '';
+ALTER TABLE llx_facture_rec ADD COLUMN vat_src_code    varchar(10) DEFAULT '';
 ALTER TABLE llx_expensereport_det ADD COLUMN vat_src_code varchar(10)  DEFAULT '';
 
 DELETE FROM llx_const WHERE name = __ENCRYPT('ADHERENT_BANK_USE_AUTO')__;
@@ -349,9 +349,9 @@ DELETE FROM llx_const WHERE name = __ENCRYPT('ADHERENT_BANK_USE_AUTO')__;
 UPDATE llx_const SET value = __ENCRYPT('moono-lisa')__   WHERE value = __ENCRYPT('moono')__       AND name = __ENCRYPT('FCKEDITOR_SKIN')__;
 DELETE FROM llx_document_model where nom = 'fsfe.fr.php' and type='donation';
 
-ALTER TABLE llx_product_price ADD COLUMN default_vat_code	varchar(10) AFTER tva_tx;
-ALTER TABLE llx_product_customer_price ADD COLUMN default_vat_code	varchar(10) AFTER tva_tx;
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN default_vat_code	varchar(10) AFTER tva_tx;
+ALTER TABLE llx_product_price ADD COLUMN default_vat_code    varchar(10) AFTER tva_tx;
+ALTER TABLE llx_product_customer_price ADD COLUMN default_vat_code    varchar(10) AFTER tva_tx;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN default_vat_code    varchar(10) AFTER tva_tx;
 
 ALTER TABLE llx_user ADD COLUMN model_pdf varchar(255);
 ALTER TABLE llx_usergroup ADD COLUMN model_pdf varchar(255);
@@ -372,19 +372,19 @@ ALTER TABLE llx_website ADD COLUMN fk_user_create integer;
 ALTER TABLE llx_website ADD COLUMN fk_user_modif integer;
 
 -- Add missing fields making not possible to enter reference price of products into another currency
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_tx			double(24,8) DEFAULT 1;
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_price_ttc	double(24,8) DEFAULT NULL;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_tx            double(24,8) DEFAULT 1;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_price_ttc    double(24,8) DEFAULT NULL;
 
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN fk_multicurrency		 integer;
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_code		 varchar(255);
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_tx	     double(24,8) DEFAULT 1;
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_price	 double(24,8) DEFAULT NULL;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN fk_multicurrency         integer;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_code         varchar(255);
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_tx         double(24,8) DEFAULT 1;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_price     double(24,8) DEFAULT NULL;
 ALTER TABLE llx_product_fournisseur_price ADD COLUMN multicurrency_price_ttc double(24,8) DEFAULT NULL;
 
-ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN fk_multicurrency		 integer;
-ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN multicurrency_code		 varchar(255);
-ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN multicurrency_tx	     double(24,8) DEFAULT 1;
-ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN multicurrency_price	 double(24,8) DEFAULT NULL;
+ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN fk_multicurrency         integer;
+ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN multicurrency_code         varchar(255);
+ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN multicurrency_tx         double(24,8) DEFAULT 1;
+ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN multicurrency_price     double(24,8) DEFAULT NULL;
 ALTER TABLE llx_product_fournisseur_price_log ADD COLUMN multicurrency_price_ttc double(24,8) DEFAULT NULL;
 
 ALTER TABLE llx_product_customer_price_log ADD COLUMN default_vat_code varchar(10);
@@ -404,7 +404,7 @@ CREATE TABLE llx_payment_various
   fk_typepayment        integer NOT NULL,
   num_payment           varchar(50),
   label                 varchar(255),
-  accountancy_code		varchar(32),
+  accountancy_code        varchar(32),
   entity                integer DEFAULT 1 NOT NULL,
   note                  text,
   fk_bank               integer,
@@ -416,12 +416,12 @@ CREATE TABLE llx_payment_various
 CREATE TABLE llx_default_values
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
-  entity          integer DEFAULT 1 NOT NULL,		-- multi company id
-  type			  varchar(10),                      -- 'createform', 'filters', 'sortorder'
+  entity          integer DEFAULT 1 NOT NULL,        -- multi company id
+  type              varchar(10),                      -- 'createform', 'filters', 'sortorder'
   user_id         integer DEFAULT 0 NOT NULL,       -- 0 or user id
   page            varchar(255),                     -- relative url of page
   param           varchar(255),                     -- parameter
-  value		      varchar(128)                      -- value
+  value              varchar(128)                      -- value
 )ENGINE=innodb;
 
 ALTER TABLE llx_default_values ADD UNIQUE INDEX uk_default_values(type, entity, user_id, page, param);
@@ -443,9 +443,9 @@ entity integer DEFAULT 0,
 ref varchar(48),
 datec datetime DEFAULT NULL,
 tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
-fk_user_author	integer,
+fk_user_author    integer,
 fk_user_modif     integer,
-fk_user_valid		integer,
+fk_user_valid        integer,
 fk_warehouse integer DEFAULT 0, 
 status integer DEFAULT 0, 
 title varchar(255) NOT NULL, 
@@ -503,21 +503,21 @@ ALTER TABLE llx_inventory ADD COLUMN ref varchar(48);
 
 CREATE TABLE llx_loan_schedule
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  fk_loan			integer,
-  datec				datetime,         
-  tms				timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  datep				datetime,         
-  amount_capital	real DEFAULT 0,
-  amount_insurance	real DEFAULT 0,
-  amount_interest	real DEFAULT 0,
-  fk_typepayment	integer NOT NULL,
-  num_payment		varchar(50),
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  fk_loan            integer,
+  datec                datetime,         
+  tms                timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  datep                datetime,         
+  amount_capital    real DEFAULT 0,
+  amount_insurance    real DEFAULT 0,
+  amount_interest    real DEFAULT 0,
+  fk_typepayment    integer NOT NULL,
+  num_payment        varchar(50),
   note_private      text,
   note_public       text,
-  fk_bank			integer NOT NULL,
-  fk_user_creat		integer,          
-  fk_user_modif		integer           
+  fk_bank            integer NOT NULL,
+  fk_user_creat        integer,          
+  fk_user_modif        integer           
 )ENGINE=innodb;
 
 ALTER TABLE llx_tva ADD COLUMN datec date AFTER tms;
@@ -540,18 +540,18 @@ ALTER TABLE llx_usergroup_rights ADD CONSTRAINT fk_usergroup_rights_fk_usergroup
 
 CREATE TABLE llx_website_page
 (
-	rowid         integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	fk_website    integer NOT NULL,
-	pageurl       varchar(16) NOT NULL,
-	title         varchar(255),						
-	description   varchar(255),						
-	keywords      varchar(255),
-	content		  mediumtext,		-- text is not enough in size
+    rowid         integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    fk_website    integer NOT NULL,
+    pageurl       varchar(16) NOT NULL,
+    title         varchar(255),                        
+    description   varchar(255),                        
+    keywords      varchar(255),
+    content          mediumtext,        -- text is not enough in size
     status        integer,
     fk_user_create integer,
     fk_user_modif  integer,
     date_creation  datetime,
-	tms            timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    tms            timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=innodb;
 
 ALTER TABLE llx_website_page ADD UNIQUE INDEX uk_website_page_url (fk_website,pageurl);
@@ -569,20 +569,20 @@ UPDATE llx_extrafields set elementtype='categorie' where elementtype='categories
 
 CREATE TABLE llx_blockedlog 
 ( 
-	rowid integer AUTO_INCREMENT PRIMARY KEY, 
-	tms	timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	action varchar(50), 
-	amounts real NOT NULL, 
-	signature varchar(100) NOT NULL, 
-	signature_line varchar(100) NOT NULL, 
-	element varchar(50), 
-	fk_object integer,
-	ref_object varchar(100), 
-	date_object	datetime,
-	object_data	text,
-	fk_user	integer,
-	entity integer DEFAULT 1 NOT NULL, 
-	certified integer
+    rowid integer AUTO_INCREMENT PRIMARY KEY, 
+    tms    timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    action varchar(50), 
+    amounts real NOT NULL, 
+    signature varchar(100) NOT NULL, 
+    signature_line varchar(100) NOT NULL, 
+    element varchar(50), 
+    fk_object integer,
+    ref_object varchar(100), 
+    date_object    datetime,
+    object_data    text,
+    fk_user    integer,
+    entity integer DEFAULT 1 NOT NULL, 
+    certified integer
 ) ENGINE=innodb;
 
 ALTER TABLE llx_blockedlog ADD INDEX signature (signature);
@@ -594,10 +594,10 @@ ALTER TABLE llx_blockedlog ADD INDEX entity_action_certified (entity,action,cert
 
 CREATE TABLE llx_blockedlog_authority 
 ( 
-	rowid integer AUTO_INCREMENT PRIMARY KEY, 
-	blockchain longtext NOT NULL,
-	signature varchar(100) NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    rowid integer AUTO_INCREMENT PRIMARY KEY, 
+    blockchain longtext NOT NULL,
+    signature varchar(100) NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=innodb;
 
 ALTER TABLE llx_blockedlog_authority ADD INDEX signature (signature);

@@ -23,17 +23,17 @@
 
 create table llx_c_field_list
 (
-  rowid			integer  AUTO_INCREMENT PRIMARY KEY,
-  tms			timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  element		varchar(64)        			NOT NULL,		-- name of element list
-  entity		integer			DEFAULT 1 	NOT NULL,		-- entity id
-  name			varchar(32)        			NOT NULL,		-- name of field with table alias (ex: p.ref)
-  alias			varchar(32)					NOT NULL,		-- alias of field (ex: ref)
-  title			varchar(32)        			NOT NULL,		-- title (translation) of field (ex: Ref)
-  align			varchar(6)		DEFAULT 'left',				-- align (left,center,right)
-  sort			tinyint 		DEFAULT 1  	NOT NULL,		-- add sort field
-  search		tinyint 		DEFAULT 0  	NOT NULL,		-- add search field
-  visible		tinyint			DEFAULT 1	NOT NULL,		-- visibility of field. 0=Never visible, 1=Visible on list and forms, 2=Visible on list only
-  enabled       varchar(255)	DEFAULT 1,					-- Condition to show or hide
-  rang      	integer 		DEFAULT 0
+  rowid            integer  AUTO_INCREMENT PRIMARY KEY,
+  tms            timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  element        varchar(64)                    NOT NULL,        -- name of element list
+  entity        integer            DEFAULT 1     NOT NULL,        -- entity id
+  name            varchar(32)                    NOT NULL,        -- name of field with table alias (ex: p.ref)
+  alias            varchar(32)                    NOT NULL,        -- alias of field (ex: ref)
+  title            varchar(32)                    NOT NULL,        -- title (translation) of field (ex: Ref)
+  align            varchar(6)        DEFAULT 'left',                -- align (left,center,right)
+  sort            tinyint         DEFAULT 1      NOT NULL,        -- add sort field
+  search        tinyint         DEFAULT 0      NOT NULL,        -- add search field
+  visible        tinyint            DEFAULT 1    NOT NULL,        -- visibility of field. 0=Never visible, 1=Visible on list and forms, 2=Visible on list only
+  enabled       varchar(255)    DEFAULT 1,                    -- Condition to show or hide
+  rang          integer         DEFAULT 0
 )ENGINE=innodb;

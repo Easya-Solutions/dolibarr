@@ -1,5 +1,5 @@
 -- ===================================================================
--- Copyright (C) 2004		Laurent Destailleur  <eldy@users.sourceforge.net>
+-- Copyright (C) 2004        Laurent Destailleur  <eldy@users.sourceforge.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -17,28 +17,28 @@
 -- ===================================================================
 
 CREATE TABLE llx_partnership(
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	ref varchar(128) DEFAULT '(PROV)' NOT NULL, 
-	status smallint DEFAULT 0 NOT NULL, 
-	fk_type integer DEFAULT 0 NOT NULL,
-	fk_soc integer, 
-	fk_member integer,
-	email_partnership varchar(64),      -- if different than email of thirdparty or member 
-	date_partnership_start date NOT NULL, 
-	date_partnership_end date NULL, 
-	entity integer DEFAULT 1 NOT NULL,	-- multi company id, 0 = all
-	reason_decline_or_cancel text NULL,
-	date_creation datetime NOT NULL, 
-	fk_user_creat integer NULL,			-- can be null if created from public page 
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
-	fk_user_modif integer, 
-	note_private text, 
-	note_public text, 
-	last_main_doc varchar(255), 
-	url_to_check varchar(255),							-- url to check to find a specific keyword (defined into llx_c_partnership) to keep status of partnership valid
-	count_last_url_check_error integer DEFAULT '0',		-- last result of check of keyword into url
-	last_check_backlink datetime NULL,					-- date of last check of keyword into url
-	ip varchar(250),
-	import_key varchar(14),
-	model_pdf varchar(255)
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+    ref varchar(128) DEFAULT '(PROV)' NOT NULL, 
+    status smallint DEFAULT 0 NOT NULL, 
+    fk_type integer DEFAULT 0 NOT NULL,
+    fk_soc integer, 
+    fk_member integer,
+    email_partnership varchar(64),      -- if different than email of thirdparty or member 
+    date_partnership_start date NOT NULL, 
+    date_partnership_end date NULL, 
+    entity integer DEFAULT 1 NOT NULL,    -- multi company id, 0 = all
+    reason_decline_or_cancel text NULL,
+    date_creation datetime NOT NULL, 
+    fk_user_creat integer NULL,            -- can be null if created from public page 
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    fk_user_modif integer, 
+    note_private text, 
+    note_public text, 
+    last_main_doc varchar(255), 
+    url_to_check varchar(255),                            -- url to check to find a specific keyword (defined into llx_c_partnership) to keep status of partnership valid
+    count_last_url_check_error integer DEFAULT '0',        -- last result of check of keyword into url
+    last_check_backlink datetime NULL,                    -- date of last check of keyword into url
+    ip varchar(250),
+    import_key varchar(14),
+    model_pdf varchar(255)
 ) ENGINE=innodb;

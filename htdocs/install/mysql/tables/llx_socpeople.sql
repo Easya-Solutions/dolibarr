@@ -2,7 +2,7 @@
 -- Copyright (C) 2001-2004 Rodolphe Quiedeville <rodolphe@quiedeville.org>
 -- Copyright (C) 2008      Laurent Destailleur  <eldy@users.sourceforge.net>
 -- Copyright (C) 2005-2010 Regis Houssin        <regis.houssin@inodbox.com>
--- Copyright (C) 2020      Open-Dsi        		<support@open-dsi.fr>
+-- Copyright (C) 2020      Open-Dsi                <support@open-dsi.fr>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -21,51 +21,51 @@
 
 create table llx_socpeople
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  datec				datetime,
-  tms				timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_soc			integer,									-- lien vers la societe
-  entity			integer DEFAULT 1 NOT NULL,					-- multi company id
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  datec                datetime,
+  tms                timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  fk_soc            integer,                                    -- lien vers la societe
+  entity            integer DEFAULT 1 NOT NULL,                    -- multi company id
   ref_ext           varchar(255),                               -- reference into an external system (not used by dolibarr)
-  civility			varchar(6),
-  lastname			varchar(50),
-  firstname			varchar(50),
-  address			varchar(255),
-  zip				varchar(25),
-  town				varchar(255),
-  fk_departement	integer,
-  fk_pays			integer        DEFAULT 0,
-  birthday			date,
-  poste				varchar(255),
-  phone				varchar(30),
-  phone_perso		varchar(30),
-  phone_mobile		varchar(30),
-  fax				varchar(30),
-  email				varchar(255),
+  civility            varchar(6),
+  lastname            varchar(50),
+  firstname            varchar(50),
+  address            varchar(255),
+  zip                varchar(25),
+  town                varchar(255),
+  fk_departement    integer,
+  fk_pays            integer        DEFAULT 0,
+  birthday            date,
+  poste                varchar(255),
+  phone                varchar(30),
+  phone_perso        varchar(30),
+  phone_mobile        varchar(30),
+  fax                varchar(30),
+  email                varchar(255),
 
   socialnetworks    text DEFAULT NULL,                          -- json with socialnetworks
-  --jabberid			varchar(255),
-  --skype				varchar(255),
-  --twitter			varchar(255),                        		--
-  --facebook			varchar(255),                        		--
-  --linkedin            			varchar(255),                       		--
-  --instagram                varchar(255),                        		--
-  --snapchat                 varchar(255),                        		--
-  --googleplus               varchar(255),                        		--
-  --youtube                  varchar(255),                        		--
-  --whatsapp                 varchar(255),                        		--
+  --jabberid            varchar(255),
+  --skype                varchar(255),
+  --twitter            varchar(255),                                --
+  --facebook            varchar(255),                                --
+  --linkedin                        varchar(255),                               --
+  --instagram                varchar(255),                                --
+  --snapchat                 varchar(255),                                --
+  --googleplus               varchar(255),                                --
+  --youtube                  varchar(255),                                --
+  --whatsapp                 varchar(255),                                --
 
-  photo				varchar(255),
-  no_email			smallint NOT NULL DEFAULT 0,				-- deprecated. Use table llx_mailing_unsubscribe instead
-  priv				smallint NOT NULL DEFAULT 0,
-  fk_prospectlevel  	varchar(12),                         		-- prospect level (in llx_c_prospectcontactlevel)
-  fk_stcommcontact  		integer        DEFAULT 0 NOT NULL,      	-- commercial statut
-  fk_user_creat		integer DEFAULT 0,							-- user qui a creel'enregistrement
-  fk_user_modif		integer,
-  note_private		text,
-  note_public		text,
-  default_lang		varchar(6),
-  canvas			varchar(32),			-- type of canvas if used (null by default)
-  import_key		varchar(14),
-  statut			tinyint DEFAULT 1 NOT NULL
+  photo                varchar(255),
+  no_email            smallint NOT NULL DEFAULT 0,                -- deprecated. Use table llx_mailing_unsubscribe instead
+  priv                smallint NOT NULL DEFAULT 0,
+  fk_prospectlevel      varchar(12),                                 -- prospect level (in llx_c_prospectcontactlevel)
+  fk_stcommcontact          integer        DEFAULT 0 NOT NULL,          -- commercial statut
+  fk_user_creat        integer DEFAULT 0,                            -- user qui a creel'enregistrement
+  fk_user_modif        integer,
+  note_private        text,
+  note_public        text,
+  default_lang        varchar(6),
+  canvas            varchar(32),            -- type of canvas if used (null by default)
+  import_key        varchar(14),
+  statut            tinyint DEFAULT 1 NOT NULL
 )ENGINE=innodb;

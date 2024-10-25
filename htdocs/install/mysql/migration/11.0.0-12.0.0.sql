@@ -38,7 +38,7 @@ create table llx_commande_fournisseur_dispatch_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_commande_fournisseur_dispatch_extrafields ADD INDEX idx_commande_fournisseur_dispatch_extrafields (fk_object);
@@ -51,7 +51,7 @@ create table llx_c_shipment_package_type
 (
     rowid        integer  AUTO_INCREMENT PRIMARY KEY,
     label        varchar(50) NOT NULL,  -- Short name
-    description	 varchar(255), -- Description
+    description     varchar(255), -- Description
     active       integer DEFAULT 1 NOT NULL, -- Active or not
     entity       integer DEFAULT 1 NOT NULL -- Multi company id
 )ENGINE=innodb;
@@ -61,7 +61,7 @@ create table llx_facturedet_rec_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_facturedet_rec_extrafields ADD INDEX idx_facturedet_rec_extrafields (fk_object);
@@ -192,7 +192,7 @@ create table llx_object_lang
 (
   rowid          integer AUTO_INCREMENT PRIMARY KEY,
   fk_object      integer      DEFAULT 0 NOT NULL,
-  type_object    varchar(32)  NOT NULL,				-- value found into $object->element
+  type_object    varchar(32)  NOT NULL,                -- value found into $object->element
   property       varchar(32)  NOT NULL,
   lang           varchar(5)   DEFAULT 0 NOT NULL,
   value          text,
@@ -238,14 +238,14 @@ INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUE
 
 create table llx_c_ticket_resolution
 (
-  rowid			integer AUTO_INCREMENT PRIMARY KEY,
-  entity		integer DEFAULT 1,
-  code			varchar(32)				NOT NULL,
-  pos			varchar(32)				NOT NULL,
-  label			varchar(128)			NOT NULL,
-  active		integer DEFAULT 1,
-  use_default	integer DEFAULT 1,
-  description	varchar(255)
+  rowid            integer AUTO_INCREMENT PRIMARY KEY,
+  entity        integer DEFAULT 1,
+  code            varchar(32)                NOT NULL,
+  pos            varchar(32)                NOT NULL,
+  label            varchar(128)            NOT NULL,
+  active        integer DEFAULT 1,
+  use_default    integer DEFAULT 1,
+  description    varchar(255)
 )ENGINE=innodb;
 
 ALTER TABLE llx_c_ticket_resolution ADD UNIQUE INDEX uk_code (code, entity);
@@ -292,9 +292,9 @@ ALTER TABLE llx_expeditiondet_batch MODIFY COLUMN batch varchar(128);
 
 create table llx_categorie_website_page
 (
-  fk_categorie  	integer NOT NULL,
+  fk_categorie      integer NOT NULL,
   fk_website_page   integer NOT NULL,
-  import_key    	varchar(14)
+  import_key        varchar(14)
 )ENGINE=innodb;
 
 ALTER TABLE llx_categorie_website_page ADD PRIMARY KEY pk_categorie_website_page (fk_categorie, fk_website_page);
@@ -304,10 +304,10 @@ ALTER TABLE llx_categorie_website_page ADD INDEX idx_categorie_website_page_fk_w
 ALTER TABLE llx_categorie_website_page ADD CONSTRAINT fk_categorie_website_page_categorie_rowid FOREIGN KEY (fk_categorie) REFERENCES llx_categorie (rowid);
 ALTER TABLE llx_categorie_website_page ADD CONSTRAINT fk_categorie_website_page_website_page_rowid FOREIGN KEY (fk_website_page) REFERENCES llx_website_page (rowid);
 
-ALTER TABLE llx_categorie ADD COLUMN date_creation	datetime;
-ALTER TABLE llx_categorie ADD COLUMN tms     		timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE llx_categorie ADD COLUMN fk_user_creat	integer;
-ALTER TABLE llx_categorie ADD COLUMN fk_user_modif	integer;
+ALTER TABLE llx_categorie ADD COLUMN date_creation    datetime;
+ALTER TABLE llx_categorie ADD COLUMN tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE llx_categorie ADD COLUMN fk_user_creat    integer;
+ALTER TABLE llx_categorie ADD COLUMN fk_user_modif    integer;
 
 ALTER TABLE llx_commandedet ADD CONSTRAINT fk_commandedet_fk_commandefourndet FOREIGN KEY (fk_commandefourndet) REFERENCES llx_commande_fournisseurdet (rowid);
 

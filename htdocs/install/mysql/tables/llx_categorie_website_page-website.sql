@@ -1,6 +1,6 @@
 -- ============================================================================
--- Copyright (C) 2007-2009	Laurent Destailleur	<eldy@users.sourceforge.net>
--- Copyright (C) 2009-2012	Regis Houssin		<regis.houssin@inodbox.com>
+-- Copyright (C) 2007-2009    Laurent Destailleur    <eldy@users.sourceforge.net>
+-- Copyright (C) 2009-2012    Regis Houssin        <regis.houssin@inodbox.com>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 create table llx_categorie_website_page
 (
-  fk_categorie  	integer NOT NULL,
+  fk_categorie      integer NOT NULL,
   fk_website_page   integer NOT NULL,
-  import_key    	varchar(14)
+  import_key        varchar(14)
 )ENGINE=innodb;

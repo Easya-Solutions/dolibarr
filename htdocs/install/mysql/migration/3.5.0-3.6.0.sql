@@ -37,7 +37,7 @@ ALTER TABLE llx_holiday ADD INDEX idx_holiday_fk_validator (fk_validator);
 create table llx_c_email_templates
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
-  entity		  integer DEFAULT 1 NOT NULL,	  -- multi company id
+  entity          integer DEFAULT 1 NOT NULL,      -- multi company id
   type_template   varchar(32),  -- template for which type of email (send invoice by email, send order, ...)
   datec           datetime,
   label           varchar(255),
@@ -105,23 +105,23 @@ ALTER TABLE llx_projet_task ADD COLUMN  entity integer DEFAULT 1 NOT NULL AFTER 
 
 create table llx_product_customer_price
 (
-  rowid					integer AUTO_INCREMENT PRIMARY KEY,
-  entity				integer DEFAULT 1 NOT NULL,	   -- multi company id
-  datec					datetime,
-  tms					timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_product			integer NOT NULL,
-  fk_soc				integer NOT NULL,
-  price						double(24,8) DEFAULT 0,
-  price_ttc					double(24,8) DEFAULT 0,
-  price_min					double(24,8) DEFAULT 0,
-  price_min_ttc				double(24,8) DEFAULT 0,
-  price_base_type			varchar(3)   DEFAULT 'HT',
-  tva_tx					double(6,3),
+  rowid                    integer AUTO_INCREMENT PRIMARY KEY,
+  entity                integer DEFAULT 1 NOT NULL,       -- multi company id
+  datec                    datetime,
+  tms                    timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  fk_product            integer NOT NULL,
+  fk_soc                integer NOT NULL,
+  price                        double(24,8) DEFAULT 0,
+  price_ttc                    double(24,8) DEFAULT 0,
+  price_min                    double(24,8) DEFAULT 0,
+  price_min_ttc                double(24,8) DEFAULT 0,
+  price_base_type            varchar(3)   DEFAULT 'HT',
+  tva_tx                    double(6,3),
   recuperableonly           integer NOT NULL DEFAULT '0',   -- Other NPR VAT
-  localtax1_tx				double(6,3)  DEFAULT 0,         -- Other local VAT 1
-  localtax2_tx				double(6,3)  DEFAULT 0,         -- Other local VAT 2
-  fk_user				    integer,
-  import_key			    varchar(14)                  -- Import key
+  localtax1_tx                double(6,3)  DEFAULT 0,         -- Other local VAT 1
+  localtax2_tx                double(6,3)  DEFAULT 0,         -- Other local VAT 2
+  fk_user                    integer,
+  import_key                varchar(14)                  -- Import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_product_customer_price ADD INDEX idx_product_customer_price_fk_user (fk_user);
@@ -142,21 +142,21 @@ ALTER TABLE llx_product ADD COLUMN url varchar(255);
 create table llx_product_customer_price_log
 (
   rowid                       integer AUTO_INCREMENT PRIMARY KEY,
-  entity				integer DEFAULT 1 NOT NULL,	   -- multi company id
+  entity                integer DEFAULT 1 NOT NULL,       -- multi company id
   datec                       datetime,
-  fk_product			integer NOT NULL,
-  fk_soc				integer NOT NULL,
-  price						double(24,8) DEFAULT 0,
-  price_ttc					double(24,8) DEFAULT 0,
-  price_min					double(24,8) DEFAULT 0,
-  price_min_ttc				double(24,8) DEFAULT 0,
-  price_base_type			varchar(3)   DEFAULT 'HT',
-  tva_tx					double(6,3),
+  fk_product            integer NOT NULL,
+  fk_soc                integer NOT NULL,
+  price                        double(24,8) DEFAULT 0,
+  price_ttc                    double(24,8) DEFAULT 0,
+  price_min                    double(24,8) DEFAULT 0,
+  price_min_ttc                double(24,8) DEFAULT 0,
+  price_base_type            varchar(3)   DEFAULT 'HT',
+  tva_tx                    double(6,3),
   recuperableonly           integer NOT NULL DEFAULT 0,   -- Other NPR VAT
-  localtax1_tx				double(6,3)  DEFAULT 0,         -- Other local VAT 1
-  localtax2_tx				double(6,3)  DEFAULT 0,         -- Other local VAT 2
-  fk_user				integer,
- import_key			varchar(14)                  -- Import key
+  localtax1_tx                double(6,3)  DEFAULT 0,         -- Other local VAT 1
+  localtax2_tx                double(6,3)  DEFAULT 0,         -- Other local VAT 2
+  fk_user                integer,
+ import_key            varchar(14)                  -- Import key
 )ENGINE=innodb;
 
 -- Batch number management
@@ -197,7 +197,7 @@ CREATE TABLE llx_payment_salary (
   label varchar(255),
   datesp date,                       -- date de début de la période
   dateep date,                       -- date de fin de la période
-  entity integer DEFAULT 1 NOT NULL,	-- multi company id
+  entity integer DEFAULT 1 NOT NULL,    -- multi company id
   note text,
   fk_bank integer,
   fk_user_creat integer,
@@ -231,7 +231,7 @@ create table llx_categories_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_categories_extrafields ADD INDEX idx_categories_extrafields (fk_object);
@@ -246,7 +246,7 @@ ALTER TABLE llx_societe ADD INDEX idx_societe_barcode (barcode);
 ALTER TABLE llx_societe ADD UNIQUE INDEX uk_societe_barcode (barcode, fk_barcode_type, entity);
 
 
-ALTER TABLE llx_tva ADD COLUMN fk_typepayment integer NULL;	-- table may already contains data
+ALTER TABLE llx_tva ADD COLUMN fk_typepayment integer NULL;    -- table may already contains data
 ALTER TABLE llx_tva ADD COLUMN num_payment varchar(50);
 
 -- Add missing action triggers
@@ -271,19 +271,19 @@ create table llx_categorie_lang
 )ENGINE=innodb;
 
 ALTER TABLE llx_categorie_lang ADD UNIQUE INDEX uk_category_lang (fk_category, lang);
-ALTER TABLE llx_categorie_lang ADD CONSTRAINT fk_category_lang_fk_category 	FOREIGN KEY (fk_category) REFERENCES llx_categorie (rowid);
+ALTER TABLE llx_categorie_lang ADD CONSTRAINT fk_category_lang_fk_category     FOREIGN KEY (fk_category) REFERENCES llx_categorie (rowid);
 
 -- Resource module
 CREATE TABLE llx_resource
 (
-  rowid           		integer AUTO_INCREMENT PRIMARY KEY,
-  entity          		integer,
-  ref             		varchar(255),
-  description     		text,
+  rowid                   integer AUTO_INCREMENT PRIMARY KEY,
+  entity                  integer,
+  ref                     varchar(255),
+  description             text,
   fk_code_type_resource varchar(32),
-  note_public     		text,
-  note_private    		text,
-  tms         			timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  note_public             text,
+  note_private            text,
+  tms                     timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )ENGINE=innodb;
 
 ALTER TABLE llx_resource ADD INDEX fk_code_type_resource_idx (fk_code_type_resource);
@@ -292,11 +292,11 @@ CREATE TABLE llx_element_resources
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
   resource_id     integer,
-  resource_type	  varchar(64),
-  element_id	  integer,
+  resource_type      varchar(64),
+  element_id      integer,
   element_type    varchar(64),
-  busy			  integer,
-  mandatory		  integer,
+  busy              integer,
+  mandatory          integer,
   fk_user_create   integer,
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )ENGINE=innodb;
@@ -307,10 +307,10 @@ ALTER TABLE llx_element_resources ADD INDEX idx_element_element_element_id (elem
 
 create table llx_c_type_resource
 (
-  rowid      	integer  AUTO_INCREMENT PRIMARY KEY,
+  rowid          integer  AUTO_INCREMENT PRIMARY KEY,
   code          varchar(32) NOT NULL,
-  label 	    varchar(64)	NOT NULL,
-  active  	    tinyint DEFAULT 1  NOT NULL
+  label         varchar(64)    NOT NULL,
+  active          tinyint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 -- Fix llx_c_type_resource when you update from a 3.6-beta
@@ -336,10 +336,10 @@ INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype,
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 13,'PCG99-ABREGE','CAPIT', 'XXXXXX',   '15', '1401', 'Provisions pour risques et charges', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 14,'PCG99-ABREGE','CAPIT', 'XXXXXX',   '16', '1401', 'Emprunts et dettes assimilees', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 15,'PCG99-ABREGE','IMMO',  'XXXXXX',   '20', '1402', 'Immobilisations incorporelles', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 16,'PCG99-ABREGE','IMMO',  'XXXXXX',  '201',	'15', 'Frais d''établissement', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 17,'PCG99-ABREGE','IMMO',  'XXXXXX',  '206',	'15', 'Droit au bail', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 18,'PCG99-ABREGE','IMMO',  'XXXXXX',  '207',	'15', 'Fonds commercial', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 19,'PCG99-ABREGE','IMMO',  'XXXXXX',  '208',	'15', 'Autres immobilisations incorporelles', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 16,'PCG99-ABREGE','IMMO',  'XXXXXX',  '201',    '15', 'Frais d''établissement', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 17,'PCG99-ABREGE','IMMO',  'XXXXXX',  '206',    '15', 'Droit au bail', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 18,'PCG99-ABREGE','IMMO',  'XXXXXX',  '207',    '15', 'Fonds commercial', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 19,'PCG99-ABREGE','IMMO',  'XXXXXX',  '208',    '15', 'Autres immobilisations incorporelles', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 20,'PCG99-ABREGE','IMMO',  'XXXXXX',   '21', '1402', 'Immobilisations corporelles', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 21,'PCG99-ABREGE','IMMO',  'XXXXXX',   '23', '1402', 'Immobilisations en cours', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 22,'PCG99-ABREGE','IMMO',  'XXXXXX',   '27', '1402', 'Autres immobilisations financieres', '1');
@@ -371,7 +371,7 @@ INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype,
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 48,'PCG99-ABREGE','TIERS', 'XXXXXX',  '445', '1404', 'Etat - Taxes sur chiffre affaires', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 49,'PCG99-ABREGE','TIERS', 'XXXXXX',  '447', '1404', 'Autres impôts, taxes et versements assimilés', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 50,'PCG99-ABREGE','TIERS', 'XXXXXX',   '45', '1404', 'Groupe et associes', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 51,'PCG99-ABREGE','TIERS', 'XXXXXX',  '455',	'50', 'Associés', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 51,'PCG99-ABREGE','TIERS', 'XXXXXX',  '455',    '50', 'Associés', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 52,'PCG99-ABREGE','TIERS', 'XXXXXX',   '46', '1404', 'Débiteurs divers et créditeurs divers', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 53,'PCG99-ABREGE','TIERS', 'XXXXXX',   '47', '1404', 'Comptes transitoires ou d''attente', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 54,'PCG99-ABREGE','TIERS', 'XXXXXX',  '481', '1404', 'Charges à répartir sur plusieurs exercices', '1');
@@ -386,7 +386,7 @@ INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype,
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 63,'PCG99-ABREGE','FINAN', 'XXXXXX',   '58', '1405', 'Virements internes', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 64,'PCG99-ABREGE','FINAN', 'XXXXXX',  '590', '1405', 'Provisions pour dépréciation des valeurs mobilières de placement', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 65,'PCG99-ABREGE','CHARGE','PRODUCT',  '60', '1406', 'Achats', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 66,'PCG99-ABREGE','CHARGE','XXXXXX',  '603',	'65', 'Variations des stocks', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 66,'PCG99-ABREGE','CHARGE','XXXXXX',  '603',    '65', 'Variations des stocks', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 67,'PCG99-ABREGE','CHARGE','SERVICE',  '61', '1406', 'Services extérieurs', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 68,'PCG99-ABREGE','CHARGE','XXXXXX',   '62', '1406', 'Autres services extérieurs', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 69,'PCG99-ABREGE','CHARGE','XXXXXX',   '63', '1406', 'Impôts, taxes et versements assimiles', '1');
@@ -414,9 +414,9 @@ INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype,
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 91,'PCG99-ABREGE','PROD',  'XXXXXX',   '73', '1407', 'Produits nets partiels sur opérations à long terme', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 92,'PCG99-ABREGE','PROD',  'XXXXXX',   '74', '1407', 'Subventions d''exploitation', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 93,'PCG99-ABREGE','PROD',  'XXXXXX',   '75', '1407', 'Autres produits de gestion courante', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 94,'PCG99-ABREGE','PROD',  'XXXXXX',  '753', 	'93', 'Jetons de présence et rémunérations d''administrateurs, gérants,...', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 95,'PCG99-ABREGE','PROD',  'XXXXXX',  '754',	'93', 'Ristournes perçues des coopératives', '1');
-INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 96,'PCG99-ABREGE','PROD',  'XXXXXX',  '755',	'93', 'Quotes-parts de résultat sur opérations faites en commun', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 94,'PCG99-ABREGE','PROD',  'XXXXXX',  '753',     '93', 'Jetons de présence et rémunérations d''administrateurs, gérants,...', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 95,'PCG99-ABREGE','PROD',  'XXXXXX',  '754',    '93', 'Ristournes perçues des coopératives', '1');
+INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 96,'PCG99-ABREGE','PROD',  'XXXXXX',  '755',    '93', 'Quotes-parts de résultat sur opérations faites en commun', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 97,'PCG99-ABREGE','PROD',  'XXXXXX',   '76', '1407', 'Produits financiers', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 98,'PCG99-ABREGE','PROD',  'XXXXXX',   '77', '1407', 'Produits exceptionnels', '1');
 INSERT INTO llx_accountingaccount (rowid, fk_pcg_version, pcg_type, pcg_subtype, account_number, account_parent, label, active) VALUES ( 99,'PCG99-ABREGE','PROD',  'XXXXXX',  '781', '1407', 'Reprises sur amortissements et provisions', '1');

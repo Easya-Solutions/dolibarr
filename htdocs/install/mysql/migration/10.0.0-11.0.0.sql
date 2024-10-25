@@ -121,7 +121,7 @@ create table llx_holiday_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_holiday_extrafields ADD INDEX idx_holiday_extrafields (fk_object);
@@ -137,7 +137,7 @@ create table llx_entrepot_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_entrepot_extrafields ADD INDEX idx_entrepot_extrafields (fk_object);
@@ -145,8 +145,8 @@ ALTER TABLE llx_entrepot_extrafields ADD INDEX idx_entrepot_extrafields (fk_obje
 ALTER TABLE llx_extrafields ADD COLUMN printable boolean DEFAULT FALSE;
 
 ALTER TABLE llx_facture ADD COLUMN retained_warranty real DEFAULT NULL after situation_final;
-ALTER TABLE llx_facture ADD COLUMN retained_warranty_date_limit	date DEFAULT NULL after retained_warranty;
-ALTER TABLE llx_facture ADD COLUMN retained_warranty_fk_cond_reglement	integer  DEFAULT NULL after retained_warranty_date_limit;
+ALTER TABLE llx_facture ADD COLUMN retained_warranty_date_limit    date DEFAULT NULL after retained_warranty;
+ALTER TABLE llx_facture ADD COLUMN retained_warranty_fk_cond_reglement    integer  DEFAULT NULL after retained_warranty_date_limit;
 ALTER TABLE llx_facture ADD COLUMN date_closing datetime DEFAULT NULL after date_valid;
 ALTER TABLE llx_facture ADD COLUMN fk_user_closing integer DEFAULT NULL after fk_user_valid;
 
@@ -167,7 +167,7 @@ create table llx_payment_salary_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- salary payment id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_payment_salary_extrafields ADD INDEX idx_payment_salary_extrafields (fk_object);
@@ -188,7 +188,7 @@ ALTER TABLE llx_mailing_cibles ADD COLUMN tms timestamp DEFAULT CURRENT_TIMESTAM
 
 ALTER TABLE llx_projet ADD COLUMN usage_opportunity integer DEFAULT 0;
 ALTER TABLE llx_projet ADD COLUMN usage_task integer DEFAULT 1;
-ALTER TABLE llx_projet CHANGE COLUMN bill_time usage_bill_time integer DEFAULT 0;		-- rename existing field
+ALTER TABLE llx_projet CHANGE COLUMN bill_time usage_bill_time integer DEFAULT 0;        -- rename existing field
 ALTER TABLE llx_projet ADD COLUMN usage_organize_event integer DEFAULT 0;
 
 UPDATE llx_projet set usage_opportunity = 1 WHERE fk_opp_status > 0;
@@ -198,8 +198,8 @@ create table llx_societe_contacts
     rowid           integer AUTO_INCREMENT PRIMARY KEY,
     entity          integer DEFAULT 1 NOT NULL,
     date_creation           datetime NOT NULL,
-    fk_soc		        integer NOT NULL,
-    fk_c_type_contact	int NOT NULL,
+    fk_soc                integer NOT NULL,
+    fk_c_type_contact    int NOT NULL,
     fk_socpeople        integer NOT NULL,
     tms TIMESTAMP,
     import_key VARCHAR(14)
@@ -215,22 +215,22 @@ ALTER TABLE llx_societe_contacts ADD CONSTRAINT fk_societe_contacts_fk_socpeople
 
 
 
-ALTER TABLE llx_supplier_proposaldet ADD COLUMN  date_start	datetime   DEFAULT NULL;
-ALTER TABLE llx_supplier_proposaldet ADD COLUMN  date_end	datetime   DEFAULT NULL;
+ALTER TABLE llx_supplier_proposaldet ADD COLUMN  date_start    datetime   DEFAULT NULL;
+ALTER TABLE llx_supplier_proposaldet ADD COLUMN  date_end    datetime   DEFAULT NULL;
 
 
 create table llx_c_hrm_public_holiday
 (
-  id					integer AUTO_INCREMENT PRIMARY KEY,
-  entity				integer	DEFAULT 0 NOT NULL,	-- multi company id, 0 = all
-  fk_country			integer,
-  code		    		varchar(62),
-  dayrule               varchar(64) DEFAULT '', 	-- 'easter', 'eastermonday', ...
-  day					integer,
-  month					integer,
-  year					integer,					-- 0 for all years
-  active				integer DEFAULT 1,
-  import_key			varchar(14)
+  id                    integer AUTO_INCREMENT PRIMARY KEY,
+  entity                integer    DEFAULT 0 NOT NULL,    -- multi company id, 0 = all
+  fk_country            integer,
+  code                    varchar(62),
+  dayrule               varchar(64) DEFAULT '',     -- 'easter', 'eastermonday', ...
+  day                    integer,
+  month                    integer,
+  year                    integer,                    -- 0 for all years
+  active                integer DEFAULT 1,
+  import_key            varchar(14)
 )ENGINE=innodb;
 
 ALTER TABLE llx_c_hrm_public_holiday ADD UNIQUE INDEX uk_c_hrm_public_holiday(entity, code);
@@ -343,37 +343,37 @@ ALTER TABLE llx_product ADD COLUMN net_measure_units     tinyint;
 
 create table llx_adherent_type_lang
 (
-	rowid          integer AUTO_INCREMENT PRIMARY KEY,
-	fk_type        integer      DEFAULT 0 NOT NULL,
-	lang           varchar(5)   DEFAULT 0 NOT NULL,
-	label          varchar(255) NOT NULL,
-	description    text,
-	email          text,
-	import_key varchar(14) DEFAULT NULL
+    rowid          integer AUTO_INCREMENT PRIMARY KEY,
+    fk_type        integer      DEFAULT 0 NOT NULL,
+    lang           varchar(5)   DEFAULT 0 NOT NULL,
+    label          varchar(255) NOT NULL,
+    description    text,
+    email          text,
+    import_key varchar(14) DEFAULT NULL
 )ENGINE=innodb;
 
 create table llx_fichinter_rec
 (
-	rowid				integer AUTO_INCREMENT PRIMARY KEY,
-	titre				varchar(50) NOT NULL,
-	entity				integer DEFAULT 1 NOT NULL,	 -- multi company id
-	fk_soc				integer DEFAULT NULL,
-	datec				datetime,  -- date de creation
-	fk_contrat			integer DEFAULT 0,          -- contrat auquel est rattache la fiche
-	fk_user_author		integer,                    -- createur
-	fk_projet			integer,                    -- projet auquel est associe la facture
-	duree				real,                       -- duree totale de l'intervention
-	description			text,
-	modelpdf			varchar(50),
-	note_private		text,
-	note_public			text,
-	frequency			integer,					-- frequency (for example: 3 for every 3 month)
-	unit_frequency		varchar(2) DEFAULT 'm',		-- 'm' for month (date_when must be a day <= 28), 'y' for year, ...
-	date_when			datetime DEFAULT NULL,		-- date for next gen (when an invoice is generated, this field must be updated with next date)
-	date_last_gen		datetime DEFAULT NULL,		-- date for last gen (date with last successfull generation of invoice)
-	nb_gen_done			integer DEFAULT NULL,		-- nb of generation done (when an invoice is generated, this field must incremented)
-	nb_gen_max			integer DEFAULT NULL,		-- maximum number of generation
-	auto_validate		integer NULL DEFAULT NULL	-- statut of the generated intervention
+    rowid                integer AUTO_INCREMENT PRIMARY KEY,
+    titre                varchar(50) NOT NULL,
+    entity                integer DEFAULT 1 NOT NULL,     -- multi company id
+    fk_soc                integer DEFAULT NULL,
+    datec                datetime,  -- date de creation
+    fk_contrat            integer DEFAULT 0,          -- contrat auquel est rattache la fiche
+    fk_user_author        integer,                    -- createur
+    fk_projet            integer,                    -- projet auquel est associe la facture
+    duree                real,                       -- duree totale de l'intervention
+    description            text,
+    modelpdf            varchar(50),
+    note_private        text,
+    note_public            text,
+    frequency            integer,                    -- frequency (for example: 3 for every 3 month)
+    unit_frequency        varchar(2) DEFAULT 'm',        -- 'm' for month (date_when must be a day <= 28), 'y' for year, ...
+    date_when            datetime DEFAULT NULL,        -- date for next gen (when an invoice is generated, this field must be updated with next date)
+    date_last_gen        datetime DEFAULT NULL,        -- date for last gen (date with last successfull generation of invoice)
+    nb_gen_done            integer DEFAULT NULL,        -- nb of generation done (when an invoice is generated, this field must incremented)
+    nb_gen_max            integer DEFAULT NULL,        -- maximum number of generation
+    auto_validate        integer NULL DEFAULT NULL    -- statut of the generated intervention
 
 )ENGINE=innodb;
 
@@ -386,42 +386,42 @@ ALTER TABLE llx_fichinter_rec ADD CONSTRAINT fk_fichinter_rec_fk_projet         
 
 create table llx_fichinterdet_rec
 (
-	rowid				integer AUTO_INCREMENT PRIMARY KEY,
-	fk_fichinter		integer NOT NULL,
-	date				datetime,				-- date de la ligne d'intervention
-	description			text,					-- description de la ligne d'intervention
-	duree				integer,				-- duree de la ligne d'intervention
-	rang				integer DEFAULT 0,		-- ordre affichage sur la fiche
-	total_ht			DOUBLE(24, 8) NULL DEFAULT NULL,
-	subprice			DOUBLE(24, 8) NULL DEFAULT NULL,
-	fk_parent_line		integer NULL DEFAULT NULL,
-	fk_product			integer NULL DEFAULT NULL,
-	label				varchar(255) NULL DEFAULT NULL,
-	tva_tx				DOUBLE(6, 3) NULL DEFAULT NULL,
-	localtax1_tx		DOUBLE(6, 3) NULL DEFAULT 0,
-	localtax1_type		VARCHAR(1) NULL DEFAULT NULL,
-	localtax2_tx		DOUBLE(6, 3) NULL DEFAULT 0,
-	localtax2_type		VARCHAR(1) NULL DEFAULT NULL,
-	qty					double NULL DEFAULT NULL,
-	remise_percent		double NULL DEFAULT 0,
-	remise				double NULL DEFAULT 0,
-	fk_remise_except	integer NULL DEFAULT NULL,
-	price				DOUBLE(24, 8) NULL DEFAULT NULL,
-	total_tva			DOUBLE(24, 8) NULL DEFAULT NULL,
-	total_localtax1		DOUBLE(24, 8) NULL DEFAULT 0,
-	total_localtax2		DOUBLE(24, 8) NULL DEFAULT 0,
-	total_ttc			DOUBLE(24, 8) NULL DEFAULT NULL,
-	product_type		INTEGER NULL DEFAULT 0,
-	date_start			datetime NULL DEFAULT NULL,
-	date_end			datetime NULL DEFAULT NULL,
-	info_bits			INTEGER NULL DEFAULT 0,
-	buy_price_ht		DOUBLE(24, 8) NULL DEFAULT 0,
-	fk_product_fournisseur_price	integer NULL DEFAULT NULL,
-	fk_code_ventilation	integer NOT NULL DEFAULT 0,
-	fk_export_commpta	integer NOT NULL DEFAULT 0,
-	special_code		integer UNSIGNED NULL DEFAULT 0,
-	fk_unit				integer NULL DEFAULT NULL,
-	import_key			varchar(14) NULL DEFAULT NULL
+    rowid                integer AUTO_INCREMENT PRIMARY KEY,
+    fk_fichinter        integer NOT NULL,
+    date                datetime,                -- date de la ligne d'intervention
+    description            text,                    -- description de la ligne d'intervention
+    duree                integer,                -- duree de la ligne d'intervention
+    rang                integer DEFAULT 0,        -- ordre affichage sur la fiche
+    total_ht            DOUBLE(24, 8) NULL DEFAULT NULL,
+    subprice            DOUBLE(24, 8) NULL DEFAULT NULL,
+    fk_parent_line        integer NULL DEFAULT NULL,
+    fk_product            integer NULL DEFAULT NULL,
+    label                varchar(255) NULL DEFAULT NULL,
+    tva_tx                DOUBLE(6, 3) NULL DEFAULT NULL,
+    localtax1_tx        DOUBLE(6, 3) NULL DEFAULT 0,
+    localtax1_type        VARCHAR(1) NULL DEFAULT NULL,
+    localtax2_tx        DOUBLE(6, 3) NULL DEFAULT 0,
+    localtax2_type        VARCHAR(1) NULL DEFAULT NULL,
+    qty                    double NULL DEFAULT NULL,
+    remise_percent        double NULL DEFAULT 0,
+    remise                double NULL DEFAULT 0,
+    fk_remise_except    integer NULL DEFAULT NULL,
+    price                DOUBLE(24, 8) NULL DEFAULT NULL,
+    total_tva            DOUBLE(24, 8) NULL DEFAULT NULL,
+    total_localtax1        DOUBLE(24, 8) NULL DEFAULT 0,
+    total_localtax2        DOUBLE(24, 8) NULL DEFAULT 0,
+    total_ttc            DOUBLE(24, 8) NULL DEFAULT NULL,
+    product_type        INTEGER NULL DEFAULT 0,
+    date_start            datetime NULL DEFAULT NULL,
+    date_end            datetime NULL DEFAULT NULL,
+    info_bits            INTEGER NULL DEFAULT 0,
+    buy_price_ht        DOUBLE(24, 8) NULL DEFAULT 0,
+    fk_product_fournisseur_price    integer NULL DEFAULT NULL,
+    fk_code_ventilation    integer NOT NULL DEFAULT 0,
+    fk_export_commpta    integer NOT NULL DEFAULT 0,
+    special_code        integer UNSIGNED NULL DEFAULT 0,
+    fk_unit                integer NULL DEFAULT NULL,
+    import_key            varchar(14) NULL DEFAULT NULL
 )ENGINE=innodb;
 
 ALTER TABLE llx_supplier_proposaldet ADD COLUMN date_start datetime DEFAULT NULL AFTER product_type;
@@ -435,12 +435,12 @@ create table llx_expedition_package
   description       varchar(255),    --Description of goods in the package (required by the custom)
   value             double(24,8)     DEFAULT 0,--Value (Price of the content, for insurance & custom)
   fk_parcel_type    integer,           -- Type or package, linked to llx_c_shipment_parcel_type (eg: 1=enveloppe, 2=package, 3=palette, 4=other)
-  height            float,	       -- height
-  width             float,	       -- width
-  size              float,	       -- depth
-  size_units        integer,	       -- unit of all sizes (height, width, depth)
-  weight            float,	       -- weight
-  weight_units      integer,	       -- unit of weight
+  height            float,           -- height
+  width             float,           -- width
+  size              float,           -- depth
+  size_units        integer,           -- unit of all sizes (height, width, depth)
+  weight            float,           -- weight
+  weight_units      integer,           -- unit of weight
   dangerous_goods   smallint          DEFAULT 0, -- 0 = no dangerous goods or 1 = Explosives, 2 = Flammable Gases, 3 = Flammable Liquids, 4 = Flammable solids, 5 = Oxidizing, 6 = Toxic & Infectious, 7 = Radioactive, 8 = Corrosives, 9 = Miscellaneous (see https://en.wikipedia.org/wiki/Dangerous_goods). I'm not sure if just register 0 (no) or 1 (yes) is enough.
   tail_lift         smallint          DEFAULT 0, -- 0 = no tail lift required to load/unload package(s), 1 = a tail lift is required to load/unload package(s). Sometime tail lift load can be different than tail lift delivery so maybe adding a new table line.
   rang              integer  DEFAULT 0
@@ -451,16 +451,16 @@ create table llx_c_shipment_package_type
 (
     rowid        integer  AUTO_INCREMENT PRIMARY KEY,
     label        varchar(50) NOT NULL,  -- Short name
-    description	 varchar(255), -- Description
+    description     varchar(255), -- Description
     active       integer DEFAULT 1 NOT NULL, -- Active or not
     entity       integer DEFAULT 1 NOT NULL -- Multi company id
 )ENGINE=innodb;
 
 CREATE TABLE llx_product_fournisseur_price_extrafields (
-	rowid               integer AUTO_INCREMENT PRIMARY KEY,
-	tms                 timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_object           integer NOT NULL,
-	import_key          varchar(14) -- import key
+    rowid               integer AUTO_INCREMENT PRIMARY KEY,
+    tms                 timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_object           integer NOT NULL,
+    import_key          varchar(14) -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_product_fournisseur_price_extrafields ADD INDEX idx_product_fournisseur_price_extrafields (fk_object);
@@ -538,23 +538,23 @@ ALTER TABLE llx_comment ADD COLUMN fk_user_modif  integer DEFAULT NULL;
 
 
 CREATE TABLE llx_mrp_production(
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	fk_mo integer NOT NULL,
-	position integer NOT NULL DEFAULT 0,
-	fk_product integer NOT NULL,
-	fk_warehouse integer,
-	qty real NOT NULL DEFAULT 1,
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    fk_mo integer NOT NULL,
+    position integer NOT NULL DEFAULT 0,
+    fk_product integer NOT NULL,
+    fk_warehouse integer,
+    qty real NOT NULL DEFAULT 1,
     qty_frozen smallint DEFAULT 0,
     disable_stock_change smallint DEFAULT 0,
-	batch varchar(30),
-	role varchar(10),      			-- 'toconsume' or 'toproduce' (initialized at MO creation), 'consumed' or 'produced' (added after MO validation)
-	fk_mrp_production integer,		-- if role = 'consumed', id of line with role 'toconsume', if role = 'produced' id of line with role 'toproduce'
-	fk_stock_movement integer,		-- id of stock movement when movements are validated
-	date_creation datetime NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
-	import_key varchar(14)
+    batch varchar(30),
+    role varchar(10),                  -- 'toconsume' or 'toproduce' (initialized at MO creation), 'consumed' or 'produced' (added after MO validation)
+    fk_mrp_production integer,        -- if role = 'consumed', id of line with role 'toconsume', if role = 'produced' id of line with role 'toproduce'
+    fk_stock_movement integer,        -- id of stock movement when movements are validated
+    date_creation datetime NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_creat integer NOT NULL,
+    fk_user_modif integer,
+    import_key varchar(14)
 ) ENGINE=innodb;
 ALTER TABLE llx_mrp_production MODIFY COLUMN qty real NOT NULL DEFAULT 1;
 
@@ -578,7 +578,7 @@ create table llx_commande_fournisseur_dispatch_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_commande_fournisseur_dispatch_extrafields ADD INDEX idx_commande_fournisseur_dispatch_extrafields (fk_object);
@@ -589,7 +589,7 @@ create table llx_facturedet_rec_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_facturedet_rec_extrafields ADD INDEX idx_facturedet_rec_extrafields (fk_object);

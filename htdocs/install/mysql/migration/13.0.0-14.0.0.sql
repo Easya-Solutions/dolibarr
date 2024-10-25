@@ -130,8 +130,8 @@ ALTER TABLE llx_product_lot ADD COLUMN scrapping_date datetime NULL;
 create table llx_accounting_groups_account
 (
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
-  fk_accounting_account		INTEGER NOT NULL,
-  fk_c_accounting_category	INTEGER NOT NULL
+  fk_accounting_account        INTEGER NOT NULL,
+  fk_c_accounting_category    INTEGER NOT NULL
 )ENGINE=innodb;
 
 
@@ -181,24 +181,24 @@ ALTER TABLE llx_propal DROP FOREIGN KEY llx_propal_fk_warehouse;
 
 
 CREATE TABLE llx_workstation_workstation(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ref varchar(128) DEFAULT '(PROV)' NOT NULL,
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ref varchar(128) DEFAULT '(PROV)' NOT NULL,
     label varchar(255),
     type varchar(7),
     note_public text,
-	entity int DEFAULT 1,
-	note_private text,
-	date_creation datetime NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
-	import_key varchar(14),
-	status smallint NOT NULL,
-	nb_operators_required integer,
-	thm_operator_estimated double,
-	thm_machine_estimated double
-	-- END MODULEBUILDER FIELDS
+    entity int DEFAULT 1,
+    note_private text,
+    date_creation datetime NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_creat integer NOT NULL,
+    fk_user_modif integer,
+    import_key varchar(14),
+    status smallint NOT NULL,
+    nb_operators_required integer,
+    thm_operator_estimated double,
+    thm_machine_estimated double
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 ALTER TABLE llx_workstation_workstation ADD INDEX idx_workstation_workstation_rowid (rowid);
@@ -207,20 +207,20 @@ ALTER TABLE llx_workstation_workstation ADD CONSTRAINT fk_workstation_workstatio
 ALTER TABLE llx_workstation_workstation ADD INDEX idx_workstation_workstation_status (status);
 
 CREATE TABLE llx_workstation_workstation_resource(
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_resource integer,
-	fk_workstation integer
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_resource integer,
+    fk_workstation integer
 ) ENGINE=innodb;
 
 CREATE TABLE llx_workstation_workstation_usergroup(
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_usergroup integer,
-	fk_workstation integer
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_usergroup integer,
+    fk_workstation integer
 ) ENGINE=innodb;
 
-DROP TABLE llx_c_producbatch_qcstatus;		-- delete table with bad name
+DROP TABLE llx_c_producbatch_qcstatus;        -- delete table with bad name
 
 CREATE TABLE llx_c_productbatch_qcstatus(
   rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -363,8 +363,8 @@ create table llx_salary
   note            text,
   fk_bank         integer,
   paye            smallint default 1 NOT NULL,
-  fk_typepayment  integer NOT NULL,			  -- default payment mode for payment
-  fk_account      integer,					  -- default bank account for payment
+  fk_typepayment  integer NOT NULL,              -- default payment mode for payment
+  fk_account      integer,                      -- default bank account for payment
   fk_user_author  integer,                    -- user creating
   fk_user_modif   integer                     -- user making last change
 ) ENGINE=innodb;
@@ -396,15 +396,15 @@ DELETE FROM llx_boxes_def WHERE file IN ('box_graph_ticket_by_severity', 'box_ti
 
 create table llx_product_perentity
 (
-    rowid         				integer AUTO_INCREMENT PRIMARY KEY,
-    fk_product	   				integer,
-    entity             			integer DEFAULT 1 NOT NULL,      	-- multi company id
+    rowid                         integer AUTO_INCREMENT PRIMARY KEY,
+    fk_product                       integer,
+    entity                         integer DEFAULT 1 NOT NULL,          -- multi company id
     accountancy_code_sell         varchar(32),                        -- Selling accountancy code
     accountancy_code_sell_intra   varchar(32),                        -- Selling accountancy code for vat intracommunity
     accountancy_code_sell_export  varchar(32),                        -- Selling accountancy code for vat export
     accountancy_code_buy          varchar(32),                        -- Buying accountancy code
     accountancy_code_buy_intra    varchar(32),                        -- Buying accountancy code for vat intracommunity
-    accountancy_code_buy_export   varchar(32),                     	  -- Buying accountancy code for vat import
+    accountancy_code_buy_export   varchar(32),                           -- Buying accountancy code for vat import
     pmp double(24,8)
 )ENGINE=innodb;
 
@@ -413,13 +413,13 @@ ALTER TABLE llx_product_perentity ADD UNIQUE INDEX uk_product_perentity (fk_prod
 
 create table llx_societe_perentity
 (
-    rowid         			integer AUTO_INCREMENT PRIMARY KEY,
-    fk_soc        			integer,
-    entity             		integer DEFAULT 1 NOT NULL,             -- multi company id
---  code_compta            	varchar(24),                         	-- code compta client
---  code_compta_fournisseur varchar(24),                         	-- code compta founisseur
-    accountancy_code_sell		varchar(32),                            -- Selling accountancy code
-    accountancy_code_buy		varchar(32)                             -- Buying accountancy code
+    rowid                     integer AUTO_INCREMENT PRIMARY KEY,
+    fk_soc                    integer,
+    entity                     integer DEFAULT 1 NOT NULL,             -- multi company id
+--  code_compta                varchar(24),                             -- code compta client
+--  code_compta_fournisseur varchar(24),                             -- code compta founisseur
+    accountancy_code_sell        varchar(32),                            -- Selling accountancy code
+    accountancy_code_buy        varchar(32)                             -- Buying accountancy code
 )ENGINE=innodb;
 
 ALTER TABLE llx_societe_perentity ADD INDEX idx_societe_perentity_fk_soc (fk_soc);
@@ -475,7 +475,7 @@ create table llx_eventorganization_conferenceorboothattendee_extrafields
     rowid                     integer AUTO_INCREMENT PRIMARY KEY,
     tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     fk_object                 integer NOT NULL,
-    import_key                varchar(14)                          		-- import key
+    import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_eventorganization_conferenceorboothattendee_extrafields ADD INDEX idx_conferenceorboothattendee_fk_object(fk_object);
@@ -485,7 +485,7 @@ ALTER TABLE llx_c_ticket_category ADD COLUMN public integer DEFAULT 0;
 -- VPGSQL8.2 ALTER TABLE llx_c_ticket_category ALTER COLUMN pos TYPE INTEGER USING pos::INTEGER;
 -- VPGSQL8.2 ALTER TABLE llx_c_ticket_category ALTER COLUMN pos SET NOT NULL;
 -- VPGSQL8.2 ALTER TABLE llx_c_ticket_category ALTER COLUMN pos SET DEFAULT 0;
-ALTER TABLE llx_c_ticket_category MODIFY COLUMN pos	integer DEFAULT 0 NOT NULL;
+ALTER TABLE llx_c_ticket_category MODIFY COLUMN pos    integer DEFAULT 0 NOT NULL;
 
 
 ALTER TABLE llx_propal ADD COLUMN date_signature datetime AFTER date_valid;
@@ -506,26 +506,26 @@ insert into llx_c_type_contact(rowid, element, source, code, libelle, active ) v
 
 
 CREATE TABLE llx_partnership(
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	ref varchar(128) DEFAULT '(PROV)' NOT NULL, 
-	status smallint NOT NULL DEFAULT '0', 
-	fk_soc integer, 
-	fk_member integer, 
-	date_partnership_start date NOT NULL, 
-	date_partnership_end date NULL, 
-	entity integer	DEFAULT 1 NOT NULL,	-- multi company id, 0 = all
-	reason_decline_or_cancel text NULL,
-	date_creation datetime NOT NULL, 
-	fk_user_creat integer NOT NULL, 
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_modif integer, 
-	note_private text, 
-	note_public text, 
-	last_main_doc varchar(255), 
-	count_last_url_check_error integer DEFAULT '0',
-	last_check_backlink datetime NULL,
-	import_key varchar(14),
-	model_pdf varchar(255)
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+    ref varchar(128) DEFAULT '(PROV)' NOT NULL, 
+    status smallint NOT NULL DEFAULT '0', 
+    fk_soc integer, 
+    fk_member integer, 
+    date_partnership_start date NOT NULL, 
+    date_partnership_end date NULL, 
+    entity integer    DEFAULT 1 NOT NULL,    -- multi company id, 0 = all
+    reason_decline_or_cancel text NULL,
+    date_creation datetime NOT NULL, 
+    fk_user_creat integer NOT NULL, 
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_modif integer, 
+    note_private text, 
+    note_public text, 
+    last_main_doc varchar(255), 
+    count_last_url_check_error integer DEFAULT '0',
+    last_check_backlink datetime NULL,
+    import_key varchar(14),
+    model_pdf varchar(255)
 ) ENGINE=innodb;
 
 ALTER TABLE llx_partnership ADD COLUMN last_check_backlink datetime NULL;
@@ -542,7 +542,7 @@ create table llx_partnership_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_partnership_extrafields ADD INDEX idx_partnership_fk_object(fk_object);
@@ -571,24 +571,24 @@ ALTER TABLE llx_facture_fourn_det ADD COLUMN fk_remise_except integer DEFAULT NU
 ALTER TABLE llx_facture_fourn_det ADD UNIQUE INDEX uk_fk_remise_except (fk_remise_except, fk_facture_fourn);
 
 CREATE TABLE llx_knowledgemanagement_knowledgerecord(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	ref varchar(128) NOT NULL, 
-	date_creation datetime NOT NULL, 
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	last_main_doc varchar(255), 
-	fk_user_creat integer NOT NULL, 
-	fk_user_modif integer, 
-	fk_user_valid integer, 
-	import_key varchar(14), 
-	model_pdf varchar(255), 
-	question text NOT NULL, 
-	answer text,
-	url varchar(255),
-	fk_ticket integer,
-	fk_c_ticket_category integer,
-	status integer NOT NULL
-	-- END MODULEBUILDER FIELDS
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+    ref varchar(128) NOT NULL, 
+    date_creation datetime NOT NULL, 
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    last_main_doc varchar(255), 
+    fk_user_creat integer NOT NULL, 
+    fk_user_modif integer, 
+    fk_user_valid integer, 
+    import_key varchar(14), 
+    model_pdf varchar(255), 
+    question text NOT NULL, 
+    answer text,
+    url varchar(255),
+    fk_ticket integer,
+    fk_c_ticket_category integer,
+    status integer NOT NULL
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 ALTER TABLE llx_knowledgemanagement_knowledgerecord ADD COLUMN fk_ticket integer;
@@ -601,7 +601,7 @@ create table llx_knowledgemanagement_knowledgerecord_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 -- add default amount by member type
@@ -614,11 +614,11 @@ INSERT INTO llx_c_action_trigger (code,label,description,elementtype,rang) VALUE
 
 create table llx_c_partnership_type
 (
-  rowid      	integer AUTO_INCREMENT PRIMARY KEY,
+  rowid          integer AUTO_INCREMENT PRIMARY KEY,
   entity        integer DEFAULT 1 NOT NULL,
   code          varchar(32) NOT NULL,
-  label 	    varchar(64)	NOT NULL,
-  active  	    tinyint DEFAULT 1  NOT NULL
+  label         varchar(64)    NOT NULL,
+  active          tinyint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 DELETE FROM llx_rights_def WHERE module = 'hrm' AND perms = 'employee';
@@ -641,12 +641,12 @@ CREATE TABLE llx_onlinesignature
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   entity                    integer DEFAULT 1 NOT NULL,
   object_type               varchar(32) NOT NULL,
-  object_id					integer NOT NULL,
+  object_id                    integer NOT NULL,
   datec                     datetime NOT NULL,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  name						varchar(255) NOT NULL,
-  ip						varchar(128),
-  pathoffile				varchar(255)
+  name                        varchar(255) NOT NULL,
+  ip                        varchar(128),
+  pathoffile                varchar(255)
 )ENGINE=innodb;
 
 -- VMYSQL4.3 ALTER TABLE llx_partnership MODIFY COLUMN date_partnership_end date NULL;

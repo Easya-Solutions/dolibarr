@@ -24,7 +24,7 @@ create table llx_c_revenuestamp
   revenuestamp_type varchar(16) DEFAULT 'fixed' NOT NULL,
   note              varchar(128),
   active            tinyint DEFAULT 1 NOT NULL,
-  accountancy_code_sell	varchar(32) DEFAULT NULL,
-  accountancy_code_buy	varchar(32) DEFAULT NULL
+  accountancy_code_sell    varchar(32) DEFAULT NULL,
+  accountancy_code_buy    varchar(32) DEFAULT NULL
 )ENGINE=innodb;
 

@@ -226,7 +226,7 @@ create table llx_hrm_evaluation_extrafields
     rowid                     integer AUTO_INCREMENT PRIMARY KEY,
     tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     fk_object                 integer NOT NULL,
-    import_key                varchar(14)                          		-- import key
+    import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_hrm_evaluation_extrafields ADD INDEX idx_evaluation_fk_object(fk_object);
@@ -258,7 +258,7 @@ create table llx_hrm_evaluationdet_extrafields
     rowid                     integer AUTO_INCREMENT PRIMARY KEY,
     tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     fk_object                 integer NOT NULL,
-    import_key                varchar(14)                          		-- import key
+    import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_hrm_evaluationdet_extrafields ADD INDEX idx_evaluationdet_fk_object(fk_object);
@@ -288,7 +288,7 @@ create table llx_hrm_job_extrafields
     rowid                     integer AUTO_INCREMENT PRIMARY KEY,
     tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     fk_object                 integer NOT NULL,
-    import_key                varchar(14)                          		-- import key
+    import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_hrm_job_extrafields ADD INDEX idx_job_fk_object(fk_object);
@@ -346,7 +346,7 @@ create table llx_hrm_skill_extrafields
     rowid                     integer AUTO_INCREMENT PRIMARY KEY,
     tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     fk_object                 integer NOT NULL,
-    import_key                varchar(14)                          		-- import key
+    import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_hrm_skill_extrafields ADD INDEX idx_skill_fk_object(fk_object);

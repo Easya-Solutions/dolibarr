@@ -20,25 +20,25 @@
 create table llx_c_email_templates
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
-  entity		  integer DEFAULT 1 NOT NULL,	  -- multi company id
+  entity          integer DEFAULT 1 NOT NULL,      -- multi company id
   module          varchar(32),                    -- Nom du module en rapport avec le modele
-  type_template   varchar(32),  				  -- template for which type of email (send invoice by email, send order, ...)
-  lang            varchar(6) DEFAULT '',		  -- We use a default to '' so the unique index that include this field will work
+  type_template   varchar(32),                    -- template for which type of email (send invoice by email, send order, ...)
+  lang            varchar(6) DEFAULT '',          -- We use a default to '' so the unique index that include this field will work
   private         smallint DEFAULT 0 NOT NULL,    -- Template public or private
   fk_user         integer,                        -- Id user owner if template is private, or null
   datec           datetime,
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  label           varchar(180),					  -- Label of predefined email
-  position        smallint,					      -- Position
-  defaultfortype  smallint DEFAULT 0,			  -- 1=Use this template by default when creating a new email for this type  
-  enabled         varchar(255) DEFAULT '1',		  -- Condition to have this module visible
+  label           varchar(180),                      -- Label of predefined email
+  position        smallint,                          -- Position
+  defaultfortype  smallint DEFAULT 0,              -- 1=Use this template by default when creating a new email for this type  
+  enabled         varchar(255) DEFAULT '1',          -- Condition to have this module visible
   active          tinyint DEFAULT 1  NOT NULL,
-  email_from	  varchar(255),					  -- default email from
-  email_to		  varchar(255),					  -- default email to
-  email_tocc	  varchar(255),					  -- default email to cc
-  email_tobcc	  varchar(255),					  -- default email to bcc
-  topic			  text,                           -- Predefined topic
-  joinfiles		  text,                           -- Files to attach
+  email_from      varchar(255),                      -- default email from
+  email_to          varchar(255),                      -- default email to
+  email_tocc      varchar(255),                      -- default email to cc
+  email_tobcc      varchar(255),                      -- default email to bcc
+  topic              text,                           -- Predefined topic
+  joinfiles          text,                           -- Files to attach
   content         mediumtext,                     -- Predefined text
   content_lines   text                            -- Predefined lines
 )ENGINE=innodb;

@@ -53,7 +53,7 @@ ALTER TABLE llx_facture_fourn ADD COLUMN fk_user_modif integer after fk_user_aut
 ALTER TABLE llx_bank_account ADD COLUMN fk_user_modif integer after fk_user_author;
 
 
-ALTER TABLE llx_fichinter ADD COLUMN ref_ext 	varchar(255);
+ALTER TABLE llx_fichinter ADD COLUMN ref_ext     varchar(255);
 
 
 -- Defined only to have specific list for countries that can't use generic list (like argentina that need type A or B)
@@ -70,23 +70,23 @@ ALTER TABLE llx_user ADD COLUMN fk_user_modif integer AFTER fk_user_creat;
 
 CREATE TABLE llx_accounting_bookkeeping
 (
-  rowid				integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  doc_date			date NOT NULL,
-  doc_type			varchar(30) NOT NULL,	-- facture_client/reglement_client/facture_fournisseur/reglement_fournisseur
-  doc_ref			varchar(30) NOT NULL,	-- facture_client/reglement_client/... reference number
-  fk_doc			integer NOT NULL,		-- facture_client/reglement_client/... rowid
-  fk_docdet			integer NOT NULL,		-- facture_client/reglement_client/... line rowid
-  code_tiers		varchar(24),			-- code tiers
-  numero_compte		varchar(32) DEFAULT NULL,
-  label_compte		varchar(128) NOT NULL,
-  debit				double NOT NULL,
-  credit			double NOT NULL,
-  montant			double NOT NULL,
-  sens				varchar(1) DEFAULT NULL,
-  fk_user_author	integer NOT NULL,
-  import_key		varchar(14),
-  code_journal		varchar(10) DEFAULT NULL,
-  piece_num		integer NOT NULL
+  rowid                integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  doc_date            date NOT NULL,
+  doc_type            varchar(30) NOT NULL,    -- facture_client/reglement_client/facture_fournisseur/reglement_fournisseur
+  doc_ref            varchar(30) NOT NULL,    -- facture_client/reglement_client/... reference number
+  fk_doc            integer NOT NULL,        -- facture_client/reglement_client/... rowid
+  fk_docdet            integer NOT NULL,        -- facture_client/reglement_client/... line rowid
+  code_tiers        varchar(24),            -- code tiers
+  numero_compte        varchar(32) DEFAULT NULL,
+  label_compte        varchar(128) NOT NULL,
+  debit                double NOT NULL,
+  credit            double NOT NULL,
+  montant            double NOT NULL,
+  sens                varchar(1) DEFAULT NULL,
+  fk_user_author    integer NOT NULL,
+  import_key        varchar(14),
+  code_journal        varchar(10) DEFAULT NULL,
+  piece_num        integer NOT NULL
 ) ENGINE=innodb;
 
 ALTER TABLE llx_c_paiement ADD COLUMN accountancy_code varchar(32) DEFAULT NULL AFTER active;
@@ -226,16 +226,16 @@ ALTER TABLE llx_facture_fourn ADD COLUMN fk_account integer AFTER fk_projet;
 -- Fiscal years
 create table llx_accounting_fiscalyear
 (
-	rowid			integer AUTO_INCREMENT PRIMARY KEY,
-	label			varchar(128) NOT NULL,
-	date_start		date,
-	date_end		date,
-	statut			tinyint DEFAULT 0 NOT NULL,
-	entity			integer DEFAULT 1 NOT NULL,	  -- multi company id
-	datec			datetime NOT NULL,
-	tms				timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_author	integer NULL,
-	fk_user_modif	integer NULL
+    rowid            integer AUTO_INCREMENT PRIMARY KEY,
+    label            varchar(128) NOT NULL,
+    date_start        date,
+    date_end        date,
+    statut            tinyint DEFAULT 0 NOT NULL,
+    entity            integer DEFAULT 1 NOT NULL,      -- multi company id
+    datec            datetime NOT NULL,
+    tms                timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_author    integer NULL,
+    fk_user_modif    integer NULL
 )ENGINE=innodb;
 
 ALTER TABLE llx_contrat ADD COLUMN ref_supplier varchar(30) after ref;
@@ -1043,18 +1043,18 @@ DROP TABLE llx_c_email_templates;
 create table llx_c_email_templates
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
-  entity		  integer DEFAULT 1 NOT NULL,	  -- multi company id
+  entity          integer DEFAULT 1 NOT NULL,      -- multi company id
   module          varchar(32),                    -- Nom du module en rapport avec le modele
-  type_template   varchar(32),  				  -- template for which type of email (send invoice by email, send order, ...)
+  type_template   varchar(32),                    -- template for which type of email (send invoice by email, send order, ...)
   lang            varchar(6),
   private         smallint DEFAULT 0 NOT NULL,    -- Template public or private
   fk_user         integer,                        -- Id utilisateur si modele prive, sinon null
   datec           datetime,
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  label           varchar(255),					  -- Label of predefined email
-  position        smallint,					      -- Position
+  label           varchar(255),                      -- Label of predefined email
+  position        smallint,                          -- Position
   active          tinyint DEFAULT 1  NOT NULL,
-  topic			  text,                           -- Predefined topic
+  topic              text,                           -- Predefined topic
   content         text                            -- Predefined text
 ) ENGINE=innodb;
 
@@ -1114,7 +1114,7 @@ CREATE TABLE llx_fichinterdet_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_fichinterdet_extrafields ADD INDEX idx_ficheinterdet_extrafields (fk_object);
@@ -1123,7 +1123,7 @@ CREATE TABLE llx_usergroup_extrafields (
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_usergroup_extrafields ADD INDEX idx_usergroup_extrafields (fk_object);

@@ -21,28 +21,28 @@ create table llx_delivery
 (
   rowid                 integer AUTO_INCREMENT PRIMARY KEY,
   tms                   timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  ref                   varchar(30)  NOT NULL,			-- delivery number
-  entity                integer DEFAULT 1 NOT NULL,		-- multi company id
+  ref                   varchar(30)  NOT NULL,            -- delivery number
+  entity                integer DEFAULT 1 NOT NULL,        -- multi company id
   fk_soc                integer      NOT NULL,
   
-  ref_ext               varchar(255),					-- reference into an external system (not used by dolibarr)
-  ref_customer          varchar(255),					-- customer number
+  ref_ext               varchar(255),                    -- reference into an external system (not used by dolibarr)
+  ref_customer          varchar(255),                    -- customer number
   
-  date_creation         datetime,						-- date de creation
-  fk_user_author        integer,						-- createur du bon de livraison
-  date_valid            datetime,						-- date de validation
-  fk_user_valid         integer,						-- valideur du bon de livraison
-  date_delivery 	    datetime		DEFAULT NULL,	-- delivery date
-  fk_address  			integer,						-- delivery address (deprecated)
+  date_creation         datetime,                        -- date de creation
+  fk_user_author        integer,                        -- createur du bon de livraison
+  date_valid            datetime,                        -- date de validation
+  fk_user_valid         integer,                        -- valideur du bon de livraison
+  date_delivery         datetime        DEFAULT NULL,    -- delivery date
+  fk_address              integer,                        -- delivery address (deprecated)
   fk_statut             smallint     DEFAULT 0,
   total_ht              double(24,8) DEFAULT 0,
   note_private          text,
   note_public           text,
   model_pdf             varchar(255),
-  last_main_doc			varchar(255),					-- relative filepath+filename of last main generated document
-  fk_incoterms          integer,						-- for incoterms
-  location_incoterms    varchar(255),					-- for incoterms
+  last_main_doc            varchar(255),                    -- relative filepath+filename of last main generated document
+  fk_incoterms          integer,                        -- for incoterms
+  location_incoterms    varchar(255),                    -- for incoterms
 
   import_key        varchar(14),
-  extraparams		varchar(255)						-- for other parameters with json format
+  extraparams        varchar(255)                        -- for other parameters with json format
 )ENGINE=innodb;

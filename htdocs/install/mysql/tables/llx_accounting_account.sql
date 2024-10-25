@@ -25,17 +25,17 @@ create table llx_accounting_account
   entity                    integer DEFAULT 1 NOT NULL,
   datec                     datetime,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_pcg_version            varchar(32)  NOT NULL,			  -- Chart system
-  pcg_type                  varchar(20)  NOT NULL,			  -- First part of Key for predefined groups
+  fk_pcg_version            varchar(32)  NOT NULL,              -- Chart system
+  pcg_type                  varchar(20)  NOT NULL,              -- First part of Key for predefined groups
   account_number            varchar(32)  NOT NULL,
   account_parent            integer DEFAULT 0,                -- Hierarchic parent.
   label                     varchar(255) NOT NULL,
-  labelshort				varchar(255) DEFAULT NULL,
-  fk_accounting_category    integer      DEFAULT 0,			  -- ID of personalized group for report
+  labelshort                varchar(255) DEFAULT NULL,
+  fk_accounting_category    integer      DEFAULT 0,              -- ID of personalized group for report
   fk_user_author            integer      DEFAULT NULL,
   fk_user_modif             integer      DEFAULT NULL,
   active                    tinyint      DEFAULT 1  NOT NULL,
-  reconcilable				tinyint      DEFAULT 0  NOT NULL,
+  reconcilable                tinyint      DEFAULT 0  NOT NULL,
   import_key                varchar(14),
   extraparams               varchar(255)                      -- for other parameters with json format
 )ENGINE=innodb;

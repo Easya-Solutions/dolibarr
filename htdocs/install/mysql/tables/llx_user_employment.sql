@@ -21,19 +21,19 @@ create table llx_user_employment
 (
   rowid             integer AUTO_INCREMENT PRIMARY KEY,
   entity            integer DEFAULT 1 NOT NULL, -- multi company id
-  ref				varchar(50),				-- reference
-  ref_ext			varchar(50),				-- reference into an external system (not used by dolibarr)
-  fk_user			integer,
+  ref                varchar(50),                -- reference
+  ref_ext            varchar(50),                -- reference into an external system (not used by dolibarr)
+  fk_user            integer,
   datec             datetime,
   tms               timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat     integer,
   fk_user_modif     integer,
-  job				varchar(128),				-- job position. may be a dictionary
-  status            integer NOT NULL,			-- draft, active, closed
-  salary			double(24,8),				-- last and current value stored into llx_user
-  salaryextra		double(24,8),				-- last and current value stored into llx_user
-  weeklyhours		double(16,8),				-- last and current value stored into llx_user
-  dateemployment    date,						-- last and current value stored into llx_user
-  dateemploymentend date						-- last and current value stored into llx_user
+  job                varchar(128),                -- job position. may be a dictionary
+  status            integer NOT NULL,            -- draft, active, closed
+  salary            double(24,8),                -- last and current value stored into llx_user
+  salaryextra        double(24,8),                -- last and current value stored into llx_user
+  weeklyhours        double(16,8),                -- last and current value stored into llx_user
+  dateemployment    date,                        -- last and current value stored into llx_user
+  dateemploymentend date                        -- last and current value stored into llx_user
 )ENGINE=innodb;
 

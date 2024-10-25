@@ -82,15 +82,15 @@ ALTER TABLE llx_user MODIFY login varchar(50) NOT NULL;
 
 -- Missing in 6.0 ?
 ALTER TABLE llx_product_price ADD COLUMN fk_multicurrency integer;
-ALTER TABLE llx_product_price ADD COLUMN multicurrency_code	varchar(255);
+ALTER TABLE llx_product_price ADD COLUMN multicurrency_code    varchar(255);
 ALTER TABLE llx_product_price ADD COLUMN multicurrency_tx double(24,8) DEFAULT 1;
 ALTER TABLE llx_product_price ADD COLUMN multicurrency_price double(24,8) DEFAULT NULL;
 ALTER TABLE llx_product_price ADD COLUMN multicurrency_price_ttc double(24,8) DEFAULT NULL;
 
 ALTER TABLE llx_product_customer_price_log ADD COLUMN default_vat_code varchar(10);
-ALTER TABLE llx_product_price ADD COLUMN default_vat_code	varchar(10) AFTER tva_tx;
-ALTER TABLE llx_product_customer_price ADD COLUMN default_vat_code	varchar(10) AFTER tva_tx;
-ALTER TABLE llx_product_fournisseur_price ADD COLUMN default_vat_code	varchar(10) AFTER tva_tx;
+ALTER TABLE llx_product_price ADD COLUMN default_vat_code    varchar(10) AFTER tva_tx;
+ALTER TABLE llx_product_customer_price ADD COLUMN default_vat_code    varchar(10) AFTER tva_tx;
+ALTER TABLE llx_product_fournisseur_price ADD COLUMN default_vat_code    varchar(10) AFTER tva_tx;
 
 ALTER TABLE llx_website_page ADD COLUMN fk_user_create integer;
 ALTER TABLE llx_website_page ADD COLUMN fk_user_modif integer; 
@@ -113,12 +113,12 @@ ALTER TABLE llx_product_attribute_value ADD UNIQUE INDEX uk_product_attribute_va
 ALTER TABLE llx_product_price_by_qty ADD COLUMN quantity double DEFAULT NULL;
 ALTER TABLE llx_product_price_by_qty ADD COLUMN unitprice double(24,8) DEFAULT 0;
 
-ALTER TABLE llx_product_price_by_qty ADD COLUMN price_base_type	varchar(3) DEFAULT 'HT';
+ALTER TABLE llx_product_price_by_qty ADD COLUMN price_base_type    varchar(3) DEFAULT 'HT';
 ALTER TABLE llx_product_price_by_qty ADD COLUMN fk_multicurrency integer;
 ALTER TABLE llx_product_price_by_qty ADD COLUMN multicurrency_code varchar(255);
 ALTER TABLE llx_product_price_by_qty ADD COLUMN multicurrency_tx double(24,8) DEFAULT 1;
-ALTER TABLE llx_product_price_by_qty ADD COLUMN multicurrency_price	double(24,8) DEFAULT NULL;
-ALTER TABLE llx_product_price_by_qty ADD COLUMN multicurrency_price_ttc	double(24,8) DEFAULT NULL;
+ALTER TABLE llx_product_price_by_qty ADD COLUMN multicurrency_price    double(24,8) DEFAULT NULL;
+ALTER TABLE llx_product_price_by_qty ADD COLUMN multicurrency_price_ttc    double(24,8) DEFAULT NULL;
 
 -- VMYSQL4.0 DROP INDEX uk_product_price_by_qty_level on llx_product_price_by_qty;
 -- VPGSQL8.0 DROP INDEX uk_product_price_by_qty_level;
@@ -222,8 +222,8 @@ ALTER TABLE llx_mailing MODIFY COLUMN sujet varchar(128);
 
 ALTER TABLE llx_mailing MODIFY COLUMN langs varchar(64);
 
-ALTER TABLE llx_facture_fourn ADD COLUMN date_pointoftax	date DEFAULT NULL;
-ALTER TABLE llx_facture_fourn ADD COLUMN date_valid		date;
+ALTER TABLE llx_facture_fourn ADD COLUMN date_pointoftax    date DEFAULT NULL;
+ALTER TABLE llx_facture_fourn ADD COLUMN date_valid        date;
 
 ALTER TABLE llx_bookmark DROP COLUMN fk_soc;
  
@@ -267,29 +267,29 @@ CREATE TABLE llx_website_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_website_extrafields ADD INDEX idx_website_extrafields (fk_object);
 
 
 CREATE TABLE llx_website_account(
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	login             varchar(64) NOT NULL, 
-	pass_encoding     varchar(24) NOT NULL,
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+    login             varchar(64) NOT NULL, 
+    pass_encoding     varchar(24) NOT NULL,
     pass_crypted      varchar(128),
-    pass_temp         varchar(128),			    -- temporary password when asked for forget password
+    pass_temp         varchar(128),                -- temporary password when asked for forget password
     fk_soc integer,
-	fk_website          integer NOT NULL,
-	note_private        text,
+    fk_website          integer NOT NULL,
+    note_private        text,
     date_last_login     datetime,
     date_previous_login datetime,
-	date_creation       datetime NOT NULL, 
-	tms                 timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
-	fk_user_creat       integer NOT NULL, 
-	fk_user_modif       integer, 
-	import_key          varchar(14), 
-	status integer 
+    date_creation       datetime NOT NULL, 
+    tms                 timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    fk_user_creat       integer NOT NULL, 
+    fk_user_modif       integer, 
+    import_key          varchar(14), 
+    status integer 
 ) ENGINE=innodb;
 
 
@@ -309,7 +309,7 @@ CREATE TABLE llx_website_account_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_website_account_extrafields ADD INDEX idx_website_account_extrafields (fk_object);
@@ -467,10 +467,10 @@ ALTER TABLE llx_extrafields ADD COLUMN enabled varchar(255) DEFAULT '1';
 ALTER TABLE llx_extrafields ADD COLUMN tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 -- We fix value of 'list' from 0 to 1 for all extrafields created before this migration
---VMYSQL4.1 UPDATE llx_extrafields SET list = 1 WHERE list = 0 AND fk_user_author IS NULL and fk_user_modif IS NULL and datec IS NULL;		
---VMYSQL4.1 UPDATE llx_extrafields SET list = 3 WHERE type = 'separate' AND list <> 3;		
---VPGSQL8.2 UPDATE llx_extrafields SET list = 1 WHERE list::integer = 0 AND fk_user_author IS NULL and fk_user_modif IS NULL and datec IS NULL;		
---VPGSQL8.2 UPDATE llx_extrafields SET list = 3 WHERE type = 'separate' AND list::integer <> 3;		
+--VMYSQL4.1 UPDATE llx_extrafields SET list = 1 WHERE list = 0 AND fk_user_author IS NULL and fk_user_modif IS NULL and datec IS NULL;        
+--VMYSQL4.1 UPDATE llx_extrafields SET list = 3 WHERE type = 'separate' AND list <> 3;        
+--VPGSQL8.2 UPDATE llx_extrafields SET list = 1 WHERE list::integer = 0 AND fk_user_author IS NULL and fk_user_modif IS NULL and datec IS NULL;        
+--VPGSQL8.2 UPDATE llx_extrafields SET list = 3 WHERE type = 'separate' AND list::integer <> 3;        
 
 --VMYSQL4.1 ALTER TABLE llx_extrafields MODIFY COLUMN list integer DEFAULT 1;
 --VPGSQL8.2 ALTER TABLE llx_extrafields MODIFY COLUMN list integer DEFAULT 1 USING list::integer;
@@ -569,14 +569,14 @@ ALTER TABLE llx_projet CHANGE datec datec datetime;
 create table llx_c_email_senderprofile
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
-  entity		  integer DEFAULT 1 NOT NULL,	  -- multi company id
+  entity          integer DEFAULT 1 NOT NULL,      -- multi company id
   private         smallint DEFAULT 0 NOT NULL,    -- Template public or private
   date_creation   datetime,
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  label           varchar(255),					  -- Label of predefined email
-  email           varchar(255),					  -- Email
-  signature		  text,                           -- Predefined signature
-  position        smallint,					      -- Position
+  label           varchar(255),                      -- Label of predefined email
+  email           varchar(255),                      -- Email
+  signature          text,                           -- Predefined signature
+  position        smallint,                          -- Position
   active          tinyint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
@@ -618,15 +618,15 @@ UPDATE llx_accounting_system SET fk_country = 12 WHERE pcg_version = 'PCG';
 
 
 CREATE TABLE llx_actioncomm_reminder(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	dateremind datetime NOT NULL, 
-	typeremind varchar(32) NOT NULL, 
-	fk_user integer NOT NULL, 
-	offsetvalue integer NOT NULL, 
-	offsetunit varchar(1) NOT NULL,
-	status integer NOT NULL DEFAULT 0
-	-- END MODULEBUILDER FIELDS
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+    dateremind datetime NOT NULL, 
+    typeremind varchar(32) NOT NULL, 
+    fk_user integer NOT NULL, 
+    offsetvalue integer NOT NULL, 
+    offsetunit varchar(1) NOT NULL,
+    status integer NOT NULL DEFAULT 0
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 ALTER TABLE llx_actioncomm_reminder ADD INDEX idx_actioncomm_reminder_rowid (rowid);
@@ -653,12 +653,12 @@ create table llx_onlinesignature
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   entity                    integer DEFAULT 1 NOT NULL,
   object_type               varchar(32) NOT NULL,
-  object_id					integer NOT NULL,
+  object_id                    integer NOT NULL,
   datec                     datetime NOT NULL,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  name						varchar(255) NOT NULL,
-  ip						varchar(128),
-  pathoffile				varchar(255)
+  name                        varchar(255) NOT NULL,
+  ip                        varchar(128),
+  pathoffile                varchar(255)
 )ENGINE=innodb;
 
 
@@ -669,8 +669,8 @@ ALTER TABLE llx_resource ADD UNIQUE INDEX uk_resource_ref (ref, entity);
 ALTER TABLE llx_facture_rec ADD COLUMN modelpdf varchar(255) AFTER note_public;
 ALTER TABLE llx_facture_rec ADD COLUMN generate_pdf integer DEFAULT 1 AFTER auto_validate;
 
-ALTER TABLE llx_blockedlog ADD COLUMN date_creation	datetime;
-ALTER TABLE llx_blockedlog ADD COLUMN user_fullname	varchar(255);
+ALTER TABLE llx_blockedlog ADD COLUMN date_creation    datetime;
+ALTER TABLE llx_blockedlog ADD COLUMN user_fullname    varchar(255);
 ALTER TABLE llx_blockedlog MODIFY COLUMN ref_object varchar(255);
 
 -- SPEC : use database type 'double' to store monetary values
@@ -711,7 +711,7 @@ create table llx_facture_rec_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 

@@ -7,11 +7,11 @@
 -- Copyright (C) 2004       Benoit Mortier         <benoit.mortier@opensides.be>
 -- Copyright (C) 2004       Guillaume Delecourt    <guillaume.delecourt@opensides.be>
 -- Copyright (C) 2005-2009  Regis Houssin          <regis.houssin@inodbox.com>
--- Copyright (C) 2007 	    Patrick Raguin         <patrick.raguin@gmail.com>
+-- Copyright (C) 2007         Patrick Raguin         <patrick.raguin@gmail.com>
 -- Copyright (C) 2010-2016  Juanjo Menent          <jmenent@2byte.es>
--- Copyright (C) 2012 	    Sebastian Neuwert      <sebastian.neuwert@modula71.de>
--- Copyright (C) 2012	    Ricardo Schluter       <info@ripasch.nl>
--- Copyright (C) 2015	    Ferran Marcet          <fmarcet@2byte.es>
+-- Copyright (C) 2012         Sebastian Neuwert      <sebastian.neuwert@modula71.de>
+-- Copyright (C) 2012        Ricardo Schluter       <info@ripasch.nl>
+-- Copyright (C) 2015        Ferran Marcet          <fmarcet@2byte.es>
 -- Copyright (C) 2020-2021  Udo Tamm               <dev@dolibit.de>
 -- Copyright (C) 2022       Miro Sertić            <miro.sertic0606@gmail.com>
 -- Copyright (C) 2022       ButterflyOfFire        <butterflyoffire+dolibarr@protonmail.com>
@@ -1708,7 +1708,7 @@ INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, nc
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES ('SA', 11801, NULL, 0, 'SA', 'Sulawesi Utara', 1);    
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES ('SB', 11801, NULL, 0, 'SB', 'Sumatera Barat', 1);    
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES ('SS', 11801, NULL, 0, 'SS', 'Sumatera Selatan', 1);    
-INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES ('SU', 11801, NULL, 0, 'SU', 'Sumatera Utara	', 1);    
+INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES ('SU', 11801, NULL, 0, 'SU', 'Sumatera Utara    ', 1);    
 
 -- Provinces Mexique (id country=154)
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES ('CMX', 15401, '', 0, 'CMX', 'Ciudad de México', 1);

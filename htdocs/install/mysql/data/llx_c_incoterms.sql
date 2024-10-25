@@ -4,7 +4,7 @@
 -- Copyright (C) 2004      Benoit Mortier       <benoit.mortier@opensides.be>
 -- Copyright (C) 2004      Guillaume Delecourt  <guillaume.delecourt@opensides.be>
 -- Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
--- Copyright (C) 2007 	   Patrick Raguin       <patrick.raguin@gmail.com>
+-- Copyright (C) 2007        Patrick Raguin       <patrick.raguin@gmail.com>
 -- Copyright (C) 2020      Udo Tamm             <software@dolibit.de>
 --
 -- This program is free software; you can redistribute it and/or modify

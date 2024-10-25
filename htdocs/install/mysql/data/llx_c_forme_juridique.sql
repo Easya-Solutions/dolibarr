@@ -4,14 +4,14 @@
 -- Copyright (C) 2004      Benoit Mortier       <benoit.mortier@opensides.be>
 -- Copyright (C) 2004      Guillaume Delecourt  <guillaume.delecourt@opensides.be>
 -- Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
--- Copyright (C) 2007 	   Patrick Raguin       <patrick.raguin@gmail.com>
+-- Copyright (C) 2007        Patrick Raguin       <patrick.raguin@gmail.com>
 -- Copyright (C) 2010-2016 Juanjo Menent        <jmenent@2byte.es>
--- Copyright (C) 2012 	   Sebastian Neuwert    <sebastian.neuwert@modula71.de>
--- Copyright (C) 2012 	   Tommaso Basilici     <t.basilici@19.coop>
--- Copyright (C) 2012	   Ricardo Schluter     <info@ripasch.nl>
--- Copyright (C) 2013	   Cedric GROSS		    <c.gross@kreiz-it.fr>
--- Copyright (C) 2020-2021 Udo Tamm       	    <dev@dolibit.de>
--- Copyright (C) 2022      Miro Sertić       	<miro.sertic0606@gmail.com>
+-- Copyright (C) 2012        Sebastian Neuwert    <sebastian.neuwert@modula71.de>
+-- Copyright (C) 2012        Tommaso Basilici     <t.basilici@19.coop>
+-- Copyright (C) 2012       Ricardo Schluter     <info@ripasch.nl>
+-- Copyright (C) 2013       Cedric GROSS            <c.gross@kreiz-it.fr>
+-- Copyright (C) 2020-2021 Udo Tamm               <dev@dolibit.de>
+-- Copyright (C) 2022      Miro Sertić           <miro.sertic0606@gmail.com>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by

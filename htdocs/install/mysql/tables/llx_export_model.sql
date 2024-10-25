@@ -1,7 +1,7 @@
 -- ===================================================================
--- Copyright (C) 2001-2003	Rodolphe Quiedeville	<rodolphe@quiedeville.org>
--- Copyright (C) 2007-2012	Regis Houssin			<regis.houssin@inodbox.com>
--- Copyright (C) 2011		Laurent Destailleur		<eldy@users.sourceforge.net>
+-- Copyright (C) 2001-2003    Rodolphe Quiedeville    <rodolphe@quiedeville.org>
+-- Copyright (C) 2007-2012    Regis Houssin            <regis.houssin@inodbox.com>
+-- Copyright (C) 2011        Laurent Destailleur        <eldy@users.sourceforge.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 
 create table llx_export_model
 (
-  	rowid		integer AUTO_INCREMENT PRIMARY KEY,
-  	entity      integer DEFAULT 0,      				-- by default on all entities for compatibility
-	fk_user		integer DEFAULT 0 NOT NULL,
-  	label		varchar(50) NOT NULL,
-  	type		varchar(64) NOT NULL,
-  	field		text NOT NULL,
-  	filter		text
+      rowid        integer AUTO_INCREMENT PRIMARY KEY,
+      entity      integer DEFAULT 0,                      -- by default on all entities for compatibility
+    fk_user        integer DEFAULT 0 NOT NULL,
+      label        varchar(50) NOT NULL,
+      type        varchar(64) NOT NULL,
+      field        text NOT NULL,
+      filter        text
 )ENGINE=innodb;

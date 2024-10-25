@@ -27,7 +27,7 @@ create table llx_events
   tms            timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                   -- last modification date
   type           varchar(32)  NOT NULL,       -- action type
   entity         integer DEFAULT 1 NOT NULL,  -- multi company id
-  prefix_session varchar(255) NULL,			  -- prefix of session, obtained with dol_getprefix
+  prefix_session varchar(255) NULL,              -- prefix of session, obtained with dol_getprefix
   dateevent      datetime,                    -- date event
   fk_user        integer,                     -- id user
   description    varchar(250) NOT NULL,       -- full description of action

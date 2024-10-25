@@ -90,8 +90,8 @@ ALTER TABLE llx_cronjob ADD COLUMN fk_mailing integer DEFAULT NULL;
 create table llx_overwrite_trans
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
-  lang            varchar(5),	-- en_US, fr_FR ...
-  transkey	      varchar(128),
+  lang            varchar(5),    -- en_US, fr_FR ...
+  transkey          varchar(128),
   transvalue      text
 )ENGINE=innodb;
 
@@ -125,7 +125,7 @@ ALTER TABLE llx_commande_fournisseur ADD INDEX billed (billed);
 UPDATE llx_commande_fournisseur set billed=1 where statut = 8;
 UPDATE llx_commande_fournisseur set statut=5 where statut = 8 and billed=1;
 
-ALTER TABLE llx_product ADD COLUMN cost_price	double(24,8) DEFAULT NULL;
+ALTER TABLE llx_product ADD COLUMN cost_price    double(24,8) DEFAULT NULL;
 
 ALTER TABLE llx_ecm_directories MODIFY COLUMN fullpath varchar(750);
 ALTER TABLE llx_ecm_directories DROP INDEX idx_ecm_directories;
@@ -135,21 +135,21 @@ ALTER TABLE llx_ecm_directories ADD UNIQUE INDEX uk_ecm_directories (label, fk_p
 
 CREATE TABLE llx_ecm_files
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  label				varchar(64) NOT NULL,
-  entity			integer DEFAULT 1 NOT NULL,		-- multi company id
-  filename          varchar(255) NOT NULL,			-- file name only without any directory
-  fullpath    		varchar(750) NOT NULL,	        -- relative to dolibarr document dir. example abc/def/myfile. restricted to 750 because of unique key index on it.
-  fullpath_orig		varchar(2048),    	            -- full path of original filename, when file is uploaded from a local computer
-  description		text,
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  label                varchar(64) NOT NULL,
+  entity            integer DEFAULT 1 NOT NULL,        -- multi company id
+  filename          varchar(255) NOT NULL,            -- file name only without any directory
+  fullpath            varchar(750) NOT NULL,            -- relative to dolibarr document dir. example abc/def/myfile. restricted to 750 because of unique key index on it.
+  fullpath_orig        varchar(2048),                    -- full path of original filename, when file is uploaded from a local computer
+  description        text,
   keywords          text,                           -- list of keywords, separated with comma
   cover             text,                           -- is this file a file to use for a cover
-  extraparams		varchar(255),					-- for stock other parameters with json format
-  date_c			datetime,
-  date_m			timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_user_c			integer,
-  fk_user_m			integer,
-  acl				text							-- for future permission 'per file'
+  extraparams        varchar(255),                    -- for stock other parameters with json format
+  date_c            datetime,
+  date_m            timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  fk_user_c            integer,
+  fk_user_m            integer,
+  acl                text                            -- for future permission 'per file'
 ) ENGINE=innodb;
 
 ALTER TABLE llx_ecm_files ADD UNIQUE INDEX uk_ecm_files (label, entity);
@@ -166,11 +166,11 @@ ALTER TABLE llx_user ADD COLUMN fk_establishment integer DEFAULT 0 AFTER employe
 CREATE TABLE IF NOT EXISTS llx_c_hrm_function
 (
   rowid     integer     PRIMARY KEY,
-  pos   	smallint DEFAULT 0 NOT NULL,
-  code    	varchar(16) NOT NULL,
-  label 	varchar(50),
+  pos       smallint DEFAULT 0 NOT NULL,
+  code        varchar(16) NOT NULL,
+  label     varchar(50),
   c_level   smallint DEFAULT 0 NOT NULL,
-  active  	smallint DEFAULT 1  NOT NULL
+  active      smallint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 INSERT INTO llx_c_hrm_function (rowid, pos, code, label, c_level, active) VALUES(1,  5, 'EXECBOARD', 'Executive board', 0, 1);
@@ -185,11 +185,11 @@ INSERT INTO llx_c_hrm_function (rowid, pos, code, label, c_level, active) VALUES
 
 CREATE TABLE IF NOT EXISTS llx_c_hrm_department
 (
-  rowid      	integer     PRIMARY KEY,
-  pos   		smallint DEFAULT 0 NOT NULL,
-  code    		varchar(16) NOT NULL,
-  label 		varchar(50),
-  active  		smallint DEFAULT 1  NOT NULL
+  rowid          integer     PRIMARY KEY,
+  pos           smallint DEFAULT 0 NOT NULL,
+  code            varchar(16) NOT NULL,
+  label         varchar(50),
+  active          smallint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 INSERT INTO llx_c_hrm_department (rowid, pos, code, label, active) VALUES(1, 5,'MANAGEMENT', 'Management', 1);
@@ -212,29 +212,29 @@ INSERT INTO llx_c_hrm_department (rowid, pos, code, label, active) VALUES(17, 85
 INSERT INTO llx_c_hrm_department (rowid, pos, code, label, active) VALUES(18, 85,'MAINT', 'Plant assurance', 1);
 
 CREATE TABLE IF NOT EXISTS llx_establishment (
-  rowid 			integer NOT NULL auto_increment PRIMARY KEY,
-  entity 			integer NOT NULL DEFAULT 1,
-  name				varchar(50),
+  rowid             integer NOT NULL auto_increment PRIMARY KEY,
+  entity             integer NOT NULL DEFAULT 1,
+  name                varchar(50),
   address           varchar(255),
   zip               varchar(25),
   town              varchar(50),
   fk_state          integer DEFAULT 0,
   fk_country        integer DEFAULT 0,
-  profid1			varchar(20),
-  profid2			varchar(20),
-  profid3			varchar(20),
-  phone				varchar(20),
-  fk_user_author 	integer NOT NULL,
-  fk_user_mod		integer NOT NULL,
-  datec				datetime NOT NULL,
-  tms				timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  profid1            varchar(20),
+  profid2            varchar(20),
+  profid3            varchar(20),
+  phone                varchar(20),
+  fk_user_author     integer NOT NULL,
+  fk_user_mod        integer NOT NULL,
+  datec                datetime NOT NULL,
+  tms                timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   status            smallint DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS llx_user_rib (
   rowid          integer AUTO_INCREMENT PRIMARY KEY,
   fk_user        integer      NOT NULL,
-  entity         integer DEFAULT 1 NOT NULL,	-- multi company id
+  entity         integer DEFAULT 1 NOT NULL,    -- multi company id
   datec          datetime,
   tms            timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   label          varchar(30),
@@ -244,7 +244,7 @@ CREATE TABLE IF NOT EXISTS llx_user_rib (
   number         varchar(255),  -- account number
   cle_rib        varchar(5),    -- key of bank account
   bic            varchar(11),   -- 11 according to ISO 9362
-  iban_prefix    varchar(34),	-- full iban. 34 according to ISO 13616
+  iban_prefix    varchar(34),    -- full iban. 34 according to ISO 13616
   domiciliation  varchar(255),
   proprio        varchar(60),
   owner_address  varchar(255)
@@ -258,10 +258,10 @@ create table llx_stock_lotserial
 (
   rowid           integer AUTO_INCREMENT PRIMARY KEY,
   entity          integer,
-  fk_product      integer NOT NULL,				-- Id of product
-  batch           varchar(30) DEFAULT NULL,		-- Lot or serial number
-  eatby           date DEFAULT NULL,			-- Eatby date
-  sellby          date DEFAULT NULL, 			-- Sellby date
+  fk_product      integer NOT NULL,                -- Id of product
+  batch           varchar(30) DEFAULT NULL,        -- Lot or serial number
+  eatby           date DEFAULT NULL,            -- Eatby date
+  sellby          date DEFAULT NULL,             -- Sellby date
   datec         datetime,
   tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat integer,
@@ -274,13 +274,13 @@ create table llx_stock_lotserial
 
 create table llx_budget
 (
-  rowid			integer AUTO_INCREMENT PRIMARY KEY,
-  entity		integer NOT NULL DEFAULT 1,
+  rowid            integer AUTO_INCREMENT PRIMARY KEY,
+  entity        integer NOT NULL DEFAULT 1,
   label         varchar(255) NOT NULL,
   status        integer,
-  note			text,	
-  date_start	date,
-  date_end		date,
+  note            text,    
+  date_start    date,
+  date_end        date,
   datec         datetime,
   tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat integer,
@@ -291,10 +291,10 @@ create table llx_budget
 
 create table llx_budget_lines
 (
-  rowid			integer AUTO_INCREMENT PRIMARY KEY,
+  rowid            integer AUTO_INCREMENT PRIMARY KEY,
   fk_budget     integer NOT NULL,
-  fk_project_ids	varchar(255) NOT NULL,		-- List of project ids related to this budget. If budget is dedicated to projects not yet started, we recommand to create a project 'Projects to come'.
-  amount		double(24,8) NOT NULL,
+  fk_project_ids    varchar(255) NOT NULL,        -- List of project ids related to this budget. If budget is dedicated to projects not yet started, we recommand to create a project 'Projects to come'.
+  amount        double(24,8) NOT NULL,
   datec         datetime,
   tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat integer,
@@ -340,10 +340,10 @@ ALTER TABLE llx_opensurvey_sondage DROP COLUMN origin;
 DROP TABLE llx_opensurvey_sujet_studs;
 
 CREATE TABLE llx_opensurvey_formquestions (
-	rowid INTEGER AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	id_sondage VARCHAR(16),
-	question TEXT,
-    available_answers TEXT								-- List of available answers
+    rowid INTEGER AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    id_sondage VARCHAR(16),
+    question TEXT,
+    available_answers TEXT                                -- List of available answers
 ) ENGINE=InnoDB;
 
 CREATE TABLE llx_opensurvey_user_formanswers (
@@ -371,7 +371,7 @@ create table llx_expedition_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_expedition_extrafields ADD INDEX idx_expedition_extrafields (fk_object);
@@ -381,7 +381,7 @@ create table llx_expeditiondet_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_expeditiondet_extrafields ADD INDEX idx_expeditiondet_extrafields (fk_object);
@@ -394,7 +394,7 @@ create table llx_livraison_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_livraison_extrafields ADD INDEX idx_livraison_extrafields (fk_object);
@@ -404,7 +404,7 @@ create table llx_livraisondet_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_livraisondet_extrafields ADD INDEX idx_livraisondet_extrafields (fk_object);
@@ -583,15 +583,15 @@ INSERT INTO llx_c_forme_juridique (fk_pays, code, libelle, active) VALUES (41, '
 INSERT INTO llx_c_forme_juridique (fk_pays, code, libelle, active) VALUES (41, '4114', 'e.U. - eingetragener Einzelunternehmer', 1);
 
 -- Social contributions Austria
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4101, 'Krankenversicherung',				1,1,'TAXATKV'   ,'41');
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4102, 'Unfallversicherung',				1,1,'TAXATUV'   ,'41');
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4103, 'Pensionsversicherung',				1,1,'TAXATPV'   ,'41');
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4104, 'Arbeitslosenversicherung',			1,1,'TAXATAV'   ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4101, 'Krankenversicherung',                1,1,'TAXATKV'   ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4102, 'Unfallversicherung',                1,1,'TAXATUV'   ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4103, 'Pensionsversicherung',                1,1,'TAXATPV'   ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4104, 'Arbeitslosenversicherung',            1,1,'TAXATAV'   ,'41');
 insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4105, 'Insolvenzentgeltsicherungsfond',   1,1,'TAXATIESG' ,'41');
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4106, 'Wohnbauförderung',					1,1,'TAXATWF'   ,'41');
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4107, 'Arbeiterkammerumlage',				1,1,'TAXATAK'   ,'41');
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4108, 'Mitarbeitervorsorgekasse',			1,1,'TAXATMVK'  ,'41');
-insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4109, 'Familienlastenausgleichsfond',		1,1,'TAXATFLAF' ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4106, 'Wohnbauförderung',                    1,1,'TAXATWF'   ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4107, 'Arbeiterkammerumlage',                1,1,'TAXATAK'   ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4108, 'Mitarbeitervorsorgekasse',            1,1,'TAXATMVK'  ,'41');
+insert into llx_c_chargesociales (id, libelle, deductible, active, code, fk_pays) values (4109, 'Familienlastenausgleichsfond',        1,1,'TAXATFLAF' ,'41');
 
 ALTER TABLE llx_accounting_bookkeeping MODIFY COLUMN doc_ref varchar(300) NOT NULL;
 

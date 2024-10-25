@@ -30,7 +30,7 @@ CREATE TABLE llx_supplier_proposal (
   fk_user_modif integer DEFAULT NULL,
   fk_user_valid integer DEFAULT NULL,
   fk_user_cloture integer DEFAULT NULL,
-  fk_statut	smallint DEFAULT 0 NOT NULL,	-- 0=draft, 1=validated, 2=accepted, 3=refused, 4=billed/closed
+  fk_statut    smallint DEFAULT 0 NOT NULL,    -- 0=draft, 1=validated, 2=accepted, 3=refused, 4=billed/closed
   price double DEFAULT 0,
   remise_percent double DEFAULT 0,
   remise_absolue double DEFAULT 0,
@@ -46,8 +46,8 @@ CREATE TABLE llx_supplier_proposal (
   fk_mode_reglement integer DEFAULT NULL,
   note_private text,
   note_public text,
-  model_pdf 			varchar(255) DEFAULT NULL,
-  last_main_doc			varchar(255),					-- relative filepath+filename of last main generated document
+  model_pdf             varchar(255) DEFAULT NULL,
+  last_main_doc            varchar(255),                    -- relative filepath+filename of last main generated document
 
   date_livraison date DEFAULT NULL,
   fk_shipping_method integer DEFAULT NULL,

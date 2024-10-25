@@ -36,7 +36,7 @@ alter table llx_societe  MODIFY COLUMN town varchar(50);
 alter table llx_societe_address MODIFY COLUMN town varchar(50);
 
 
-ALTER TABLE llx_projet_task ADD COLUMN planned_workload	real DEFAULT 0 NOT NULL AFTER duration_effective;
+ALTER TABLE llx_projet_task ADD COLUMN planned_workload    real DEFAULT 0 NOT NULL AFTER duration_effective;
 
 ALTER TABLE llx_socpeople ADD COLUMN statut tinyint DEFAULT 1 NOT NULL AFTER import_key;
 
@@ -45,7 +45,7 @@ create table llx_fichinter_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_fichinter_extrafields ADD INDEX idx_ficheinter_extrafields (fk_object);
@@ -57,13 +57,13 @@ create table llx_commandedet_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    
-  import_key       varchar(14)      	
+  import_key       varchar(14)          
 )ENGINE=innodb;
 
 ALTER TABLE llx_commandedet_extrafields ADD INDEX idx_commandedet_extrafields (fk_object);
 
 
-ALTER TABLE llx_facturedet_rec ADD COLUMN info_bits	integer DEFAULT 0 after total_ttc;	-- TVA NPR ou non
+ALTER TABLE llx_facturedet_rec ADD COLUMN info_bits    integer DEFAULT 0 after total_ttc;    -- TVA NPR ou non
 
 
 create table llx_facturedet_extrafields
@@ -71,7 +71,7 @@ create table llx_facturedet_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_facturedet_extrafields ADD INDEX idx_facturedet_extrafields (fk_object);
@@ -81,7 +81,7 @@ create table llx_propaldet_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_propaldet_extrafields ADD INDEX idx_propaldet_extrafields (fk_object);
@@ -173,7 +173,7 @@ INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, nc
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL17', 1301, '', 0, '', 'Wilaya d''Alger', 1);
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL18', 1301, '', 0, '', 'Wilaya de Djelfa', 1);
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL19', 1301, '', 0, '', 'Wilaya de Jijel', 1);
-INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL20', 1301, '', 0, '', 'Wilaya de Sétif	', 1);
+INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL20', 1301, '', 0, '', 'Wilaya de Sétif    ', 1);
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL21', 1301, '', 0, '', 'Wilaya de Saïda', 1);
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL22', 1301, '', 0, '', 'Wilaya de Skikda', 1);
 INSERT INTO llx_c_departements ( code_departement, fk_region, cheflieu, tncc, ncc, nom, active) VALUES('AL23', 1301, '', 0, '', 'Wilaya de Sidi Bel Abbès', 1);
@@ -323,8 +323,8 @@ ALTER TABLE llx_societe ADD cond_reglement_supplier integer NULL AFTER mode_regl
 
 ALTER TABLE llx_facture_fourn ADD fk_mode_reglement integer NULL AFTER fk_cond_reglement;
 
-ALTER TABLE llx_facture_fourn MODIFY COLUMN fk_mode_reglement	integer NULL;
-ALTER TABLE llx_facture_fourn MODIFY COLUMN fk_cond_reglement	integer NULL;
+ALTER TABLE llx_facture_fourn MODIFY COLUMN fk_mode_reglement    integer NULL;
+ALTER TABLE llx_facture_fourn MODIFY COLUMN fk_cond_reglement    integer NULL;
 -- VPGSQL8.2 ALTER TABLE llx_facture_fourn ALTER fk_mode_reglement DROP NOT NULL;
 -- VPGSQL8.2 ALTER TABLE llx_facture_fourn ALTER fk_cond_reglement DROP NOT NULL;
 
@@ -339,7 +339,7 @@ create table llx_contrat_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 
@@ -351,13 +351,13 @@ UPDATE llx_const SET name='COMPANY_DONOTSEARCH_ANYWHERE' WHERE name='SOCIETE_DON
 --Task 172
 create table llx_actioncomm_resources
 (
-  rowid           	integer AUTO_INCREMENT PRIMARY KEY,  
-  fk_actioncomm		integer NOT NULL,
-  element_type		varchar(50) NOT NULL,
-  fk_element		integer NOT NULL,
-  answer_status		varchar(50) NULL,
-  mandatory		smallint,
-  transparent		smallint
+  rowid               integer AUTO_INCREMENT PRIMARY KEY,  
+  fk_actioncomm        integer NOT NULL,
+  element_type        varchar(50) NOT NULL,
+  fk_element        integer NOT NULL,
+  answer_status        varchar(50) NULL,
+  mandatory        smallint,
+  transparent        smallint
 ) ENGINE=innodb;
 ALTER TABLE llx_actioncomm_resources ADD UNIQUE INDEX idx_actioncomm_resources_idx1 (fk_actioncomm, element_type, fk_element);
 ALTER TABLE llx_actioncomm_resources ADD INDEX idx_actioncomm_resources_fk_element (fk_element);

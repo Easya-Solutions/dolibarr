@@ -1,5 +1,5 @@
 -- ===================================================================
--- Copyright (C) 2013 Charles-Fr BENKE	<charles.fr@benke.fr>
+-- Copyright (C) 2013 Charles-Fr BENKE    <charles.fr@benke.fr>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by

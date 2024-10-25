@@ -1,6 +1,6 @@
 -- ============================================================================
--- Copyright (C) 2013	Laurent Destailleur	<eldy@users.sourceforge.net>
--- Copyright (C) 2013	Florian Henry		<florian.henry@open-concept.pro>
+-- Copyright (C) 2013    Laurent Destailleur    <eldy@users.sourceforge.net>
+-- Copyright (C) 2013    Florian Henry        <florian.henry@open-concept.pro>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -22,4 +22,4 @@ ALTER TABLE llx_actioncomm_resources ADD UNIQUE INDEX uk_actioncomm_resources(fk
 ALTER TABLE llx_actioncomm_resources ADD INDEX idx_actioncomm_resources_fk_element (fk_element);
 
 -- Pas de contrainte sur fk_source et fk_target car pointe sur differentes tables
-	
+    

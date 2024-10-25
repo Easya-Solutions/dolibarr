@@ -1,5 +1,5 @@
 -- ===================================================================
--- Copyright (C) 2014	Alexis Algoud	<alexis@atm-consulting.fr>
+-- Copyright (C) 2014    Alexis Algoud    <alexis@atm-consulting.fr>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ CREATE TABLE llx_usergroup_extrafields (
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 )ENGINE=innodb;
 
 

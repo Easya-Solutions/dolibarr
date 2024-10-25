@@ -1,7 +1,7 @@
 -- ============================================================================
--- Copyright (C) 2003-2006 Rodolphe Quiedeville	<rodolphe@quiedeville.org>
--- Copyright (C) 2004-2017 Laurent Destailleur	<eldy@users.sourceforge.net>
--- Copyright (C) 2012      Juanjo Menent		<jmenent@2byte.es>
+-- Copyright (C) 2003-2006 Rodolphe Quiedeville    <rodolphe@quiedeville.org>
+-- Copyright (C) 2004-2017 Laurent Destailleur    <eldy@users.sourceforge.net>
+-- Copyright (C) 2012      Juanjo Menent        <jmenent@2byte.es>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@ create table llx_entrepot
   ref             varchar(255) NOT NULL,
   datec           datetime,
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  entity          integer DEFAULT 1 NOT NULL,	-- multi company id
-  fk_project	  integer DEFAULT NULL,			-- project associated to warehouse if any
+  entity          integer DEFAULT 1 NOT NULL,    -- multi company id
+  fk_project      integer DEFAULT NULL,            -- project associated to warehouse if any
   description     text,
-  lieu            varchar(64),					-- resume lieu situation
+  lieu            varchar(64),                    -- resume lieu situation
   address         varchar(255),
   zip             varchar(10),
   town            varchar(50),
@@ -38,9 +38,9 @@ create table llx_entrepot
   barcode         varchar(180) DEFAULT NULL,          -- barcode
   fk_barcode_type integer      DEFAULT NULL,          -- barcode type
   warehouse_usage integer DEFAULT 1,            -- 1=internal, 2=external (virtual warehouse or stock out of company)           
-  statut          tinyint DEFAULT 1,			-- 1 open, 0 close
+  statut          tinyint DEFAULT 1,            -- 1 open, 0 close
   fk_user_author  integer,
   model_pdf       varchar(255),
-  import_key	  varchar(14),
+  import_key      varchar(14),
   fk_parent       integer DEFAULT 0
 )ENGINE=innodb;

@@ -22,19 +22,19 @@
 -- (1, NULL, 1, NULL, 1.75000000, 60, 1, 500.00000000, 0.00000000, 7.00000000, '2022-03-09 14:15:48', 1);
 
 CREATE TABLE llx_asset_depreciation_options_fiscal(
-    rowid								integer			AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    fk_asset							integer,
-    fk_asset_model						integer,
+    rowid                                integer            AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    fk_asset                            integer,
+    fk_asset_model                        integer,
 
-    depreciation_type					smallint		DEFAULT 0 NOT NULL,		-- 0:linear, 1:degressive, 2:exceptional
-    degressive_coefficient				double(24,8),
-    duration							smallint		NOT NULL,
-    duration_type						smallint		DEFAULT 0  NOT NULL,	-- 0:annual, 1:monthly, 2:daily
+    depreciation_type                    smallint        DEFAULT 0 NOT NULL,        -- 0:linear, 1:degressive, 2:exceptional
+    degressive_coefficient                double(24,8),
+    duration                            smallint        NOT NULL,
+    duration_type                        smallint        DEFAULT 0  NOT NULL,    -- 0:annual, 1:monthly, 2:daily
 
-	amount_base_depreciation_ht			double(24,8),
-	amount_base_deductible_ht			double(24,8),
-	total_amount_last_depreciation_ht	double(24,8),
+    amount_base_depreciation_ht            double(24,8),
+    amount_base_deductible_ht            double(24,8),
+    total_amount_last_depreciation_ht    double(24,8),
 
-	tms                                 timestamp       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_modif						integer
+    tms                                 timestamp       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_modif                        integer
 ) ENGINE=innodb;

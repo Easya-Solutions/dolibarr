@@ -79,7 +79,7 @@ ALTER TABLE llx_facture DROP COLUMN amount;
 -- Rename prospect level on contact
 ALTER TABLE llx_socpeople CHANGE fk_prospectcontactlevel fk_prospectlevel varchar(12);
 
-ALTER TABLE llx_facture ADD COLUMN prorata_discount	real DEFAULT NULL;
+ALTER TABLE llx_facture ADD COLUMN prorata_discount    real DEFAULT NULL;
 
 ALTER TABLE llx_facture MODIFY COLUMN situation_cycle_ref integer;
 
@@ -617,7 +617,7 @@ CREATE TABLE llx_mrp_production_extrafields
     rowid                     integer AUTO_INCREMENT PRIMARY KEY,
     tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     fk_object                 integer NOT NULL,
-    import_key                varchar(14)                          		-- import key
+    import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 ALTER TABLE llx_mrp_production_extrafields ADD INDEX idx_mrp_production_fk_object(fk_object);
 ALTER TABLE llx_bom_bomline ADD COLUMN tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;

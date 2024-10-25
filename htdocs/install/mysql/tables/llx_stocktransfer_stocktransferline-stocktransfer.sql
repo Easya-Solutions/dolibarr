@@ -15,17 +15,17 @@
 
 
 CREATE TABLE llx_stocktransfer_stocktransferline(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	amount double DEFAULT NULL, 
-	qty real,
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+    amount double DEFAULT NULL, 
+    qty real,
     fk_warehouse_source integer NOT NULL,
     fk_warehouse_destination integer NOT NULL,
-	fk_stocktransfer integer NOT NULL, 
-	fk_product integer NOT NULL,
-    batch varchar(128) DEFAULT NULL,	-- Lot or serial number
+    fk_stocktransfer integer NOT NULL, 
+    fk_product integer NOT NULL,
+    batch varchar(128) DEFAULT NULL,    -- Lot or serial number
     pmp double,
     rang integer DEFAULT 0,
     fk_parent_line integer NULL
-	-- END MODULEBUILDER FIELDS
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;

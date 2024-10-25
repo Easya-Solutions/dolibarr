@@ -38,15 +38,15 @@ create table llx_user
   pass_encoding       varchar(24),
   pass                varchar(128),
   pass_crypted        varchar(128),
-  pass_temp           varchar(128),			                    	-- temporary password when asked for forget password or 'hashtoallowreset:YYYMMDDHHMMSS' (where date is max date of validity)
-  api_key             varchar(128),			                      -- key to use REST API by this user
+  pass_temp           varchar(128),                                    -- temporary password when asked for forget password or 'hashtoallowreset:YYYMMDDHHMMSS' (where date is max date of validity)
+  api_key             varchar(128),                                  -- key to use REST API by this user
   gender              varchar(10),
   civility            varchar(6),
   lastname            varchar(50),
   firstname           varchar(50),
-  address             varchar(255),				                    -- user personal address
-  zip                 varchar(25),				                    -- zipcode
-  town                varchar(50),				                    -- town
+  address             varchar(255),                                    -- user personal address
+  zip                 varchar(25),                                    -- zipcode
+  town                varchar(50),                                    -- town
   fk_state            integer        DEFAULT 0,
   fk_country          integer        DEFAULT 0,
   birth               date,                                   -- birthday
@@ -72,27 +72,27 @@ create table llx_user
   fk_user_expense_validator    integer NULL,
   fk_user_holiday_validator    integer NULL,
   
-  idpers1			   varchar(128),
-  idpers2			   varchar(128),
-  idpers3			   varchar(128),
+  idpers1               varchar(128),
+  idpers2               varchar(128),
+  idpers3               varchar(128),
   
-  note_public		      text,
+  note_public              text,
   note_private            text          DEFAULT NULL,
   model_pdf               varchar(255)  DEFAULT NULL,
   datelastlogin           datetime,
   datepreviouslogin       datetime,
-  datelastpassvalidation  datetime,				                    -- last date we change password or we made a disconnect all
+  datelastpassvalidation  datetime,                                    -- last date we change password or we made a disconnect all
   datestartvalidity       datetime,
   dateendvalidity         datetime,
-  flagdelsessionsbefore   datetime DEFAULT NULL,					-- set this to a date if we need to launch an external process to invalidate all sessions for the same login created before this date 
+  flagdelsessionsbefore   datetime DEFAULT NULL,                    -- set this to a date if we need to launch an external process to invalidate all sessions for the same login created before this date 
   iplastlogin             varchar(250),
   ippreviouslogin         varchar(250),
   egroupware_id           integer,
   ldap_sid                varchar(255)  DEFAULT NULL,
   openid                  varchar(255),
   statut                  tinyint       DEFAULT 1,
-  photo                   varchar(255),				                -- filename or url of photo
-  lang                    varchar(6),					                -- default language for communication. Note that language selected by user as interface language is savec into llx_user_param.
+  photo                   varchar(255),                                -- filename or url of photo
+  lang                    varchar(6),                                    -- default language for communication. Note that language selected by user as interface language is savec into llx_user_param.
   color                   varchar(6),
   barcode                 varchar(255)  DEFAULT NULL,
   fk_barcode_type         integer       DEFAULT 0,

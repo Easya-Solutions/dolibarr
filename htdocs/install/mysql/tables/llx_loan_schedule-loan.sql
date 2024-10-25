@@ -1,5 +1,5 @@
 -- ===================================================================
--- Copyright (C) 2014		Alexandre Spangaro   <aspangaro@open-dsi.fr>
+-- Copyright (C) 2014        Alexandre Spangaro   <aspangaro@open-dsi.fr>
 -- Copyright (C) 2015       Frederic France      <frederic.france@free.fr>
 --
 -- This program is free software; you can redistribute it and/or modify
@@ -19,20 +19,20 @@
 
 create table llx_loan_schedule
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  fk_loan			integer,
-  datec				datetime,         -- creation date
-  tms				timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  datep				datetime,         -- payment date expected
-  amount_capital	double(24,8) DEFAULT 0,
-  amount_insurance	double(24,8) DEFAULT 0,
-  amount_interest	double(24,8) DEFAULT 0,
-  fk_typepayment	integer NOT NULL,
-  num_payment		varchar(50),
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  fk_loan            integer,
+  datec                datetime,         -- creation date
+  tms                timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  datep                datetime,         -- payment date expected
+  amount_capital    double(24,8) DEFAULT 0,
+  amount_insurance    double(24,8) DEFAULT 0,
+  amount_interest    double(24,8) DEFAULT 0,
+  fk_typepayment    integer NOT NULL,
+  num_payment        varchar(50),
   note_private      text,
   note_public       text,
-  fk_bank			integer NOT NULL,
+  fk_bank            integer NOT NULL,
   fk_payment_loan     integer,
-  fk_user_creat		integer,          -- creation user
-  fk_user_modif		integer           -- last modification user
+  fk_user_creat        integer,          -- creation user
+  fk_user_modif        integer           -- last modification user
 )ENGINE=innodb;

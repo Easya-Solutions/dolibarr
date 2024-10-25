@@ -2,7 +2,7 @@
 -- Copyright (C) 2003-2010 Rodolphe Quiedeville <rodolphe@quiedeville.org>
 -- Copyright (C) 2008-2010 Regis Houssin        <regis.houssin@inodbox.com>
 -- Copyright (C) 2011-2012 Laurent Destailleur  <eldy@users.sourceforge.net>
--- Copyright (C) 2012      Juanjo Menent		<jmenent@2byte.es>
+-- Copyright (C) 2012      Juanjo Menent        <jmenent@2byte.es>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -24,40 +24,40 @@ create table llx_expedition
   rowid                 integer AUTO_INCREMENT PRIMARY KEY,
   tms                   timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   ref                   varchar(30)        NOT NULL,
-  entity                integer  DEFAULT 1 NOT NULL,	-- multi company id
+  entity                integer  DEFAULT 1 NOT NULL,    -- multi company id
   fk_soc                integer            NOT NULL,
-  fk_projet  		integer  DEFAULT NULL,
+  fk_projet          integer  DEFAULT NULL,
   
-  ref_ext               varchar(255),					-- reference into an external system (not used by dolibarr)
-  ref_customer          varchar(255),					-- customer number
+  ref_ext               varchar(255),                    -- reference into an external system (not used by dolibarr)
+  ref_customer          varchar(255),                    -- customer number
   
-  date_creation         datetime,						-- date de creation
-  fk_user_author        integer,						-- author of creation
-  fk_user_modif         integer,						-- author of last change
-  date_valid            datetime,						-- date de validation
-  fk_user_valid         integer,						-- valideur
-  date_delivery			datetime	DEFAULT NULL,		-- date planned of delivery
-  date_expedition       datetime,						-- not used (deprecated)
-  fk_address  			integer		DEFAULT NULL, 		-- delivery address (deprecated)
+  date_creation         datetime,                        -- date de creation
+  fk_user_author        integer,                        -- author of creation
+  fk_user_modif         integer,                        -- author of last change
+  date_valid            datetime,                        -- date de validation
+  fk_user_valid         integer,                        -- valideur
+  date_delivery            datetime    DEFAULT NULL,        -- date planned of delivery
+  date_expedition       datetime,                        -- not used (deprecated)
+  fk_address              integer        DEFAULT NULL,         -- delivery address (deprecated)
   fk_shipping_method    integer,
   tracking_number       varchar(50),
-  fk_statut             smallint	DEFAULT 0,			-- 0 = draft, 1 = validated, 2 = billed or closed depending on WORKFLOW_BILL_ON_SHIPMENT option
+  fk_statut             smallint    DEFAULT 0,            -- 0 = draft, 1 = validated, 2 = billed or closed depending on WORKFLOW_BILL_ON_SHIPMENT option
   billed                smallint    DEFAULT 0,
   
-  height                float,							-- height
-  width                 float,							-- with
-  size_units            integer,						-- unit of all sizes (height, width, depth)
-  size                  float,							-- depth
-  weight_units          integer,						-- unit of weight
-  weight                float,							-- weight
+  height                float,                            -- height
+  width                 float,                            -- with
+  size_units            integer,                        -- unit of all sizes (height, width, depth)
+  size                  float,                            -- depth
+  weight_units          integer,                        -- unit of weight
+  weight                float,                            -- weight
   note_private          text,
   note_public           text,
   model_pdf             varchar(255),
-  last_main_doc			varchar(255),					-- relative filepath+filename of last main generated document
+  last_main_doc            varchar(255),                    -- relative filepath+filename of last main generated document
 
-  fk_incoterms          integer,						-- for incoterms
-  location_incoterms    varchar(255),					-- for incoterms
+  fk_incoterms          integer,                        -- for incoterms
+  location_incoterms    varchar(255),                    -- for incoterms
   
-  import_key			varchar(14),
-  extraparams			varchar(255)							-- for other parameters with json format
+  import_key            varchar(14),
+  extraparams            varchar(255)                            -- for other parameters with json format
 )ENGINE=innodb;

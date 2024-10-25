@@ -3,7 +3,7 @@
 -- Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
 -- Copyright (C) 2017      Alexandre Spangaro   <aspangaro@open-dsi.fr>
 -- Copyright (C) 2021      Gauthier VERDOL      <gauthier.verdol@atm-consulting.fr>
--- Copyright (C) 2022      Laurent Destailleur	<eldy@users.sourceforge.net>
+-- Copyright (C) 2022      Laurent Destailleur    <eldy@users.sourceforge.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ create table llx_chargesociales
   tms               timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   date_creation     datetime,                       -- date de creation 
   date_valid        datetime,                       -- date de validation
-  fk_user integer   DEFAULT NULL,		    -- utilisateur concerné
+  fk_user integer   DEFAULT NULL,            -- utilisateur concerné
   fk_user_author    integer,                        -- user making creation
   fk_user_modif     integer,                        -- user making last change
   fk_user_valid     integer,                        -- user validating
@@ -41,8 +41,8 @@ create table llx_chargesociales
   paye              smallint default 0 NOT NULL,
   periode           date,
   fk_projet         integer DEFAULT NULL,
-  note_private		text,
-  note_public		text,
+  note_private        text,
+  note_public        text,
   import_key        varchar(14)
 )ENGINE=innodb;
 

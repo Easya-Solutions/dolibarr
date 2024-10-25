@@ -42,8 +42,8 @@ create table llx_adherent
   pass_crypted     varchar(128),
   fk_adherent_type integer NOT NULL,
   morphy           varchar(3) NOT NULL,         -- EN: legal entity / natural person  FR: personne morale / personne physique
-  societe          varchar(128),			          -- company name (should be same length than societe.name). No more used.
-  fk_soc           integer NULL,		            -- Link to third party linked to member
+  societe          varchar(128),                      -- company name (should be same length than societe.name). No more used.
+  fk_soc           integer NULL,                    -- Link to third party linked to member
   address          text,
   zip              varchar(30),
   town             varchar(50),
@@ -74,7 +74,7 @@ create table llx_adherent
   default_lang     varchar(6) DEFAULT NULL,
   note_private     text DEFAULT NULL,
   note_public      text DEFAULT NULL,
-  model_pdf		     varchar(255),
+  model_pdf             varchar(255),
   datevalid        datetime,                      -- date of validation
   datec            datetime,                      -- date of creation
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- last modification date

@@ -1,5 +1,5 @@
 -- ========================================================================
--- Copyright (C) 2021		Open-Dsi	<support@open-dsi.fr>
+-- Copyright (C) 2021        Open-Dsi    <support@open-dsi.fr>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 
 create table llx_product_perentity
 (
-  rowid         				integer AUTO_INCREMENT PRIMARY KEY,
-  fk_product	   				integer,
-  entity             			integer DEFAULT 1 NOT NULL,      	-- multi company id
+  rowid                         integer AUTO_INCREMENT PRIMARY KEY,
+  fk_product                       integer,
+  entity                         integer DEFAULT 1 NOT NULL,          -- multi company id
   accountancy_code_sell         varchar(32),                        -- Selling accountancy code
   accountancy_code_sell_intra   varchar(32),                        -- Selling accountancy code for vat intracommunity
   accountancy_code_sell_export  varchar(32),                        -- Selling accountancy code for vat export
   accountancy_code_buy          varchar(32),                        -- Buying accountancy code
   accountancy_code_buy_intra    varchar(32),                        -- Buying accountancy code for vat intracommunity
-  accountancy_code_buy_export   varchar(32),                  		-- Buying accountancy code for vat import
+  accountancy_code_buy_export   varchar(32),                          -- Buying accountancy code for vat import
   pmp double(24,8)
 )ENGINE=innodb;

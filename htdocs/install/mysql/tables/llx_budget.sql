@@ -1,5 +1,5 @@
 -- ============================================================================
--- Copyright (C) 2015	Laurent Destailleur		<eldy@users.sourceforge.net>
+-- Copyright (C) 2015    Laurent Destailleur        <eldy@users.sourceforge.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -18,13 +18,13 @@
 
 create table llx_budget
 (
-  rowid			integer AUTO_INCREMENT PRIMARY KEY,
-  entity		integer NOT NULL DEFAULT 1,
-  label         varchar(255) NOT NULL,					-- For example 'Global budget for year' or 'Budget for each project'
+  rowid            integer AUTO_INCREMENT PRIMARY KEY,
+  entity        integer NOT NULL DEFAULT 1,
+  label         varchar(255) NOT NULL,                    -- For example 'Global budget for year' or 'Budget for each project'
   status        integer,
-  note			text,	
-  date_start	date,
-  date_end		date,
+  note            text,    
+  date_start    date,
+  date_end        date,
   datec         datetime,
   tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat integer,

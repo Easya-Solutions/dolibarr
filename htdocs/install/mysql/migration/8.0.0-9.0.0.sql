@@ -65,7 +65,7 @@ ALTER TABLE llx_user ADD COLUMN dateemploymentend date after dateemployment;
 
 ALTER TABLE llx_stock_mouvement ADD COLUMN fk_project integer;
 ALTER TABLE llx_c_action_trigger MODIFY COLUMN elementtype varchar(32);
-ALTER TABLE llx_c_field_list ADD COLUMN visible tinyint	DEFAULT 1 NOT NULL AFTER search;
+ALTER TABLE llx_c_field_list ADD COLUMN visible tinyint    DEFAULT 1 NOT NULL AFTER search;
 
 
 insert into llx_c_action_trigger (code,label,description,elementtype,rang) values ('COMPANY_DELETE','Third party deleted','Executed when you delete third party','societe',1);
@@ -196,34 +196,34 @@ ALTER TABLE llx_emailcollector_emailcollector ADD INDEX idx_emailcollector_statu
 
 
 CREATE TABLE llx_emailcollector_emailcollectorfilter(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	fk_emailcollector INTEGER NOT NULL,
-	type varchar(128) NOT NULL,
-	rulevalue varchar(128) NULL,
-	date_creation datetime NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
-	import_key varchar(14),
-	status integer NOT NULL
-	-- END MODULEBUILDER FIELDS
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    fk_emailcollector INTEGER NOT NULL,
+    type varchar(128) NOT NULL,
+    rulevalue varchar(128) NULL,
+    date_creation datetime NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_creat integer NOT NULL,
+    fk_user_modif integer,
+    import_key varchar(14),
+    status integer NOT NULL
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 CREATE TABLE llx_emailcollector_emailcollectoraction(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	fk_emailcollector INTEGER NOT NULL,
-	type varchar(128) NOT NULL,
-	actionparam varchar(255) NULL,
-	date_creation datetime NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
-	position integer DEFAULT 0,
-	import_key varchar(14),
-	status integer NOT NULL
-	-- END MODULEBUILDER FIELDS
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    fk_emailcollector INTEGER NOT NULL,
+    type varchar(128) NOT NULL,
+    actionparam varchar(255) NULL,
+    date_creation datetime NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_creat integer NOT NULL,
+    fk_user_modif integer,
+    position integer DEFAULT 0,
+    import_key varchar(14),
+    status integer NOT NULL
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 ALTER TABLE llx_emailcollector_emailcollectorfilter ADD INDEX idx_emailcollector_fk_emailcollector (fk_emailcollector);
@@ -243,26 +243,26 @@ DROP TABLE llx_ticket_logs;
 
 
 CREATE TABLE llx_pos_cash_fence(
-	rowid INTEGER AUTO_INCREMENT PRIMARY KEY,
-	entity INTEGER DEFAULT 1 NOT NULL,
-	ref VARCHAR(64),
-	label VARCHAR(255),
-	opening double(24,8) default 0,
-	cash double(24,8) default 0,
-	card double(24,8) default 0,
-	cheque double(24,8) default 0,
-	status INTEGER,
-	date_creation DATETIME NOT NULL,
-	date_valid DATETIME,
-	day_close INTEGER,
-	month_close INTEGER,
-	year_close INTEGER,
-	posmodule VARCHAR(30),
-	posnumber VARCHAR(30),
-	fk_user_creat integer,
-	fk_user_valid integer,
-	tms TIMESTAMP NOT NULL,
-	import_key VARCHAR(14)
+    rowid INTEGER AUTO_INCREMENT PRIMARY KEY,
+    entity INTEGER DEFAULT 1 NOT NULL,
+    ref VARCHAR(64),
+    label VARCHAR(255),
+    opening double(24,8) default 0,
+    cash double(24,8) default 0,
+    card double(24,8) default 0,
+    cheque double(24,8) default 0,
+    status INTEGER,
+    date_creation DATETIME NOT NULL,
+    date_valid DATETIME,
+    day_close INTEGER,
+    month_close INTEGER,
+    year_close INTEGER,
+    posmodule VARCHAR(30),
+    posnumber VARCHAR(30),
+    fk_user_creat integer,
+    fk_user_valid integer,
+    tms TIMESTAMP NOT NULL,
+    import_key VARCHAR(14)
 ) ENGINE=innodb;
 
 -- VMYSQL4.3 ALTER TABLE llx_accounting_account MODIFY COLUMN account_number varchar(32) NOT NULL;

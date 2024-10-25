@@ -1,6 +1,6 @@
 -- ===================================================================
--- Copyright (C) 2011-2014	Juanjo Menent	<jmenent@2byte.es>
--- Copyright (C) 2011		Regis Houssin	<regis.houssin@inodbox.com>
+-- Copyright (C) 2011-2014    Juanjo Menent    <jmenent@2byte.es>
+-- Copyright (C) 2011        Regis Houssin    <regis.houssin@inodbox.com>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -23,10 +23,10 @@ create table llx_localtax
   entity          integer DEFAULT 1 NOT NULL,
   localtaxtype    tinyint,
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  datep           date,								-- date of payment
-  datev           date,								-- date of value
+  datep           date,                                -- date of payment
+  datev           date,                                -- date of value
   amount          double,
-  label           varchar(255),	
+  label           varchar(255),    
   note            text,
   fk_bank         integer,  
   fk_user_creat   integer,                 

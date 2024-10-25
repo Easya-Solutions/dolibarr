@@ -32,7 +32,7 @@ create table llx_product
 
   datec                         datetime,
   tms                           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_parent                     integer	  DEFAULT 0,                -- Not used. Used by external modules. Virtual product id
+  fk_parent                     integer      DEFAULT 0,                -- Not used. Used by external modules. Virtual product id
 
   label                         varchar(255) NOT NULL,
   description                   text,
@@ -41,8 +41,8 @@ create table llx_product
   customcode                    varchar(32),                        -- Optional custom code
   fk_country                    integer DEFAULT NULL,               -- Optional id of original country
   fk_state                      integer DEFAULT NULL,               -- Optional id of original state/province
-  price                         double(24,8) DEFAULT 0,				-- price without tax
-  price_ttc                     double(24,8) DEFAULT 0,				-- price inc vat (but not localtax1 nor localtax2)
+  price                         double(24,8) DEFAULT 0,                -- price without tax
+  price_ttc                     double(24,8) DEFAULT 0,                -- price inc vat (but not localtax1 nor localtax2)
   price_min                     double(24,8) DEFAULT 0,
   price_min_ttc                 double(24,8) DEFAULT 0,
   price_base_type               varchar(3)   DEFAULT 'HT',
@@ -58,10 +58,10 @@ create table llx_product
   fk_user_modif                 integer,                            -- user making last change
   tosell                        tinyint      DEFAULT 1,             -- Product you sell
   tobuy                         tinyint      DEFAULT 1,             -- Product you buy
-  onportal                      tinyint      DEFAULT 0,	            -- If it is a product you sell and you want to sell it from internal portal (module 'portal')
+  onportal                      tinyint      DEFAULT 0,                -- If it is a product you sell and you want to sell it from internal portal (module 'portal')
   tobatch                       tinyint      DEFAULT 0 NOT NULL,    -- Is it a product that need a batch management (eat-by or lot management)
   sell_or_eat_by_mandatory      tinyint      DEFAULT 0 NOT NULL,    -- Make sell-by or eat-by date mandatory
-  batch_mask			        varchar(32)  DEFAULT NULL,          -- If the product has batch feature, you may want to use a batch mask per product
+  batch_mask                    varchar(32)  DEFAULT NULL,          -- If the product has batch feature, you may want to use a batch mask per product
   fk_product_type               integer      DEFAULT 0,             -- Type of product: 0 for regular product, 1 for service, 9 for other (used by external module)
   duration                      varchar(6),
   seuil_stock_alerte            float      DEFAULT NULL,
@@ -100,7 +100,7 @@ create table llx_product
   canvas                        varchar(32)  DEFAULT NULL,
   finished                      tinyint      DEFAULT NULL,          -- see dictionary c_product_nature
   lifetime                      integer      DEFAULT NULL,
-  qc_frequency 					integer 	 DEFAULT NULL,			-- Quality control periodicity
+  qc_frequency                     integer      DEFAULT NULL,            -- Quality control periodicity
   hidden                        tinyint      DEFAULT 0,             -- Not used. Deprecated.
   import_key                    varchar(14),                        -- Import key
   model_pdf                     varchar(255),                       -- model save document used

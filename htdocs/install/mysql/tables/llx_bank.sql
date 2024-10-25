@@ -24,8 +24,8 @@ create table llx_bank
   tms             timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   datev           date,                      -- date de valeur
   dateo           date,                      -- date operation
-  amount          double(24,8) NOT NULL default 0,		-- amount in the currency of the bank account
-  amount_main_currency double(24,8) NULL,				-- amount in the main currency of the company when payment done in a bank account with a different currency
+  amount          double(24,8) NOT NULL default 0,        -- amount in the currency of the bank account
+  amount_main_currency double(24,8) NULL,                -- amount in the main currency of the company when payment done in a bank account with a different currency
   label           varchar(255),
   fk_account      integer,
   fk_user_author  integer,
@@ -33,7 +33,7 @@ create table llx_bank
   fk_type         varchar(6),                -- TIP,VIR,PRE,CB,CHQ,... (Code in llx_c_paiement)
   num_releve      varchar(50),
   num_chq         varchar(50),
-  numero_compte   varchar(32) NULL,		       -- FEC:CompteNum	| account number
+  numero_compte   varchar(32) NULL,               -- FEC:CompteNum    | account number
   rappro          tinyint default 0,
   note            text,
   fk_bordereau    integer DEFAULT 0,
@@ -43,5 +43,5 @@ create table llx_bank
   author          varchar(40),               -- a supprimer apres migration
   origin_id       integer,
   origin_type     varchar(64) NULL,
-  import_key	  varchar(14)
+  import_key      varchar(14)
 )ENGINE=innodb;

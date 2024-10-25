@@ -46,47 +46,47 @@ ALTER TABLE llx_cronjob MODIFY COLUMN params text NULL;
 -- Loan
 create table llx_loan
 (
-  rowid							integer AUTO_INCREMENT PRIMARY KEY,
-  entity						integer DEFAULT 1 NOT NULL,
-  datec							datetime,
-  tms							timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  label							varchar(80) NOT NULL,
-  fk_bank						integer,
-  capital						real     DEFAULT 0 NOT NULL,
-  datestart						date,
-  dateend						date,
-  nbterm						real,
-  rate							double  NOT NULL,
+  rowid                            integer AUTO_INCREMENT PRIMARY KEY,
+  entity                        integer DEFAULT 1 NOT NULL,
+  datec                            datetime,
+  tms                            timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  label                            varchar(80) NOT NULL,
+  fk_bank                        integer,
+  capital                        real     DEFAULT 0 NOT NULL,
+  datestart                        date,
+  dateend                        date,
+  nbterm                        real,
+  rate                            double  NOT NULL,
   note_private                  text,
   note_public                   text,
-  capital_position				real     DEFAULT 0,
-  date_position					date,
-  paid							smallint DEFAULT 0 NOT NULL,
-  accountancy_account_capital	varchar(32),
-  accountancy_account_insurance	varchar(32),
-  accountancy_account_interest	varchar(32),
-  fk_user_author				integer DEFAULT NULL,
-  fk_user_modif					integer DEFAULT NULL,
-  active						tinyint DEFAULT 1  NOT NULL
+  capital_position                real     DEFAULT 0,
+  date_position                    date,
+  paid                            smallint DEFAULT 0 NOT NULL,
+  accountancy_account_capital    varchar(32),
+  accountancy_account_insurance    varchar(32),
+  accountancy_account_interest    varchar(32),
+  fk_user_author                integer DEFAULT NULL,
+  fk_user_modif                    integer DEFAULT NULL,
+  active                        tinyint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 create table llx_payment_loan
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  fk_loan			integer,
-  datec				datetime,
-  tms				timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  datep				datetime,
-  amount_capital	real DEFAULT 0,
-  amount_insurance	real DEFAULT 0,
-  amount_interest	real DEFAULT 0,
-  fk_typepayment	integer NOT NULL,
-  num_payment		varchar(50),
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  fk_loan            integer,
+  datec                datetime,
+  tms                timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  datep                datetime,
+  amount_capital    real DEFAULT 0,
+  amount_insurance    real DEFAULT 0,
+  amount_interest    real DEFAULT 0,
+  fk_typepayment    integer NOT NULL,
+  num_payment        varchar(50),
   note_private      text,
   note_public       text,
-  fk_bank			integer NOT NULL,
-  fk_user_creat		integer,
-  fk_user_modif		integer
+  fk_bank            integer NOT NULL,
+  fk_user_creat        integer,
+  fk_user_modif        integer
 )ENGINE=innodb;
 
 ALTER TABLE llx_extrafields ADD COLUMN fieldrequired integer DEFAULT 0;
@@ -179,7 +179,7 @@ create table llx_bank_account_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 
@@ -200,7 +200,7 @@ create table llx_contratdet_extrafields
   rowid            integer AUTO_INCREMENT PRIMARY KEY,
   tms              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object        integer NOT NULL,    -- object id
-  import_key       varchar(14)      	-- import key
+  import_key       varchar(14)          -- import key
 )ENGINE=innodb;
 
 ALTER TABLE llx_contratdet_extrafields ADD INDEX idx_contratdet_extrafields (fk_object);
@@ -208,7 +208,7 @@ ALTER TABLE llx_contratdet_extrafields ADD INDEX idx_contratdet_extrafields (fk_
 ALTER TABLE llx_product_fournisseur_price ADD COLUMN delivery_time_days integer;
 
 
-ALTER TABLE llx_commande_fournisseur_dispatch ADD COLUMN comment	varchar(255);
+ALTER TABLE llx_commande_fournisseur_dispatch ADD COLUMN comment    varchar(255);
 ALTER TABLE llx_commande_fournisseur_dispatch ADD COLUMN status integer;
 ALTER TABLE llx_commande_fournisseur_dispatch ADD COLUMN tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 ALTER TABLE llx_commande_fournisseur_dispatch ADD COLUMN batch varchar(30) DEFAULT NULL;
@@ -224,40 +224,40 @@ ALTER TABLE llx_product_batch MODIFY COLUMN batch varchar(30) NOT NULL;
 
 CREATE TABLE llx_expensereport (
   rowid integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  ref        		varchar(50) NOT NULL,
-  entity 			integer DEFAULT 1 NOT NULL,		-- multi company id
-  ref_number_int 	integer DEFAULT NULL,
-  ref_ext 			integer,
-  total_ht 			double(24,8) DEFAULT 0,
-  total_tva 		double(24,8) DEFAULT 0,
-  localtax1			double(24,8) DEFAULT 0,				-- amount total localtax1
-  localtax2			double(24,8) DEFAULT 0,				-- amount total localtax2
-  total_ttc 		double(24,8) DEFAULT 0,
-  date_debut 		date NOT NULL,
-  date_fin 			date NOT NULL,
-  date_create 		datetime NOT NULL,
-  date_valid 		datetime,
-  date_approve		datetime,
-  date_refuse 		datetime,
-  date_cancel 		datetime,
-  tms 		 		timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  fk_user_author 	integer NOT NULL,
-  fk_user_modif 	integer DEFAULT NULL,
-  fk_user_valid 	integer DEFAULT NULL,
+  ref                varchar(50) NOT NULL,
+  entity             integer DEFAULT 1 NOT NULL,        -- multi company id
+  ref_number_int     integer DEFAULT NULL,
+  ref_ext             integer,
+  total_ht             double(24,8) DEFAULT 0,
+  total_tva         double(24,8) DEFAULT 0,
+  localtax1            double(24,8) DEFAULT 0,                -- amount total localtax1
+  localtax2            double(24,8) DEFAULT 0,                -- amount total localtax2
+  total_ttc         double(24,8) DEFAULT 0,
+  date_debut         date NOT NULL,
+  date_fin             date NOT NULL,
+  date_create         datetime NOT NULL,
+  date_valid         datetime,
+  date_approve        datetime,
+  date_refuse         datetime,
+  date_cancel         datetime,
+  tms                  timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  fk_user_author     integer NOT NULL,
+  fk_user_modif     integer DEFAULT NULL,
+  fk_user_valid     integer DEFAULT NULL,
   fk_user_validator integer DEFAULT NULL,
   fk_user_approve   integer DEFAULT NULL,
-  fk_user_refuse 	integer DEFAULT NULL,
-  fk_user_cancel 	integer DEFAULT NULL,
-  fk_statut			integer NOT NULL,		-- 1=draft, 2=validate (waiting approbation), 4=cancel, 5=approved, 6=paid, 99=refused
-  fk_c_paiement 	integer DEFAULT NULL,
-  paid 				smallint DEFAULT 0 NOT NULL,
-  note_public		text,
-  note_private 		text,
-  detail_refuse 	varchar(255) DEFAULT NULL,
-  detail_cancel 	varchar(255) DEFAULT NULL,
-  integration_compta integer DEFAULT NULL,		-- not used
-  fk_bank_account 	integer DEFAULT NULL,
-  model_pdf 		varchar(50) DEFAULT NULL
+  fk_user_refuse     integer DEFAULT NULL,
+  fk_user_cancel     integer DEFAULT NULL,
+  fk_statut            integer NOT NULL,        -- 1=draft, 2=validate (waiting approbation), 4=cancel, 5=approved, 6=paid, 99=refused
+  fk_c_paiement     integer DEFAULT NULL,
+  paid                 smallint DEFAULT 0 NOT NULL,
+  note_public        text,
+  note_private         text,
+  detail_refuse     varchar(255) DEFAULT NULL,
+  detail_cancel     varchar(255) DEFAULT NULL,
+  integration_compta integer DEFAULT NULL,        -- not used
+  fk_bank_account     integer DEFAULT NULL,
+  model_pdf         varchar(50) DEFAULT NULL
 ) ENGINE=innodb;
 
 
@@ -272,21 +272,21 @@ CREATE TABLE llx_expensereport_det
    qty real NOT NULL,
    value_unit real NOT NULL,
    remise_percent real,
-   tva_tx						double(6,3),					-- Vat rat
-   localtax1_tx               	double(6,3)  DEFAULT 0,    		-- localtax1 rate
-   localtax1_type			 	varchar(10)	  	 NULL, 			-- localtax1 type
-   localtax2_tx               	double(6,3)  DEFAULT 0,    		-- localtax2 rate
-   localtax2_type			 	varchar(10)	  	 NULL, 			-- localtax2 type
+   tva_tx                        double(6,3),                    -- Vat rat
+   localtax1_tx                   double(6,3)  DEFAULT 0,            -- localtax1 rate
+   localtax1_type                 varchar(10)           NULL,             -- localtax1 type
+   localtax2_tx                   double(6,3)  DEFAULT 0,            -- localtax2 rate
+   localtax2_type                 varchar(10)           NULL,             -- localtax2 type
    total_ht double(24,8) DEFAULT 0 NOT NULL,
    total_tva double(24,8) DEFAULT 0 NOT NULL,
-   total_localtax1				double(24,8)  	DEFAULT 0,		-- Total LocalTax1 for total quantity of line
-   total_localtax2				double(24,8)	DEFAULT 0,		-- total LocalTax2 for total quantity of line
+   total_localtax1                double(24,8)      DEFAULT 0,        -- Total LocalTax1 for total quantity of line
+   total_localtax2                double(24,8)    DEFAULT 0,        -- total LocalTax2 for total quantity of line
    total_ttc double(24,8) DEFAULT 0 NOT NULL,
    date date NOT NULL,
-   info_bits					integer DEFAULT 0,				-- TVA NPR ou non
-   special_code					integer DEFAULT 0,			    -- code for special lines
-   rang							integer DEFAULT 0,				-- position of line
-   import_key					varchar(14)
+   info_bits                    integer DEFAULT 0,                -- TVA NPR ou non
+   special_code                    integer DEFAULT 0,                -- code for special lines
+   rang                            integer DEFAULT 0,                -- position of line
+   import_key                    varchar(14)
 ) ENGINE=innodb;
 
 ALTER TABLE llx_expensereport_det MODIFY COLUMN fk_projet integer NULL;
@@ -329,16 +329,16 @@ create table llx_facture_fourn_det_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_facture_fourn_det_extrafields ADD INDEX idx_facture_fourn_det_extrafields (fk_object);
 
-ALTER TABLE llx_facture_fourn_det ADD COLUMN special_code	 integer DEFAULT 0;
+ALTER TABLE llx_facture_fourn_det ADD COLUMN special_code     integer DEFAULT 0;
 ALTER TABLE llx_facture_fourn_det ADD COLUMN rang integer DEFAULT 0;
 ALTER TABLE llx_facture_fourn_det ADD COLUMN fk_parent_line integer NULL AFTER fk_facture_fourn;
 
-ALTER TABLE llx_commande_fournisseurdet ADD COLUMN special_code	 integer DEFAULT 0;
+ALTER TABLE llx_commande_fournisseurdet ADD COLUMN special_code     integer DEFAULT 0;
 ALTER TABLE llx_commande_fournisseurdet ADD COLUMN rang integer DEFAULT 0;
 ALTER TABLE llx_commande_fournisseurdet ADD COLUMN fk_parent_line integer NULL AFTER fk_commande;
 
@@ -453,8 +453,8 @@ ALTER TABLE llx_facture_fourn ADD COLUMN fk_incoterms integer;
 ALTER TABLE llx_facture_fourn ADD COLUMN location_incoterms varchar(255);
 ALTER TABLE llx_expedition ADD COLUMN fk_incoterms integer;
 ALTER TABLE llx_expedition ADD COLUMN location_incoterms varchar(255);
-ALTER TABLE llx_livraison ADD COLUMN 	fk_incoterms integer;
-ALTER TABLE llx_livraison ADD COLUMN 	location_incoterms varchar(255);
+ALTER TABLE llx_livraison ADD COLUMN     fk_incoterms integer;
+ALTER TABLE llx_livraison ADD COLUMN     location_incoterms varchar(255);
 
 CREATE TABLE llx_c_incoterms (
   rowid integer AUTO_INCREMENT PRIMARY KEY,
@@ -493,7 +493,7 @@ create table llx_don_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_don_extrafields ADD INDEX idx_don_extrafields (fk_object);
@@ -556,22 +556,22 @@ insert into llx_c_action_trigger (code,label,description,elementtype,rang) value
 
 create table llx_c_price_global_variable
 (
-	rowid					integer AUTO_INCREMENT PRIMARY KEY,
-	code					varchar(20) NOT NULL,
-	description		text DEFAULT NULL,
-	value					double(24,8) DEFAULT 0
+    rowid                    integer AUTO_INCREMENT PRIMARY KEY,
+    code                    varchar(20) NOT NULL,
+    description        text DEFAULT NULL,
+    value                    double(24,8) DEFAULT 0
 )ENGINE=innodb;
 
 create table llx_c_price_global_variable_updater
 (
-	rowid						integer AUTO_INCREMENT PRIMARY KEY,
-	type						integer NOT NULL,
-	description			text DEFAULT NULL,
-	parameters			text DEFAULT NULL,
-	fk_variable			integer NOT NULL,
-	update_interval	integer DEFAULT 0,
-	next_update			integer DEFAULT 0,
-	last_status			text DEFAULT NULL
+    rowid                        integer AUTO_INCREMENT PRIMARY KEY,
+    type                        integer NOT NULL,
+    description            text DEFAULT NULL,
+    parameters            text DEFAULT NULL,
+    fk_variable            integer NOT NULL,
+    update_interval    integer DEFAULT 0,
+    next_update            integer DEFAULT 0,
+    last_status            text DEFAULT NULL
 )ENGINE=innodb;
 
 ALTER TABLE llx_adherent CHANGE COLUMN note note_private text DEFAULT NULL;
@@ -581,7 +581,7 @@ CREATE TABLE IF NOT EXISTS llx_propal_merge_pdf_product (
   rowid integer NOT NULL auto_increment PRIMARY KEY,
   fk_product integer NOT NULL,
   file_name varchar(200) NOT NULL,
-  lang 	varchar(5) DEFAULT NULL,
+  lang     varchar(5) DEFAULT NULL,
   fk_user_author integer DEFAULT NULL,
   fk_user_mod integer NOT NULL,
   datec datetime NOT NULL,
@@ -592,11 +592,11 @@ CREATE TABLE IF NOT EXISTS llx_propal_merge_pdf_product (
 
 -- Units
 create table llx_c_units(
-	rowid integer AUTO_INCREMENT PRIMARY KEY,
-	code varchar(3),
-	label varchar(50),
-	short_label varchar(5),
-	active tinyint DEFAULT 1 NOT NULL
+    rowid integer AUTO_INCREMENT PRIMARY KEY,
+    code varchar(3),
+    label varchar(50),
+    short_label varchar(5),
+    active tinyint DEFAULT 1 NOT NULL
 )ENGINE=innodb;
 ALTER TABLE llx_c_units ADD UNIQUE uk_c_units_code(code);
 
@@ -692,7 +692,7 @@ CREATE TABLE llx_c_holiday_types (
   rowid integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
   code varchar(16) NOT NULL,
   label varchar(255) NOT NULL,
-  affect integer NOT NULL,	
+  affect integer NOT NULL,    
   delay integer NOT NULL,
   newByMonth double(8,5) DEFAULT 0 NOT NULL,
   fk_country integer DEFAULT NULL,
@@ -719,7 +719,7 @@ UPDATE llx_const SET name = __ENCRYPT('ACCOUNTING_VAT_SOLD_ACCOUNT')__ WHERE __D
 create table llx_c_lead_status
 (
   rowid       integer AUTO_INCREMENT PRIMARY KEY,
-  code 		  varchar(10),
+  code           varchar(10),
   label       varchar(50),
   position    integer,
   percent     double(5,2),
@@ -810,10 +810,10 @@ update llx_opensurvey_sondage set format = 'A' where format = 'A+';
 -- Disabled: too dangerous patch. rowid is a primary key. How is it possible to have no rowid ?
 --CREATE TABLE llx_holiday_users_tmp
 --(
---	rowid       integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
---	fk_user     integer NOT NULL,
---	fk_type     integer NOT NULL,
---	nb_holiday  real NOT NULL DEFAULT '0'
+--    rowid       integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
+--    fk_user     integer NOT NULL,
+--    fk_type     integer NOT NULL,
+--    nb_holiday  real NOT NULL DEFAULT '0'
 --) ENGINE=innodb;
 --INSERT INTO llx_holiday_users_tmp(fk_user,fk_type,nb_holiday) SELECT fk_user,fk_type,nb_holiday FROM llx_holiday_users;
 --DROP TABLE llx_holiday_users;

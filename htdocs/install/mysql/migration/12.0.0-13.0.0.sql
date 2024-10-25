@@ -112,14 +112,14 @@ ALTER TABLE llx_user ADD COLUMN datestartvalidity datetime;
 ALTER TABLE llx_user ADD COLUMN dateendvalidity   datetime;
 
 ALTER TABLE llx_user ADD COLUMN idpers1 varchar(128);
-ALTER TABLE llx_user ADD COLUMN idpers2	varchar(128);
-ALTER TABLE llx_user ADD COLUMN idpers3	varchar(128);
+ALTER TABLE llx_user ADD COLUMN idpers2    varchar(128);
+ALTER TABLE llx_user ADD COLUMN idpers3    varchar(128);
 
 
 -- Intracomm Report
 CREATE TABLE llx_c_transport_mode (
   rowid     integer AUTO_INCREMENT PRIMARY KEY,
-  entity    integer	DEFAULT 1 NOT NULL,	-- multi company id
+  entity    integer    DEFAULT 1 NOT NULL,    -- multi company id
   code      varchar(3) NOT NULL,
   label     varchar(255) NOT NULL,
   active    tinyint DEFAULT 1  NOT NULL
@@ -143,15 +143,15 @@ ALTER TABLE llx_societe ADD COLUMN transport_mode_supplier tinyint after cond_re
 
 CREATE TABLE llx_intracommreport
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
 
-  ref				varchar(30)        NOT NULL,			-- report reference number
-  entity			integer  DEFAULT 1 NOT NULL,			-- multi company id
-  type_declaration	varchar(32),
-  periods			varchar(32),
-  mode				varchar(32),
-  content_xml		text,
-  type_export		varchar(10),
+  ref                varchar(30)        NOT NULL,            -- report reference number
+  entity            integer  DEFAULT 1 NOT NULL,            -- multi company id
+  type_declaration    varchar(32),
+  periods            varchar(32),
+  mode                varchar(32),
+  content_xml        text,
+  type_export        varchar(10),
   datec             datetime,
   tms               timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )ENGINE=innodb;
@@ -159,29 +159,29 @@ CREATE TABLE llx_intracommreport
 ALTER TABLE llx_c_incoterms ADD COLUMN label varchar(100) NULL;
 
 CREATE TABLE llx_recruitment_recruitmentjobposition(
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ref varchar(128) DEFAULT '(PROV)' NOT NULL,
-	entity INTEGER DEFAULT 1 NOT NULL,
-	label varchar(255) NOT NULL,
-	qty integer DEFAULT 1 NOT NULL,
-	fk_soc integer,
-	fk_project integer,
-	fk_user_recruiter integer,
-	fk_user_supervisor integer,
-	fk_establishment integer,
-	date_planned date,
-	remuneration_suggested varchar(255),
-	description text,
-	note_public text,
-	note_private text,
-	date_creation datetime NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
-	last_main_doc varchar(255),
-	import_key varchar(14),
-	model_pdf varchar(255),
-	status smallint NOT NULL
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ref varchar(128) DEFAULT '(PROV)' NOT NULL,
+    entity INTEGER DEFAULT 1 NOT NULL,
+    label varchar(255) NOT NULL,
+    qty integer DEFAULT 1 NOT NULL,
+    fk_soc integer,
+    fk_project integer,
+    fk_user_recruiter integer,
+    fk_user_supervisor integer,
+    fk_establishment integer,
+    date_planned date,
+    remuneration_suggested varchar(255),
+    description text,
+    note_public text,
+    note_private text,
+    date_creation datetime NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_creat integer NOT NULL,
+    fk_user_modif integer,
+    last_main_doc varchar(255),
+    import_key varchar(14),
+    model_pdf varchar(255),
+    status smallint NOT NULL
 ) ENGINE=innodb;
 
 ALTER TABLE llx_recruitment_recruitmentjobposition ADD INDEX idx_recruitment_recruitmentjobposition_rowid (rowid);
@@ -203,7 +203,7 @@ create table llx_recruitment_recruitmentjobposition_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_recruitment_recruitmentjobposition_extrafields ADD INDEX idx_recruitmentjobposition_fk_object(fk_object);
@@ -211,31 +211,31 @@ ALTER TABLE llx_recruitment_recruitmentjobposition_extrafields ADD INDEX idx_rec
 
 
 CREATE TABLE llx_recruitment_recruitmentcandidature(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	entity integer NOT NULL DEFAULT 1,
-	fk_recruitmentjobposition INTEGER NULL,
-	ref varchar(128) DEFAULT '(PROV)' NOT NULL,
-	description text,
-	note_public text,
-	note_private text,
-	date_creation datetime NOT NULL,
-	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
-	import_key varchar(14),
-	model_pdf varchar(255),
-	status smallint NOT NULL,
-	firstname varchar(128),
-	lastname varchar(128),
-	email varchar(255),
-	phone varchar(64),
-	date_birth date,
-	remuneration_requested integer,
-	remuneration_proposed integer,
-	email_msgid varchar(255),
-	fk_recruitment_origin INTEGER NULL
-	-- END MODULEBUILDER FIELDS
+    -- BEGIN MODULEBUILDER FIELDS
+    rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    entity integer NOT NULL DEFAULT 1,
+    fk_recruitmentjobposition INTEGER NULL,
+    ref varchar(128) DEFAULT '(PROV)' NOT NULL,
+    description text,
+    note_public text,
+    note_private text,
+    date_creation datetime NOT NULL,
+    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fk_user_creat integer NOT NULL,
+    fk_user_modif integer,
+    import_key varchar(14),
+    model_pdf varchar(255),
+    status smallint NOT NULL,
+    firstname varchar(128),
+    lastname varchar(128),
+    email varchar(255),
+    phone varchar(64),
+    date_birth date,
+    remuneration_requested integer,
+    remuneration_proposed integer,
+    email_msgid varchar(255),
+    fk_recruitment_origin INTEGER NULL
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
 ALTER TABLE llx_recruitment_recruitmentcandidature ADD COLUMN entity integer NOT NULL DEFAULT 1;
@@ -253,7 +253,7 @@ create table llx_recruitment_recruitmentcandidature_extrafields
   rowid                     integer AUTO_INCREMENT PRIMARY KEY,
   tms                       timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_object                 integer NOT NULL,
-  import_key                varchar(14)                          		-- import key
+  import_key                varchar(14)                                  -- import key
 ) ENGINE=innodb;
 
 ALTER TABLE llx_recruitment_recruitmentcandidature_extrafields ADD INDEX idx_recruitmentcandidature_fk_object(fk_object);
@@ -314,10 +314,10 @@ ALTER TABLE llx_socpeople ADD COLUMN fk_stcommcontact integer DEFAULT 0 NOT NULL
 
 create table llx_c_recruitment_origin
 (
-  rowid      	integer AUTO_INCREMENT PRIMARY KEY,
+  rowid          integer AUTO_INCREMENT PRIMARY KEY,
   code          varchar(32) NOT NULL,
-  label 	    varchar(64)	NOT NULL,
-  active  	    tinyint DEFAULT 1  NOT NULL
+  label         varchar(64)    NOT NULL,
+  active          tinyint DEFAULT 1  NOT NULL
 )ENGINE=innodb;
 
 

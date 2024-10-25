@@ -26,9 +26,9 @@ create table llx_product_fournisseur_price_log
   quantity                    double,
   fk_user                     integer,
 
-  fk_multicurrency			integer,
-  multicurrency_code		varchar(3),
-  multicurrency_tx			double(24,8) DEFAULT 1,
-  multicurrency_unitprice	double(24,8) DEFAULT NULL,		-- unit price without tax
-  multicurrency_price		double(24,8) DEFAULT NULL
+  fk_multicurrency            integer,
+  multicurrency_code        varchar(3),
+  multicurrency_tx            double(24,8) DEFAULT 1,
+  multicurrency_unitprice    double(24,8) DEFAULT NULL,        -- unit price without tax
+  multicurrency_price        double(24,8) DEFAULT NULL
 )ENGINE=innodb;

@@ -30,33 +30,33 @@ create table llx_facture_fourn_det
   pu_ht             double(24,8), -- unit price excluding tax
   pu_ttc            double(24,8), -- unit price with tax
   qty               real,         -- quantity of product/service
-  remise_percent	real       DEFAULT 0,				-- % de la remise ligne (exemple 20%)
-  fk_remise_except	integer    NULL,					-- Lien vers table des remises fixes
-  vat_src_code		varchar(10)  DEFAULT '',			-- Vat code used as source of vat fields. Not strict foreign key here.
+  remise_percent    real       DEFAULT 0,                -- % de la remise ligne (exemple 20%)
+  fk_remise_except    integer    NULL,                    -- Lien vers table des remises fixes
+  vat_src_code        varchar(10)  DEFAULT '',            -- Vat code used as source of vat fields. Not strict foreign key here.
   tva_tx            double(7,4),  -- TVA taux product/service
   localtax1_tx      double(7,4)  DEFAULT 0,    -- localtax1 rate
-  localtax1_type	varchar(10)	  NULL, 		-- localtax1 type
+  localtax1_type    varchar(10)      NULL,         -- localtax1 type
   localtax2_tx      double(7,4)  DEFAULT 0,    -- localtax2 rate
-  localtax2_type	varchar(10)	  NULL, 		-- localtax2 type
+  localtax2_type    varchar(10)      NULL,         -- localtax2 type
   total_ht          double(24,8), -- Total line price of product excluding tax
   tva               double(24,8), -- Total TVA of line
-  total_localtax1   double(24,8) DEFAULT 0,	-- Total LocalTax1 for total quantity of line
-  total_localtax2   double(24,8) DEFAULT 0,	-- total LocalTax2 for total quantity of line
+  total_localtax1   double(24,8) DEFAULT 0,    -- Total LocalTax1 for total quantity of line
+  total_localtax2   double(24,8) DEFAULT 0,    -- total LocalTax2 for total quantity of line
   total_ttc         double(24,8), -- Total line with tax
-  product_type	    integer      DEFAULT 0,
+  product_type        integer      DEFAULT 0,
   date_start        datetime   DEFAULT NULL,       -- date debut si service
   date_end          datetime   DEFAULT NULL,       -- date fin si service
-  info_bits						integer    DEFAULT 0,				-- TVA NPR ou non
+  info_bits                        integer    DEFAULT 0,                -- TVA NPR ou non
   fk_code_ventilation integer DEFAULT 0 NOT NULL,
-  special_code				 integer      DEFAULT 0,      -- code for special lines
-  rang						 integer      DEFAULT 0,
+  special_code                 integer      DEFAULT 0,      -- code for special lines
+  rang                         integer      DEFAULT 0,
   import_key        varchar(14),
   fk_unit         integer    DEFAULT NULL,
   
-  fk_multicurrency		integer,
-  multicurrency_code			varchar(3),
-  multicurrency_subprice		double(24,8) DEFAULT 0,
-  multicurrency_total_ht		double(24,8) DEFAULT 0,
-  multicurrency_total_tva	double(24,8) DEFAULT 0,
-  multicurrency_total_ttc	double(24,8) DEFAULT 0
+  fk_multicurrency        integer,
+  multicurrency_code            varchar(3),
+  multicurrency_subprice        double(24,8) DEFAULT 0,
+  multicurrency_total_ht        double(24,8) DEFAULT 0,
+  multicurrency_total_tva    double(24,8) DEFAULT 0,
+  multicurrency_total_ttc    double(24,8) DEFAULT 0
 )ENGINE=innodb;

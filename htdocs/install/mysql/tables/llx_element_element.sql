@@ -1,6 +1,6 @@
 -- ============================================================================
--- Copyright (C) 2008-2011	Laurent Destailleur	<eldy@users.sourceforge.net>
--- Copyright (C) 2011		Regis Houssin		<eldy@users.sourceforge.net>
+-- Copyright (C) 2008-2011    Laurent Destailleur    <eldy@users.sourceforge.net>
+-- Copyright (C) 2011        Regis Houssin        <eldy@users.sourceforge.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 
 create table llx_element_element
 (
-  rowid           	integer AUTO_INCREMENT PRIMARY KEY,  
-  fk_source			integer NOT NULL,
-  sourcetype		varchar(32) NOT NULL,
-  fk_target			integer NOT NULL,
-  targettype		varchar(32) NOT NULL
+  rowid               integer AUTO_INCREMENT PRIMARY KEY,  
+  fk_source            integer NOT NULL,
+  sourcetype        varchar(32) NOT NULL,
+  fk_target            integer NOT NULL,
+  targettype        varchar(32) NOT NULL
 ) ENGINE=innodb;
 

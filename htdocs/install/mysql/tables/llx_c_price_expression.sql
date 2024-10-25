@@ -1,5 +1,5 @@
 -- ============================================================================
--- Copyright (C) 2014		Ion agorria			<ion@agorria.com> 
+-- Copyright (C) 2014        Ion agorria            <ion@agorria.com> 
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 create table llx_c_price_expression
 (
-	rowid			integer AUTO_INCREMENT PRIMARY KEY,
-	title			varchar(20) NOT NULL,
-	expression		varchar(255) NOT NULL
+    rowid            integer AUTO_INCREMENT PRIMARY KEY,
+    title            varchar(20) NOT NULL,
+    expression        varchar(255) NOT NULL
 )ENGINE=innodb;

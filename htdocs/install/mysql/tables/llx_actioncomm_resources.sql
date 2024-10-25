@@ -1,6 +1,6 @@
 -- ============================================================================
--- Copyright (C) 2013	Laurent Destailleur	<eldy@users.sourceforge.net>
--- Copyright (C) 2013	Florian Henry		<florian.henry@open-concept.pro>
+-- Copyright (C) 2013    Laurent Destailleur    <eldy@users.sourceforge.net>
+-- Copyright (C) 2013    Florian Henry        <florian.henry@open-concept.pro>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -22,11 +22,11 @@
 
 create table llx_actioncomm_resources
 (
-  rowid           	integer AUTO_INCREMENT PRIMARY KEY,  
-  fk_actioncomm		integer NOT NULL,			-- Id into llx_actioncomm
-  element_type		varchar(50) NOT NULL,		-- Type of resource ('user', 'resource')
-  fk_element		integer NOT NULL,			-- Id into table llx_user or llx_resource
-  answer_status		varchar(50) NULL,
-  mandatory			smallint,
-  transparency		smallint default 1	    -- Used to say if event is 1=OPAQUE=busy or 0=TRANSPARENT
+  rowid               integer AUTO_INCREMENT PRIMARY KEY,  
+  fk_actioncomm        integer NOT NULL,            -- Id into llx_actioncomm
+  element_type        varchar(50) NOT NULL,        -- Type of resource ('user', 'resource')
+  fk_element        integer NOT NULL,            -- Id into table llx_user or llx_resource
+  answer_status        varchar(50) NULL,
+  mandatory            smallint,
+  transparency        smallint default 1        -- Used to say if event is 1=OPAQUE=busy or 0=TRANSPARENT
 ) ENGINE=innodb;

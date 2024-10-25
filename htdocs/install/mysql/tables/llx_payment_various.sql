@@ -1,5 +1,5 @@
 -- ===================================================================
--- Copyright (C) 2017-2019	Alexandre Spangaro <aspangaro@open-dsi.fr>
+-- Copyright (C) 2017-2019    Alexandre Spangaro <aspangaro@open-dsi.fr>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ create table llx_payment_various
 (
   rowid                 integer AUTO_INCREMENT PRIMARY KEY,
   ref                   varchar(30) NULL,           -- payment reference number (currently NULL because there is no numbering manager yet)
-  num_payment           varchar(50),				-- num cheque or other
+  num_payment           varchar(50),                -- num cheque or other
   label                 varchar(255),
   tms                   timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   datec                 datetime,                   -- Create date
@@ -32,7 +32,7 @@ create table llx_payment_various
   accountancy_code      varchar(32),
   subledger_account     varchar(32),
   fk_projet             integer DEFAULT NULL,
-  entity                integer DEFAULT 1 NOT NULL,	-- multi company id
+  entity                integer DEFAULT 1 NOT NULL,    -- multi company id
   note                  text,
   fk_bank               integer,
   fk_user_author        integer,                    -- utilisateur qui a cree l'info

@@ -23,23 +23,23 @@ create table llx_facture_rec
 (
   rowid              integer AUTO_INCREMENT PRIMARY KEY,
   titre              varchar(200) NOT NULL,
-  entity             integer DEFAULT 1 NOT NULL,	 -- multi company id
+  entity             integer DEFAULT 1 NOT NULL,     -- multi company id
   fk_soc             integer NOT NULL,
   datec              datetime,            -- date de creation
-  tms				 timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,           -- last modification date
+  tms                 timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,           -- last modification date
 
-  suspended          integer DEFAULT 0,					-- 1=suspended
+  suspended          integer DEFAULT 0,                    -- 1=suspended
   
   amount             double(24,8)     DEFAULT 0 NOT NULL,
   remise             real     DEFAULT 0,
   remise_percent     real     DEFAULT 0,
   remise_absolue     real     DEFAULT 0,
   
-  vat_src_code		 varchar(10)  DEFAULT '',			-- TODO Remove this. Field is inside the table of lines
+  vat_src_code         varchar(10)  DEFAULT '',            -- TODO Remove this. Field is inside the table of lines
   total_tva          double(24,8)     DEFAULT 0,
-  localtax1			 double(24,8)     DEFAULT 0,           -- amount localtax1
+  localtax1             double(24,8)     DEFAULT 0,           -- amount localtax1
   localtax2          double(24,8)     DEFAULT 0,           -- amount localtax2
-  revenuestamp       double(24,8)     DEFAULT 0,			 -- amount total revenuestamp
+  revenuestamp       double(24,8)     DEFAULT 0,             -- amount total revenuestamp
   total_ht           double(24,8)     DEFAULT 0,
   total_ttc          double(24,8)     DEFAULT 0,
 
@@ -50,8 +50,8 @@ create table llx_facture_rec
   
   fk_cond_reglement  integer  DEFAULT 1 NOT NULL,  -- condition de reglement
   fk_mode_reglement  integer DEFAULT 0,  -- mode de reglement (Virement, Prelevement)
-  date_lim_reglement date,				   -- date limite de reglement
-  fk_account         integer,			  -- bank account id
+  date_lim_reglement date,                   -- date limite de reglement
+  fk_account         integer,              -- bank account id
   note_private       text,
   note_public        text,
   modelpdf           varchar(255),
@@ -63,14 +63,14 @@ create table llx_facture_rec
   multicurrency_total_tva   double(24,8) DEFAULT 0,
   multicurrency_total_ttc   double(24,8) DEFAULT 0,
 
-  usenewprice        integer DEFAULT 0,			-- update invoice with current price of product instead of recorded price
-  frequency          integer,						-- frequency (for example: 3 for every 3 month)
-  unit_frequency     varchar(2) DEFAULT 'm',		-- 'm' for month (date_when must be a day <= 28), 'y' for year, ... 
+  usenewprice        integer DEFAULT 0,            -- update invoice with current price of product instead of recorded price
+  frequency          integer,                        -- frequency (for example: 3 for every 3 month)
+  unit_frequency     varchar(2) DEFAULT 'm',        -- 'm' for month (date_when must be a day <= 28), 'y' for year, ... 
   
-  date_when          datetime DEFAULT NULL,		-- date for next gen (when an invoice is generated, this field must be updated with next date)
-  date_last_gen      datetime DEFAULT NULL,		-- date for last gen (date with last successfull generation of invoice)
-  nb_gen_done        integer DEFAULT NULL,		-- nb of generation done (when an invoice is generated, this field must incremented)
-  nb_gen_max         integer DEFAULT NULL,		    -- maximum number of generation
-  auto_validate      integer DEFAULT 0,		-- 0 to create in draft, 1 to create and validate the new invoice
+  date_when          datetime DEFAULT NULL,        -- date for next gen (when an invoice is generated, this field must be updated with next date)
+  date_last_gen      datetime DEFAULT NULL,        -- date for last gen (date with last successfull generation of invoice)
+  nb_gen_done        integer DEFAULT NULL,        -- nb of generation done (when an invoice is generated, this field must incremented)
+  nb_gen_max         integer DEFAULT NULL,            -- maximum number of generation
+  auto_validate      integer DEFAULT 0,        -- 0 to create in draft, 1 to create and validate the new invoice
   generate_pdf       integer DEFAULT 1      -- 0 disable pdf, 1 to generate pdf
 )ENGINE=innodb;

@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Copyright (C) 2005      Brice Davoleau <e1davole@iu-vannes.fr>
--- Copyright (C) 2005-2010 Matthieu Valleton <mv@seeschloss.org>		
+-- Copyright (C) 2005-2010 Matthieu Valleton <mv@seeschloss.org>        
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by

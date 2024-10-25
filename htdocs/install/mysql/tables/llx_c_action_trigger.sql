@@ -1,5 +1,5 @@
 -- ===================================================================
--- Copyright (C) 2011 Regis Houssin	<regis.houssin@inodbox.com>
+-- Copyright (C) 2011 Regis Houssin    <regis.houssin@inodbox.com>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 
 create table llx_c_action_trigger
 (
-  rowid			integer AUTO_INCREMENT PRIMARY KEY,
-  elementtype	varchar(64) 			NOT NULL,
-  code			varchar(128)			NOT NULL,
-  contexts		varchar(255)			NULL,			-- list of possible contexts when ther is different context of trigger
-  label			varchar(128)			NOT NULL,
-  description	varchar(255),
-  rang			integer		DEFAULT 0
+  rowid            integer AUTO_INCREMENT PRIMARY KEY,
+  elementtype    varchar(64)             NOT NULL,
+  code            varchar(128)            NOT NULL,
+  contexts        varchar(255)            NULL,            -- list of possible contexts when ther is different context of trigger
+  label            varchar(128)            NOT NULL,
+  description    varchar(255),
+  rang            integer        DEFAULT 0
 )ENGINE=innodb;

@@ -23,8 +23,8 @@ CREATE TABLE llx_supplier_proposaldet (
   label varchar(255) DEFAULT NULL,
   description text,
   fk_remise_except integer DEFAULT NULL,
-  vat_src_code					varchar(10) DEFAULT '',		-- Vat code used as source of vat fields. Not strict foreign key here.
-  tva_tx 						double(7,4) DEFAULT 0,		-- Vat rate
+  vat_src_code                    varchar(10) DEFAULT '',        -- Vat code used as source of vat fields. Not strict foreign key here.
+  tva_tx                         double(7,4) DEFAULT 0,        -- Vat rate
   localtax1_tx double(7,4) DEFAULT 0,
   localtax1_type varchar(10) DEFAULT NULL,
   localtax2_tx double(7,4) DEFAULT 0,
@@ -40,8 +40,8 @@ CREATE TABLE llx_supplier_proposaldet (
   total_localtax2 double(24,8) DEFAULT 0,
   total_ttc double(24,8) DEFAULT 0,
   product_type integer DEFAULT 0,
-  date_start	datetime   DEFAULT NULL,         -- date debut si service
-  date_end		datetime   DEFAULT NULL,         -- date fin si service
+  date_start    datetime   DEFAULT NULL,         -- date debut si service
+  date_end        datetime   DEFAULT NULL,         -- date fin si service
   info_bits integer DEFAULT 0,
   buy_price_ht double(24,8) DEFAULT 0,
   fk_product_fournisseur_price integer DEFAULT NULL,

@@ -17,40 +17,40 @@
 
 create table llx_facture_fourn_det_rec
 (
-  rowid				integer AUTO_INCREMENT PRIMARY KEY,
-  fk_facture_fourn		integer NOT NULL,
-  fk_parent_line	integer NULL,
-  fk_product		integer NULL,
+  rowid                integer AUTO_INCREMENT PRIMARY KEY,
+  fk_facture_fourn        integer NOT NULL,
+  fk_parent_line    integer NULL,
+  fk_product        integer NULL,
   ref               varchar(50),   -- supplier product ref
-  label				varchar(255) DEFAULT NULL,
-  description		text,
+  label                varchar(255) DEFAULT NULL,
+  description        text,
   pu_ht             double(24,8), -- unit price excluding tax
   pu_ttc            double(24,8), -- unit price with tax
   qty               real,         -- quantity of product/service
-  remise_percent	real       DEFAULT 0,				-- % de la remise ligne (exemple 20%)
-  fk_remise_except	integer    NULL,					-- Lien vers table des remises fixes
-  vat_src_code					varchar(10)  DEFAULT '',			-- Vat code used as source of vat fields. Not strict foreign key here.
-  tva_tx			double(7,4),	             	-- taux tva
-  localtax1_tx      double(7,4) DEFAULT 0,    		-- localtax1 rate
-  localtax1_type	varchar(10) NULL, 				-- localtax1 type
-  localtax2_tx      double(7,4) DEFAULT 0,    		-- localtax2 rate
-  localtax2_type	varchar(10)	 NULL, 				-- localtax2 type
-  total_ht			double(24,8),					-- Total HT de la ligne toute quantity et incluant remise ligne et globale
-  total_tva			double(24,8),					-- Total TVA de la ligne toute quantity et incluant remise ligne et globale
-  total_localtax1	double(24,8) DEFAULT 0,		-- Total LocalTax1 for total quantity of line
-  total_localtax2	double(24,8) DEFAULT 0,		-- total LocalTax2 for total quantity of line
-  total_ttc			double(24,8),					-- Total TTC de la ligne toute quantity et incluant remise ligne et globale
-  product_type		integer DEFAULT 0,
+  remise_percent    real       DEFAULT 0,                -- % de la remise ligne (exemple 20%)
+  fk_remise_except    integer    NULL,                    -- Lien vers table des remises fixes
+  vat_src_code                    varchar(10)  DEFAULT '',            -- Vat code used as source of vat fields. Not strict foreign key here.
+  tva_tx            double(7,4),                     -- taux tva
+  localtax1_tx      double(7,4) DEFAULT 0,            -- localtax1 rate
+  localtax1_type    varchar(10) NULL,                 -- localtax1 type
+  localtax2_tx      double(7,4) DEFAULT 0,            -- localtax2 rate
+  localtax2_type    varchar(10)     NULL,                 -- localtax2 type
+  total_ht            double(24,8),                    -- Total HT de la ligne toute quantity et incluant remise ligne et globale
+  total_tva            double(24,8),                    -- Total TVA de la ligne toute quantity et incluant remise ligne et globale
+  total_localtax1    double(24,8) DEFAULT 0,        -- Total LocalTax1 for total quantity of line
+  total_localtax2    double(24,8) DEFAULT 0,        -- total LocalTax2 for total quantity of line
+  total_ttc            double(24,8),                    -- Total TTC de la ligne toute quantity et incluant remise ligne et globale
+  product_type        integer DEFAULT 0,
   date_start        integer DEFAULT NULL,       -- date debut si service
   date_end          integer DEFAULT NULL,       -- date fin si service
-  info_bits			integer DEFAULT 0,				-- TVA NPR ou non
-  special_code		integer UNSIGNED DEFAULT 0,		-- code for special lines
-  rang				integer DEFAULT 0,				-- ordre d'affichage
+  info_bits            integer DEFAULT 0,                -- TVA NPR ou non
+  special_code        integer UNSIGNED DEFAULT 0,        -- code for special lines
+  rang                integer DEFAULT 0,                -- ordre d'affichage
   fk_unit           integer    DEFAULT NULL,
-  import_key		varchar(14),
+  import_key        varchar(14),
 
-  fk_user_author	integer,                						-- user making creation
-  fk_user_modif     integer,                						-- user making last change
+  fk_user_author    integer,                                        -- user making creation
+  fk_user_modif     integer,                                        -- user making last change
 
   fk_multicurrency          integer,
   multicurrency_code        varchar(3),

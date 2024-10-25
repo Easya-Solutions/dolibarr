@@ -1,8 +1,8 @@
 -- ============================================================================
--- Copyright (C) 2006 Rodolphe Quiedeville	<rodolphe@quiedeville.org>
--- Copyright (C) 2012 Laurent Destailleur	<eldy@users.sourceforge.net>
--- Copyright (C) 2012 Regis Houssin			<regis.houssin@inodbox.com>
--- Copyright (C) 2012 Juanjo Menent			<jmenent@2byte.es>
+-- Copyright (C) 2006 Rodolphe Quiedeville    <rodolphe@quiedeville.org>
+-- Copyright (C) 2012 Laurent Destailleur    <eldy@users.sourceforge.net>
+-- Copyright (C) 2012 Regis Houssin            <regis.houssin@inodbox.com>
+-- Copyright (C) 2012 Juanjo Menent            <jmenent@2byte.es>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by

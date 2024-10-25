@@ -29,8 +29,8 @@ ALTER TABLE llx_expensereport ADD INDEX idx_expensereport_fk_user_valid (fk_user
 ALTER TABLE llx_expensereport ADD INDEX idx_expensereport_fk_user_approve (fk_user_approve);
 ALTER TABLE llx_expensereport ADD INDEX idx_expensereport_fk_refuse (fk_user_approve);
 
---ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_user_author		FOREIGN KEY (fk_user_author)	 REFERENCES llx_user (rowid);
---ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_user_valid 		FOREIGN KEY (fk_user_valid)		 REFERENCES llx_user (rowid);
---ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_user_approve 		FOREIGN KEY (fk_user_approve)	 REFERENCES llx_user (rowid);
---ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_refuse				FOREIGN KEY (fk_user_refuse)     REFERENCES llx_user (rowid);
+--ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_user_author        FOREIGN KEY (fk_user_author)     REFERENCES llx_user (rowid);
+--ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_user_valid         FOREIGN KEY (fk_user_valid)         REFERENCES llx_user (rowid);
+--ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_user_approve         FOREIGN KEY (fk_user_approve)     REFERENCES llx_user (rowid);
+--ALTER TABLE llx_expensereport ADD CONSTRAINT fk_expensereport_fk_refuse                FOREIGN KEY (fk_user_refuse)     REFERENCES llx_user (rowid);
 

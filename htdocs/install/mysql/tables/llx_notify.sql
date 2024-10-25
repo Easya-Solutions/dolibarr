@@ -1,7 +1,7 @@
 -- ===================================================================
 -- Copyright (C) 2003 Rodolphe Quiedeville <rodolphe@quiedeville.org>
 -- Copyright (C) 2009 Laurent Destailleur  <eldy@users.sourceforge.net>
--- Copyright (C) 2014 Juanjo Menent		   <jmenent@2byte.es>
+-- Copyright (C) 2014 Juanjo Menent           <jmenent@2byte.es>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ create table llx_notify
   fk_contact      integer NULL,
   fk_user         integer NULL,
   type            varchar(16) DEFAULT 'email',
-  type_target     varchar(16) NULL,		-- What type of target notification was sent to ? 'tocontactid', 'touserid', 'tofixedemail'
+  type_target     varchar(16) NULL,        -- What type of target notification was sent to ? 'tocontactid', 'touserid', 'tofixedemail'
   objet_type      varchar(24) NOT NULL,
   objet_id        integer NOT NULL,
   email           varchar(255)

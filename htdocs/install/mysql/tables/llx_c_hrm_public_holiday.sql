@@ -1,5 +1,5 @@
 -- ========================================================================
--- Copyright (C) 2019	Laurent Destailleur		<eldy@users.sourceforge.net>
+-- Copyright (C) 2019    Laurent Destailleur        <eldy@users.sourceforge.net>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 create table llx_c_hrm_public_holiday
 (
   id               integer AUTO_INCREMENT PRIMARY KEY,
-  entity           integer	DEFAULT 0 NOT NULL,   -- multi company id, 0 = all
+  entity           integer    DEFAULT 0 NOT NULL,   -- multi company id, 0 = all
   fk_country       integer,
   fk_departement   integer,
   code             varchar(62),
