@@ -310,7 +310,7 @@ drop table tmp_societe_double;
 -- Sequence to removed duplicated values of llx_accounting_account. Run several times if you still have duplicate.
 drop table tmp_accounting_account_double;
 --select account_number, fk_pcg_version, max(rowid) as max_rowid, count(rowid) as count_rowid from llx_accounting_account where label is not null group by account_number, fk_pcg_version having count(rowid) >= 2;
-create table tmp_accounting_account_double as (select account_number, fk_pcg_version, max(rowid) as max_rowid, count(rowid) as count_rowid from llx_accounting_account where label is not null group by account_number, fk_pcg_version having count(rowid) >= 2);
+create table tmp_accounting_account_double as (select account_number, fk_pcg_version, entity, max(rowid) as max_rowid, count(rowid) as count_rowid from llx_accounting_account where label is not null group by account_number, fk_pcg_version, entity having count(rowid) >= 2);
 --select * from tmp_accounting_account_double;
 delete from llx_accounting_account where (rowid) in (select max_rowid from tmp_accounting_account_double);	--update to avoid duplicate, delete to delete
 drop table tmp_accounting_account_double;
@@ -598,6 +598,9 @@ DELETE FROM llx_rights_def WHERE module = 'hrm' AND perms = 'employee';
 -- Delete department of regions linked to no coutry, then delete region with no country
 DELETE FROM llx_c_departements WHERE fk_region <> 0 AND fk_region IN (select code_region FROM llx_c_regions WHERE fk_pays NOT IN (select rowid from llx_c_country));
 DELETE from llx_c_regions WHERE fk_pays NOT IN (select rowid from llx_c_country);
+
+
+UPDATE llx_mrp_production SET disable_stock_change = 0 WHERE disable_stock_change IS NULL;
 
 
 -- Drop duplicate indexes not named correctly and create the only one we should have

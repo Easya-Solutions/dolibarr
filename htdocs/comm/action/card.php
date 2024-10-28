@@ -277,6 +277,9 @@ if (empty($reshook) && $action == 'add') {
 		$datef = dol_mktime(GETPOST("p2hour", 'int'), GETPOST("p2min", 'int'), GETPOST("apsec", 'int'), GETPOST("p2month", 'int'), GETPOST("p2day", 'int'), GETPOST("p2year", 'int'), 'tzuserrel');
 	}
 
+	//set end date to now if percentage is set to 100 and end date not set
+	$datef = (!$datef && $percentage == 100)?dol_now():$datef;
+
 	// Check parameters
 	if (!$datef && $percentage == 100) {
 		$error++; $donotclearsession = 1;
@@ -2226,9 +2229,10 @@ if ($id > 0) {
 
 		// Type
 		if (!empty($conf->global->AGENDA_USE_EVENT_TYPE)) {
+			$labeltype = ($langs->transnoentities("Action".$object->type_code) != "Action".$object->type_code) ? $langs->transnoentities("Action".$object->type_code) : $object->type_label;
 			print '<tr><td class="titlefield">'.$langs->trans("Type").'</td><td>';
 			print $object->getTypePicto();
-			print $langs->trans("Action".$object->type_code);
+			print $labeltype;
 			print '</td></tr>';
 		}
 

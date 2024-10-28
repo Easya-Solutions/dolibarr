@@ -44,7 +44,10 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/html.formproduct.class.php';
-require_once DOL_DOCUMENT_ROOT.'/workstation/class/workstation.class.php';
+
+if (isModEnabled('workstation')) {
+	require_once DOL_DOCUMENT_ROOT . '/workstation/class/workstation.class.php';
+}
 if (isModEnabled('categorie')) {
 	require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcategory.class.php';
@@ -426,7 +429,9 @@ if (empty($reshook)) {
  */
 
 $product_static = new Product($db);
-$static_ws = new Workstation($db);
+if (isModEnabled('workstation')) {
+	$workstation_static = new Workstation($db);
+}
 $product_fourn = new ProductFournisseur($db);
 
 $title = $langs->trans("ProductsAndServices");
@@ -1850,12 +1855,12 @@ while ($i < $imaxinloop) {
 		// Default Workstation
 		if (!empty($arrayfields['p.fk_default_workstation']['checked'])) {
 			print '<td align="left">';
-			if (!empty($obj->fk_default_workstation)) {
-				$static_ws->id = $obj->fk_default_workstation;
-				$static_ws->ref = $obj->ref_workstation;
-				$static_ws->status = $obj->status_workstation;
+			if (isModEnabled('workstation') && !empty($obj->fk_default_workstation)) {
+				$workstation_static->id = $obj->fk_default_workstation;
+				$workstation_static->ref = $obj->ref_workstation;
+				$workstation_static->status = $obj->status_workstation;
 
-				print $static_ws->getNomUrl(1);
+				print $workstation_static->getNomUrl(1);
 			}
 			print '</td>';
 			if (!$i) {

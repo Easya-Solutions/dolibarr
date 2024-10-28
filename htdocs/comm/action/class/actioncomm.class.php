@@ -841,6 +841,7 @@ class ActionComm extends CommonObject
 				$this->type_color = $obj->type_color;
 				$this->type_picto = $obj->type_picto;
 				$this->type       = $obj->type_type;
+				$this->type_label = $obj->type_label;
 
 				$this->code = $obj->code;
 				$this->label = $obj->label;
@@ -2517,6 +2518,7 @@ class ActionComm extends CommonObject
 
 					// Load event
 					$res = $this->fetch($actionCommReminder->fk_actioncomm);
+					if ($res > 0) $res = $this->fetch_thirdparty();
 					if ($res > 0) {
 						// PREPARE EMAIL
 						$errormesg = '';

@@ -531,6 +531,34 @@ if (empty($reshook)) {
 			$object->client					= GETPOST('client', 'int');
 			$object->fournisseur			= GETPOST('fournisseur', 'int');
 
+			if ($action == 'add') {
+				// for prospect, customer or supplier
+				if ($object->client > 0 || $object->fournisseur > 0) {
+					$form = new Form($db);
+					$form->load_cache_types_paiements();
+
+					$paymentTermId = GETPOSTINT('cond_reglement_id');
+					$paymentTypeId = GETPOSTINT('mode_reglement_id');
+					if ($object->client > 0) {
+						$object->cond_reglement_id = $paymentTermId;
+
+						$filterPaymentTypeIdArr = array(0, 2, 3); // allow payment type for customer (filter is "CRDT" in "Form::select_types_paiements()" method)
+						if (!empty($form->cache_types_paiements[$paymentTypeId]) && isset($form->cache_types_paiements[$paymentTypeId]['type']) && in_array($form->cache_types_paiements[$paymentTypeId]['type'], $filterPaymentTypeIdArr)) {
+							$object->mode_reglement_id = $paymentTypeId;
+						}
+					}
+
+					if ($object->fournisseur > 0) {
+						$object->cond_reglement_supplier_id	= $paymentTermId;
+
+						$filterPaymentTypeIdArr = array(1, 2, 3); // allow payment type for supplier (filter is "DBIT" in "Form::select_types_paiements()" method)
+						if (!empty($form->cache_types_paiements[$paymentTypeId]) && isset($form->cache_types_paiements[$paymentTypeId]['type']) && in_array($form->cache_types_paiements[$paymentTypeId]['type'], $filterPaymentTypeIdArr)) {
+							$object->mode_reglement_supplier_id = $paymentTypeId;
+						}
+					}
+				}
+			}
+
 			$object->commercial_id			= GETPOST('commercial_id', 'int');
 			$object->default_lang			= GETPOST('default_lang');
 
@@ -1144,6 +1172,16 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 		$object->email				= GETPOST('email', 'custom', 0, FILTER_SANITIZE_EMAIL);
 		$object->url				= GETPOST('url', 'custom', 0, FILTER_SANITIZE_URL);
 		$object->capital			= GETPOST('capital', 'alphanohtml');
+		$paymentTermId = GETPOSTINT('cond_reglement_id'); // can be set by default values on create page and not already in get or post variables
+		if (empty($paymentTermId) && !GETPOSTISSET('cond_reglement_id')) {
+			$paymentTermId = getDolGlobalString('MAIN_DEFAULT_PAYMENT_TERM_ID');
+		}
+		$object->cond_reglement_id	= $paymentTermId;
+		$paymentTypeId = GETPOSTINT('mode_reglement_id'); // can be set by default values on create page and not already in get or post variables
+		if (empty($paymentTypeId) && !GETPOSTISSET('mode_reglement_id')) {
+			$paymentTypeId = getDolGlobalString('MAIN_DEFAULT_PAYMENT_TYPE_ID');
+		}
+		$object->mode_reglement_id 	= $paymentTypeId;
 		$object->barcode			= GETPOST('barcode', 'alphanohtml');
 		$object->idprof1			= GETPOST('idprof1', 'alphanohtml');
 		$object->idprof2			= GETPOST('idprof2', 'alphanohtml');
@@ -1822,6 +1860,20 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 			print '</td>';
 			print '</tr>';
 		}
+
+		// Payment terms of the settlement
+		print '<tr>';
+		print '<td>'.$form->editfieldkey('PaymentConditions', 'cond_reglement_id', '', $object, 0).'</td>';
+		print '<td colspan="3" class="maxwidthonsmartphone">';
+		print $form->getSelectConditionsPaiements($object->cond_reglement_id, 'cond_reglement_id', 1, 1, 1, '', $object->deposit_percent);
+		print '</td></tr>';
+
+		// Payment mode
+		print '<tr>';
+		print '<td>'.$form->editfieldkey('PaymentMode', 'mode_reglement_id', '', $object, 0).'</td>';
+		print '<td colspan="3" class="maxwidthonsmartphone">';
+		print $form->select_types_paiements($object->mode_reglement_id, 'mode_reglement_id', '', 0, 1, 1, 0, 1);
+		print '</td></tr>';
 
 		// Incoterms
 		if (isModEnabled('incoterm')) {
