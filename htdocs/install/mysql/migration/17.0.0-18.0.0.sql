@@ -638,3 +638,8 @@ ALTER TABLE llx_prelevement_lignes ADD COLUMN fk_soc_rib integer DEFAULT NULL;
 -- Update website type
 UPDATE llx_societe_account SET site = 'dolibarr_website' WHERE fk_website > 0 AND site IS NULL;
 ALTER TABLE llx_societe_account MODIFY COLUMN site varchar(128) NOT NULL;
+
+-- Add VAT by state
+ALTER TABLE llx_c_departements ADD COLUMN fk_tva integer DEFAULT NULL AFTER nom;
+ALTER TABLE llx_c_departements ADD INDEX idx_departements_fk_tva (fk_tva);
+ALTER TABLE llx_c_departements ADD CONSTRAINT fk_departements_fk_tva FOREIGN KEY (fk_tva) REFERENCES llx_c_tva (rowid);

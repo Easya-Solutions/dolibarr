@@ -200,7 +200,7 @@ $tablib[44] = "DictionaryAssetDisposalType";
 // Requests to extract data
 $tabsql = array();
 $tabsql[1] = "SELECT f.rowid as rowid, f.code, f.libelle, c.code as country_code, c.label as country, f.active FROM ".MAIN_DB_PREFIX."c_forme_juridique as f, ".MAIN_DB_PREFIX."c_country as c WHERE f.fk_pays=c.rowid";
-$tabsql[2] = "SELECT d.rowid as rowid, d.code_departement as code, d.nom as libelle, d.fk_region as region_id, r.nom as region, c.code as country_code, c.label as country, d.active FROM ".MAIN_DB_PREFIX."c_departements as d, ".MAIN_DB_PREFIX."c_regions as r, ".MAIN_DB_PREFIX."c_country as c WHERE d.fk_region=r.code_region and r.fk_pays=c.rowid and r.active=1 and c.active=1";
+$tabsql[2] = "SELECT d.rowid as rowid, d.code_departement as code, d.nom as libelle, d.fk_region as region_id, r.nom as region, c.code as country_code, c.label as country, d.fk_tva, d.active, t.taux FROM ".MAIN_DB_PREFIX."c_departements as d INNER JOIN ".MAIN_DB_PREFIX."c_regions as r ON d.fk_region=r.code_region INNER JOIN ".MAIN_DB_PREFIX."c_country as c ON r.fk_pays=c.rowid LEFT JOIN ".MAIN_DB_PREFIX."c_tva as t ON d.fk_tva=t.rowid WHERE r.active=1 and c.active=1";
 $tabsql[3] = "SELECT r.rowid as rowid, r.code_region as code, r.nom as libelle, r.fk_pays as country_id, c.code as country_code, c.label as country, r.active FROM ".MAIN_DB_PREFIX."c_regions as r, ".MAIN_DB_PREFIX."c_country as c WHERE r.fk_pays=c.rowid and c.active=1";
 $tabsql[4] = "SELECT c.rowid as rowid, c.code, c.label, c.active, c.favorite, c.eec FROM ".MAIN_DB_PREFIX."c_country AS c";
 $tabsql[5] = "SELECT c.rowid as rowid, c.code as code, c.label, c.active FROM ".MAIN_DB_PREFIX."c_civility AS c";
@@ -294,7 +294,7 @@ $tabsqlsort[44] = "code ASC";
 // Field names in select result for dictionary display
 $tabfield = array();
 $tabfield[1] = "code,libelle,country";
-$tabfield[2] = "code,libelle,region_id,region,country"; // "code,libelle,region,country_code-country"
+$tabfield[2] = "code,libelle,region_id,region,country,fk_tva"; // "code,libelle,region,country_code-country,fk_tva"
 $tabfield[3] = "code,libelle,country_id,country";
 $tabfield[4] = "code,label";
 $tabfield[5] = "code,label";
@@ -341,7 +341,7 @@ $tabfield[44] = "code,label";
 // Edit field names for editing a record
 $tabfieldvalue = array();
 $tabfieldvalue[1] = "code,libelle,country";
-$tabfieldvalue[2] = "code,libelle,region"; // "code,libelle,region"
+$tabfieldvalue[2] = "code,libelle,region,fk_tva"; // "code,libelle,region,fk_tva"
 $tabfieldvalue[3] = "code,libelle,country";
 $tabfieldvalue[4] = "code,label";
 $tabfieldvalue[5] = "code,label";
@@ -388,7 +388,7 @@ $tabfieldvalue[44] = "code,label";
 // Field names in the table for inserting a record (add field "entity" only here when dictionary is ready to personalized by entity)
 $tabfieldinsert = array();
 $tabfieldinsert[1] = "code,libelle,fk_pays";
-$tabfieldinsert[2] = "code_departement,nom,fk_region";
+$tabfieldinsert[2] = "code_departement,nom,fk_region,fk_tva";
 $tabfieldinsert[3] = "code_region,nom,fk_pays";
 $tabfieldinsert[4] = "code,label";
 $tabfieldinsert[5] = "code,label";
@@ -721,6 +721,9 @@ if (empty($reshook)) {
 			}
 			if ($value == 'country' && in_array($tablib[$id], array('DictionaryPublicHolidays', 'DictionaryCanton', 'DictionaryCompanyType', 'DictionaryHolidayTypes', 'DictionaryRevenueStamp'))) {
 				continue; // For some pages, country is not mandatory
+			}
+			if ($value == 'fk_tva' && $tablib[$id] == 'DictionaryCanton') {
+				continue; // For some pages, VAT rate is not mandatory
 			}
 			// Discard check of mandatory fiedls for other fields
 			if ($value == 'localtax1' && !GETPOST('localtax1_type')) {
@@ -2217,6 +2220,9 @@ if ($id > 0) {
 								}
 								$valuetoshow = length_accountg($valuetoshow);
 							} elseif ($value == 'fk_tva') {
+								if (empty($form->cache_vatrates)) {
+									$form->load_tva('cache_fk_tva', '', $mysoc, new Societe($db), 0, 0, '', false, -1);
+								}
 								foreach ($form->cache_vatrates as $key => $Tab) {
 									if ($form->cache_vatrates[$key]['rowid'] == $valuetoshow) {
 										$valuetoshow = $form->cache_vatrates[$key]['label'];
@@ -2587,7 +2593,7 @@ function fieldList($fieldlist, $obj = '', $tabname = '', $context = '')
 			print '</td>';
 		} elseif ($value == 'fk_tva') {
 			print '<td>';
-			print $form->load_tva('fk_tva', $obj->taux, $mysoc, new Societe($db), 0, 0, '', false, -1);
+			print $form->load_tva('fk_tva', $obj->taux ?? '', $mysoc, new Societe($db), 0, 0, '', false, -1, 0, 1);
 			print '</td>';
 		} elseif ($value == 'fk_c_exp_tax_cat') {
 			print '<td>';

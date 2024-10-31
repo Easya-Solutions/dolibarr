@@ -6426,6 +6426,7 @@ class Form
 	 * @param int $info_bits Miscellaneous information on line (1 for NPR)
 	 * @param int|string $type ''=Unknown, 0=Product, 1=Service (Used if idprod not defined)
 	 *                         Si vendeur non assujeti a TVA, TVA par defaut=0. Fin de regle.
+	 *                         If buyer state has a VAT rule from dictionary then it's the default VAT rate . End of rule.
 	 *                         Si le (pays vendeur = pays acheteur) alors la TVA par defaut=TVA du produit vendu. Fin de regle.
 	 *                         Si (vendeur et acheteur dans Communaute europeenne) et bien vendu = moyen de transports neuf (auto, bateau, avion), TVA par defaut=0 (La TVA doit etre paye par l'acheteur au centre d'impots de son pays et non au vendeur). Fin de regle.
 	 *                         Si vendeur et acheteur dans Communauté européenne et acheteur= particulier alors TVA par défaut=TVA du produit vendu. Fin de règle.
@@ -6433,9 +6434,11 @@ class Form
 	 *                         Sinon la TVA proposee par defaut=0. Fin de regle.
 	 * @param bool $options_only Return HTML options lines only (for ajax treatment)
 	 * @param int $mode 0=Use vat rate as key in combo list, 1=Add VAT code after vat rate into key, -1=Use id of vat line as key
-	 * @return    string
+	 *  @param  int<0,2>	$type_vat				0=All type, 1=VAT rate sale, 2=VAT rate purchase
+	 * 	@param 	int<0,1> 	$show_empty				0 (by default) no empty value allowed, 1 to show an empty value
+	 * @return		string
 	 */
-	public function load_tva($htmlname = 'tauxtva', $selectedrate = '', $societe_vendeuse = '', $societe_acheteuse = '', $idprod = 0, $info_bits = 0, $type = '', $options_only = false, $mode = 0)
+	public function load_tva($htmlname = 'tauxtva', $selectedrate = '', $societe_vendeuse = '', $societe_acheteuse = '', $idprod = 0, $info_bits = 0, $type = '', $options_only = false, $mode = 0, $type_vat = 0, $show_empty = 0)
 	{
 		// phpcs:enable
 		global $langs, $conf, $mysoc;
@@ -6572,6 +6575,21 @@ class Form
 			}
 
 			$selectedfound = false;
+			if ($show_empty == 1) {
+				$textforempty = ' ';
+				if (!empty($conf->use_javascript_ajax)) {
+					$textforempty = '&nbsp;'; // If we use ajaxcombo, we need &nbsp; here to avoid to have an empty element that is too small.
+				}
+
+				$return .= '<option class="optiongrey" value=""';
+				if ($selectedrate === '') {
+					$return .= ' selected';
+					$selectedfound = true;
+				}
+				$return .= '>';
+				$return .= $textforempty;
+				$return .= '</option>';
+			}
 			foreach ($this->cache_vatrates as $rate) {
 				// Keep only 0 if seller is not subject to VAT
 				if ($disabled && $rate['txtva'] != 0) {
