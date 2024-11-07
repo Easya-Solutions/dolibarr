@@ -406,6 +406,12 @@ foreach ($search as $key => $val) {
 		continue;
 	} elseif ($key == 'type_code') {
 		$newarrayoftypecodes = is_array($search[$key]) ? $search[$key] : (!empty($search[$key]) ? explode(',', $search[$key]) : array());
+		$newarrayoftypecodes = array_filter(
+			$newarrayoftypecodes,
+			function ($var) {
+				return !(empty($var) && $var !== '0');
+			}
+		);
 		if (count($newarrayoftypecodes)) {
 			$sql .= natural_search($key, join(',', $newarrayoftypecodes), 3);
 		}
@@ -851,7 +857,7 @@ foreach ($object->fields as $key => $val) {
 			print '</td>';
 		} elseif ($key == 'type_code') {
 			print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-			$formTicket->selectTypesTickets(empty($search[$key]) ? '' : $search[$key], 'search_'.$key, '', 2, 0, 1, 0, (!empty($val['css']) ? $val['css'] : 'maxwidth150'), 1);
+			$formTicket->selectTypesTickets(empty($search[$key]) ? '' : $search[$key], 'search_'.$key, '', 2, 1, 1, 0, (!empty($val['css']) ? $val['css'] : 'maxwidth150'), 1);
 			print '</td>';
 		} elseif ($key == 'category_code') {
 			print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
