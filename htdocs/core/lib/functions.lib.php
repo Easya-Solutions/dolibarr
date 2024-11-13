@@ -11615,8 +11615,10 @@ function natural_search($fields, $value, $mode = 0, $nofirstand = 0)
 							$listofcodes .= "'".$db->escape($val)."'";
 						}
 					}
-					$newres .= ($i2 > 0 ? ' OR ' : '').$field." ".($mode == -3 ? 'NOT ' : '')."IN (".$db->sanitize($listofcodes, 1).")";
-					$i2++; // a criteria for 1 more field was added to string
+					if ($val) {
+						$newres .= ($i2 > 0 ? ' OR ' : '').$field." ".($mode == -3 ? 'NOT ' : '')."IN (".$db->sanitize($listofcodes, 1).")";
+						$i2++; // a criteria for 1 more field was added to string
+					}
 				}
 				if ($mode == -3) {
 					$newres .= ' OR '.$field.' IS NULL';
@@ -11702,7 +11704,10 @@ function natural_search($fields, $value, $mode = 0, $nofirstand = 0)
 		}
 		$i1++;
 	}
-	$res = ($nofirstand ? "" : " AND ")."(".$res.")";
+
+	if ($res !== '') {
+		$res = ($nofirstand ? "" : " AND ")."(".$res.")";
+	}
 
 	return $res;
 }
