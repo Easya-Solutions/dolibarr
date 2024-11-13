@@ -577,7 +577,7 @@ IMG;
 				// Remove the IF tag
 				$xml = str_replace('[!-- IF '.$key.' --]', '', $xml);
 				// Remove everything between the ELSE tag (if it exists) and the ENDIF tag
-				$reg = '@(\[!--\sELSE\s' . preg_quote($key) . '\s--\](.*))?\[!--\sENDIF\s' . preg_quote($key) . '\s--\]@smU'; // U modifier = all quantifiers are non-greedy
+				$reg = '@(\[!--\sELSE\s' . preg_quote($key, '@') . '\s--\](.*))?\[!--\sENDIF\s' . preg_quote($key, '@') . '\s--\]@smU'; // U modifier = all quantifiers are non-greedy
 				$xml = preg_replace($reg, '', $xml);
 				/*if ($sav != $xml)
 				 {
@@ -590,7 +590,7 @@ IMG;
 				//dol_syslog("Var ".$key." is not defined, we remove the IF, ELSE and ENDIF ");
 				//$sav=$xml;
 				// Find all conditional blocks for this variable: from IF to ELSE and to ENDIF
-				$reg = '@\[!--\sIF\s' . preg_quote($key) . '\s--\](.*)(\[!--\sELSE\s' . preg_quote($key) . '\s--\](.*))?\[!--\sENDIF\s' . preg_quote($key) . '\s--\]@smU'; // U modifier = all quantifiers are non-greedy
+				$reg = '@\[!--\sIF\s' . preg_quote($key, '@') . '\s--\](.*)(\[!--\sELSE\s' . preg_quote($key, '@') . '\s--\](.*))?\[!--\sENDIF\s' . preg_quote($key, '@') . '\s--\]@smU'; // U modifier = all quantifiers are non-greedy
 				preg_match_all($reg, $xml, $matches, PREG_SET_ORDER);
 				foreach ($matches as $match) { // For each match, if there is an ELSE clause, we replace the whole block by the value in the ELSE clause
 					if (!empty($match[3])) $xml = str_replace($match[0], $match[3], $xml);
