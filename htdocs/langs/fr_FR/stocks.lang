@@ -323,3 +323,4 @@ StockMovementNotYetRecorded=Le mouvement des stocks ne sera pas affecté par cet
 WarningThisWIllAlsoDeleteStock=Attention, cela détruira également toutes les quantités en stock dans l'entrepôt
 DeleteBatch=Supprimer le lot/série
 ConfirmDeleteBatch=Voulez-vous vraiment supprimer le lot/série ?
+StockTotal=Stock total

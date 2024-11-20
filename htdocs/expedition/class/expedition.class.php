@@ -1575,6 +1575,7 @@ class Expedition extends CommonObject
 			$sql .= " LEFT JOIN ".$this->db->prefix()."product_association as pai ON pai.fk_product_pere = edp.fk_product AND pai.fk_product_fils = ed.fk_product";
 			$sql .= " WHERE ed.fk_expedition = ".((int) $this->id);
 			$sql .= " GROUP BY ed.fk_product, ed.qty, ed.fk_entrepot, ed.rowid, pai.incdec";
+			$sql .= $this->db->order("ed.rowid", "DESC");
 
 			dol_syslog(get_class($this)."::delete select details", LOG_DEBUG);
 			$resql = $this->db->query($sql);
@@ -1775,12 +1776,13 @@ class Expedition extends CommonObject
 			$this->multicurrency_total_ttc = 0;
 
 			$shipmentlinebatch = new ExpeditionLineBatch($this->db);
-
+			$line = new ExpeditionLigne($this->db); // initialize
 			while ($i < $num) {
 				$obj = $this->db->fetch_object($resql);
 
 
 				if ($originline > 0 && $originline == $obj->fk_origin_line) {
+					'@phan-var-force ExpeditionLigne $line';  // $line from previous loop
 					$line->entrepot_id = 0; // entrepod_id in details_entrepot
 					$line->qty_shipped += $obj->qty_shipped;
 				} else {
@@ -2815,7 +2817,10 @@ class ExpeditionLigne extends CommonObjectLine
 	// We can use this to know warehouse planned to be used for each lot.
 	public $detail_batch;
 
-	// virtual products  : array of total of quantities group product id and warehouse id
+	/**
+	 * Virtual products : array of total of quantities group product id and warehouse id
+	 * @var array
+	 */
 	public $detail_children;
 
 	// detail of warehouses and qty
@@ -3112,8 +3117,8 @@ class ExpeditionLigne extends CommonObjectLine
 						$line_obj->batch = $obj->batch;
 						$line_obj->eatby = $obj->eatby;
 						$line_obj->sellby = $obj->sellby;
-						$line_obj->iskit = $obj->iskit;
-						$line_obj->incdec = $obj->incdec;
+						$line_obj->iskit = 0;
+						$line_obj->incdec = 0;
 						$list[$line_id][] = $line_obj;
 					}
 
@@ -3146,6 +3151,7 @@ class ExpeditionLigne extends CommonObjectLine
 		// virtual products : delete all children and batch
 		if (getDolGlobalInt('PRODUIT_SOUSPRODUITS') && !($this->fk_parent > 0)) {
 			// find all children
+			$line_id_list = array();
 			$result = $this->findAllChild($this->id, $line_id_list);
 			if ($result) {
 				$child_line_id_list = array_reverse($line_id_list, true);
@@ -3184,8 +3190,8 @@ class ExpeditionLigne extends CommonObjectLine
 		if (!$error) {
 			// delete batch expedition line
 			if (isModEnabled('productbatch')) {
-				$sql = "DELETE FROM " . $this->db->prefix() . "expeditiondet_batch";
-				$sql .= " WHERE fk_expeditiondet = " . ((int) $this->id);
+				$sql = "DELETE FROM ".$this->db->prefix()."expeditiondet_batch";
+				$sql .= " WHERE fk_expeditiondet = ".((int) $this->id);
 
 				if (!$this->db->query($sql)) {
 					$this->errors[] = $this->db->lasterror() . " - sql=$sql";
@@ -3193,8 +3199,8 @@ class ExpeditionLigne extends CommonObjectLine
 				}
 			}
 
-			$sql = "DELETE FROM " . $this->db->prefix() . "expeditiondet";
-			$sql .= " WHERE rowid = " . ((int) $this->id);
+			$sql = "DELETE FROM ".$this->db->prefix()."expeditiondet";
+			$sql .= " WHERE rowid = ".((int) $this->id);
 
 			if (!$error && $this->db->query($sql)) {
 				// Remove extrafields
@@ -3215,7 +3221,7 @@ class ExpeditionLigne extends CommonObjectLine
 					// End call triggers
 				}
 			} else {
-				$this->errors[] = $this->db->lasterror() . " - sql=$sql";
+				$this->errors[] = $this->db->lasterror()." - sql=$sql";
 				$error++;
 			}
 		}
@@ -3225,8 +3231,8 @@ class ExpeditionLigne extends CommonObjectLine
 			return 1;
 		} else {
 			foreach ($this->errors as $errmsg) {
-				dol_syslog(get_class($this) . "::delete " . $errmsg, LOG_ERR);
-				$this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
+				dol_syslog(get_class($this)."::delete ".$errmsg, LOG_ERR);
+				$this->error .= ($this->error ? ', '.$errmsg : $errmsg);
 			}
 			$this->db->rollback();
 			return -1 * $error;
@@ -3238,7 +3244,7 @@ class ExpeditionLigne extends CommonObjectLine
 	 *
 	 *	@param		User	$user			User that modify
 	 *	@param		int		$notrigger		1 = disable triggers
-	 *  @return		int					< 0 if KO, > 0 if OK
+	 *  @return		int					Return integer < 0 if KO, > 0 if OK
 	 */
 	public function update($user = null, $notrigger = 0)
 	{
@@ -3255,8 +3261,8 @@ class ExpeditionLigne extends CommonObjectLine
 		$qty = price2num($this->qty);
 		$remainingQty = 0;
 		$batch = null;
-		$batch_id = null;
-		$expedition_batch_id = null;
+		$batch_id = 0;
+		$expedition_batch_id = 0;
 		if (is_array($this->detail_batch)) { 	// array of ExpeditionLineBatch
 			if (count($this->detail_batch) > 1) {
 				dol_syslog(get_class($this).'::update only possible for one batch', LOG_ERR);
@@ -3371,12 +3377,10 @@ class ExpeditionLigne extends CommonObjectLine
 		}
 
 		if (!$error) {
-			if (!$error) {
-				$result = $this->insertExtraFields();
-				if ($result < 0) {
-					$this->errors[] = $this->error;
-					$error++;
-				}
+			$result = $this->insertExtraFields();
+			if ($result < 0) {
+				$this->errors[] = $this->error;
+				$error++;
 			}
 		}
 

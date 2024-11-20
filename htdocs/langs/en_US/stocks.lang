@@ -324,3 +324,4 @@ WarningThisWIllAlsoDeleteStock=Warning, this will also destroy all quantities in
 DeleteBatch=Delete lot/serial
 ConfirmDeleteBatch=Are you sure you want to delete lot/serial ?
 WarningThisWIllAlsoDeleteStock=Warning, this will also destroy all quantities in stock in the warehouse
+StockTotal=Total stock
