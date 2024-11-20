@@ -23,10 +23,10 @@ create table llx_expeditiondet
 (
   rowid             integer AUTO_INCREMENT PRIMARY KEY,
   fk_expedition     integer NOT NULL,
-  fk_origin_line    integer,           -- Correspondance de la ligne avec le document d'origine (propal, commande)
-  fk_parent         integer,           -- Parent line
-  fk_product        integer,           -- Product id
-  fk_entrepot       integer,           -- Entrepot de depart du produit
-  qty               real,              -- Quantity
+  fk_origin_line    integer,           						-- ID of line of source object (proposal, sale order)
+  fk_product        integer,  								-- ID of product. If empty, you can retrieve it using fk_element/element_type link
+  fk_parent         integer,                                -- Id of parent line
+  qty               real,              						-- Quantity
+  fk_entrepot       integer,           						-- Warehouse for departure of product
   rang              integer  DEFAULT 0
 )ENGINE=innodb;
