@@ -1455,6 +1455,8 @@ class CommandeFournisseur extends CommonOrder
 
 		// We set order into draft status
 		$this->brouillon = 1;
+		$this->statut = self::STATUS_DRAFT;	// deprecated
+		$this->status = self::STATUS_DRAFT;
 
 		$sql = "INSERT INTO ".MAIN_DB_PREFIX."commande_fournisseur (";
 		$sql .= "ref";

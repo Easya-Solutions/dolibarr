@@ -467,6 +467,9 @@ class CMailFile
 				$msg = $this->checkIfHTML($msg);
 			}
 
+			if ($msg === '.') {
+				$msg = "\n.\n";
+			}
 			// Replace . alone on a new line with .. to avoid to have SMTP interpret this as end of message
 			$msg = preg_replace('/(\r|\n)\.(\r|\n)/ims', '\1..\2', $msg);
 
@@ -687,7 +690,7 @@ class CMailFile
 				$this->error = "Error in hook maildao sendMail ".$reshook;
 				dol_syslog("CMailFile::sendfile: mail end error=".$this->error, LOG_ERR);
 
-				return $reshook;
+				return false;
 			}
 			if ($reshook == 1) {	// Hook replace standard code
 				return true;
