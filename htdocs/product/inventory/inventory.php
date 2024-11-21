@@ -43,6 +43,8 @@ $cancel = GETPOST('cancel', 'aZ09');
 $contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'inventorycard'; // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 $listoffset = GETPOST('listoffset', 'alpha');
+$sortfield = GETPOST('sortfield', 'aZ09comma');
+$sortorder = GETPOST('sortorder', 'aZ09comma');
 $limit = GETPOST('limit', 'int') > 0 ?GETPOST('limit', 'int') : $conf->liste_limit;
 $page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
@@ -69,6 +71,14 @@ $object = new Inventory($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->stock->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('inventorycard')); // Note that conf->hooks_modules contains array
+
+// Default sort order (if not yet defined by previous GETPOST)
+if (!$sortfield) {
+	$sortfield = "e.ref";
+}
+if (!$sortorder) {
+	$sortorder = "ASC";
+}
 
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
@@ -97,7 +107,8 @@ include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be includ
 //$result = restrictedArea($user, 'mymodule', $id);
 
 //Parameters Page
-$paramwithsearch = '';
+$paramwithsearch = '&sortfield=' . urlencode($sortfield);
+$paramwithsearch .= '&sortorder=' . urlencode($sortorder);
 if ($limit > 0 && $limit != $conf->liste_limit) {
 	$paramwithsearch .= '&limit='.((int) $limit);
 }
@@ -432,6 +443,11 @@ if ($object->id <= 0) {
 	exit;
 }
 
+$param = '';
+if ($limit > 0 && $limit != $conf->liste_limit) {
+	$param .= '&limit='.((int) $limit);
+}
+
 
 $res = $object->fetch_optionals();
 
@@ -556,6 +572,8 @@ print '<form id="formrecord" name="formrecord" method="POST" action="'.$_SERVER[
 print '<input type="hidden" name="token" value="'.newToken().'">';
 print '<input type="hidden" name="action" value="updateinventorylines">';
 print '<input type="hidden" name="id" value="'.$object->id.'">';
+print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
+print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
 if ($backtopage) {
 	print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 }
@@ -902,8 +920,8 @@ print '<div class="div-table-responsive-no-min">';
 print '<table id="tablelines" class="noborder noshadow centpercent">';
 
 print '<tr class="liste_titre">';
-print '<td>'.$langs->trans("Warehouse").'</td>';
-print '<td>'.$langs->trans("Product").'</td>';
+print getTitleFieldOfList($langs->trans("Warehouse"), 0, $_SERVER['PHP_SELF'], 'e.ref', '', 'id=' . $object->id . '&page=' . $page . $param, '', $sortfield, $sortorder, '', 0, '') . "\n";
+print getTitleFieldOfList($langs->trans("Product"), 0, $_SERVER['PHP_SELF'], 'p.ref', '', 'id=' . $object->id . '&page=' . $page . $param, '', $sortfield, $sortorder, '', 0, '') . "\n";
 if (isModEnabled('productbatch')) {
 	print '<td>';
 	print $langs->trans("Batch");
@@ -975,9 +993,11 @@ if ($object->status == $object::STATUS_DRAFT || $object->status == $object::STAT
 // Request to show lines of inventory (prefilled after start/validate step)
 $sql = 'SELECT id.rowid, id.datec as date_creation, id.tms as date_modification, id.fk_inventory, id.fk_warehouse,';
 $sql .= ' id.fk_product, id.batch, id.qty_stock, id.qty_view, id.qty_regulated, id.fk_movement, id.pmp_real, id.pmp_expected';
-$sql .= ' FROM '.MAIN_DB_PREFIX.'inventorydet as id';
-$sql .= ' WHERE id.fk_inventory = '.((int) $object->id);
-$sql .= $db->order('id.rowid', 'ASC');
+$sql .= ' FROM ' . $db->prefix() . 'inventorydet as id';
+$sql .= ' LEFT JOIN ' . $db->prefix() . 'product as p ON id.fk_product = p.rowid';
+$sql .= ' LEFT JOIN ' . $db->prefix() . 'entrepot as e ON id.fk_warehouse = e.rowid';
+$sql .= ' WHERE id.fk_inventory = ' . ((int) $object->id);
+$sql .= $db->order($sortfield . ',' . ($sortfield == 'e.ref' ? 'p.ref' : 'e.ref'), $sortorder . ',' . $sortorder);
 $sql .= $db->plimit($limit, $offset);
 
 $cacheOfProducts = array();
