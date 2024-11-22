@@ -79,4 +79,5 @@ ShipmentDistribution=Répartition des expéditions
 
 ErrorTooManyCombinationBatchcode=Pas de répartition pour la ligne %s car trop de combinaisons entrepôt, produit, code de lot ont été trouvées (%s).
 ErrorNoCombinationBatchcode=Impossible d'enregistrer la ligne %s car la combinaison entrepôt-produit-lot/série (%s, %s, %s) n'a pas été trouvée en stock.
+SHIPPING_SELL_EAT_BY_DATE_PRE_SELECT_EARLIEST=Pré-sélectionner le lot/numéro de série avec la date DLC/DLUO la plus ancienne lors de la création d'une expédition
 
