@@ -63,6 +63,7 @@ State=Département / Canton
 StateId=ID d'état
 StateCode=Code État / Province
 StateShort=Département
+DepartmentBuyer=Département de l'acheteur
 Region=Région
 Region-State=Région - État
 Country=Pays

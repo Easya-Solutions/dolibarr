@@ -642,6 +642,11 @@ ALTER TABLE llx_prelevement_lignes ADD COLUMN fk_soc_rib integer DEFAULT NULL;
 UPDATE llx_societe_account SET site = 'dolibarr_website' WHERE fk_website > 0 AND site IS NULL;
 ALTER TABLE llx_societe_account MODIFY COLUMN site varchar(128) NOT NULL;
 
+-- Add VAT by department
+ALTER TABLE llx_c_tva ADD COLUMN fk_department_buyer integer DEFAULT NULL AFTER fk_pays;
+ALTER TABLE llx_c_tva ADD INDEX idx_tva_fk_department_buyer (fk_department_buyer);
+ALTER TABLE llx_c_tva ADD CONSTRAINT fk_tva_fk_department_buyer FOREIGN KEY (fk_department_buyer) REFERENCES llx_c_departements (rowid);
+
 -- Dispatcher for virtual products
 ALTER TABLE llx_expeditiondet ADD COLUMN fk_product integer NULL AFTER fk_origin_line;
 ALTER TABLE llx_expeditiondet ADD COLUMN fk_parent integer NULL AFTER fk_product;
