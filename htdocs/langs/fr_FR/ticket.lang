@@ -138,7 +138,7 @@ TicketsLimitViewAssignedOnlyHelp=Seuls les tickets affectés à l'utilisateur ac
 TicketsActivatePublicInterface=Activer l'interface publique
 TicketsActivatePublicInterfaceHelp=L'interface publique permet à tous les visiteurs de créer des tickets.
 TicketsAutoAssignTicket=Affecter automatiquement l'utilisateur qui a créé le ticket
-TicketsAutoAssignTicketHelp=Lors de la création d'un ticket, l'utilisateur peut être automatiquement affecté au ticket.
+TicketsAutoAssignTicketHelp=Lors de la création d'un ticket, l'utilisateur peut être automatiquement affecté au ticket (Examples: 0=Ne jamais assigner automatiquement au ticket, 1=Assigner automatiquement si personne n'as été assigné au ticket, 2=automatiquement assigner au ticket même si quelqu'un a été assigné).
 TicketNumberingModules=Module de numérotation des tickets
 TicketsModelModule=Modèles de documents pour les tickets
 TicketNotifyTiersAtCreation=Notifier le tiers à la création

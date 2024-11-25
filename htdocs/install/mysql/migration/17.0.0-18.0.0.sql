@@ -572,6 +572,9 @@ UPDATE llx_menu SET url = '/fourn/paiement/list.php?mainmenu=billing&leftmenu=su
 
 UPDATE llx_paiement SET ref = rowid WHERE ref IS NULL OR ref = '';
 
+-- rename const WORKFLOW_EXPEDITION_CLASSIFY_CLOSED_INVOICE to WORKFLOW_RECEPTION_CLASSIFY_CLOSED_INVOICE
+UPDATE llx_const SET name = 'WORKFLOW_RECEPTION_CLASSIFY_CLOSED_INVOICE' WHERE name = 'WORKFLOW_EXPEDITION_CLASSIFY_CLOSED_INVOICE';
+
 -- Easya 2024
 
 -- Backport VAT by entity #24965 - Also available on Easya 2022
