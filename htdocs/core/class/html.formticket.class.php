@@ -347,7 +347,7 @@ class FormTicket
 
 		// Severity => Priority
 		print '<tr><td><span class="fieldrequired"><label for="selectseverity_code">'.$langs->trans("TicketSeverity").'</span></label></td><td>';
-		$this->selectSeveritiesTickets((GETPOST('severity_code') ? GETPOST('severity_code') : $this->severity_code), 'severity_code', '', 2, 1);
+		$this->selectSeveritiesTickets((GETPOST('severity_code') ? GETPOST('severity_code') : $this->severity_code), 'severity_code', '', 2, 0);
 		print '</td></tr>';
 
 		if (!empty($conf->knowledgemanagement->enabled)) {
@@ -817,6 +817,8 @@ class FormTicket
 			print '<select id="select'.$htmlname.'" class="flat minwidth100'.($morecss ? ' '.$morecss : '').'" name="'.$htmlname.'">';
 			if ($empty) {
 				print '<option value="">&nbsp;</option>';
+			} else {
+				print '<option value="">--&nbsp;'.$langs->trans('TicketSelectGroup').'&nbsp;--</option>';
 			}
 
 			if (is_array($ticketstat->cache_category_tickets) && count($ticketstat->cache_category_tickets)) {
@@ -863,7 +865,7 @@ class FormTicket
 						print ' selected="selected"';
 					} elseif ($arraycategories['use_default'] == "1" && !$selected && !$empty) {
 						print ' selected="selected"';
-					} elseif (count($ticketstat->cache_category_tickets) == 1) {
+					} elseif (count($ticketstat->cache_category_tickets) == 1 && !$empty) {	// If only 1 choice, we autoselect it
 						print ' selected="selected"';
 					}
 
@@ -1164,6 +1166,8 @@ class FormTicket
 		print '<select id="select'.$htmlname.'" class="flat minwidth100'.($morecss ? ' '.$morecss : '').'" name="'.$htmlname.'">';
 		if ($empty) {
 			print '<option value="">&nbsp;</option>';
+		} else {
+			print '<option value="">--&nbsp;'.$langs->trans('TicketSelectSeverity').'&nbsp;--</option>';
 		}
 
 		if (is_array($ticketstat->cache_severity_tickets) && count($ticketstat->cache_severity_tickets)) {
@@ -1199,7 +1203,7 @@ class FormTicket
 					print ' selected="selected"';
 				} elseif (isset($selected) && $selected == $id) {
 					print ' selected="selected"';
-				} elseif ($arrayseverities['use_default'] == "1" && empty($selected)) {
+				} elseif ($arrayseverities['use_default'] == "1" && empty($selected) && !$empty) {
 					print ' selected="selected"';
 				}
 

@@ -136,7 +136,7 @@ TicketsActivatePublicInterfaceHelp=Public interface allow any visitors to create
 TicketsAutoAssignTicket=Automatically assign the user who created the ticket
 TicketsAutoAssignTicketHelp=When creating a ticket, the user can be automatically assigned to the ticket.
 TicketNumberingModules=Tickets numbering module
-TicketsModelModule=Document templates for tickets 
+TicketsModelModule=Document templates for tickets
 TicketNotifyTiersAtCreation=Notify third party at creation
 TicketsDisableCustomerEmail=Always disable emails when a ticket is created from public interface
 TicketsPublicNotificationNewMessage=Send email(s) when a new message/comment is added to a ticket
@@ -174,6 +174,8 @@ ShowAsConversation=Show as conversation list
 MessageListViewType=Show as table list
 ConfirmMassTicketClosingSendEmail=Automatically send emails when closing tickets
 ConfirmMassTicketClosingSendEmailQuestion=Do you want to notify thirdparties when closing these tickets ?
+TicketSelectGroup=Select group
+TicketSelectSeverity=Select severity
 
 #
 # Ticket card
