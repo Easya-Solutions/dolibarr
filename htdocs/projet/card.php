@@ -525,7 +525,8 @@ if (empty($reshook)) {
 		$move_date = GETPOST('move_date') ? 1 : 0;
 		$clone_thirdparty = GETPOST('socid', 'int') ?GETPOST('socid', 'int') : 0;
 
-		$result = $object->createFromClone($user, $object->id, $clone_contacts, $clone_tasks, $clone_project_files, $clone_task_files, $clone_notes, $move_date, 0, $clone_thirdparty);
+		$force_entity = $conf->entity;
+		$result = $object->createFromClone($user, $object->id, $clone_contacts, $clone_tasks, $clone_project_files, $clone_task_files, $clone_notes, $move_date, 0, $clone_thirdparty, $force_entity);
 		if ($result <= 0) {
 			setEventMessages($object->error, $object->errors, 'errors');
 		} else {

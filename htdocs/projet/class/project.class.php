@@ -1668,9 +1668,10 @@ class Project extends CommonObject
 	 *  @param	bool	$move_date		      Move task date on clone
 	 *  @param	integer	$notrigger		      No trigger flag
 	 *  @param  int     $newthirdpartyid      New thirdparty id
+	 *  @param  int		$force_entity		  Entity id to force
 	 *  @return	int						      New id of clone
 	 */
-	public function createFromClone(User $user, $fromid, $clone_contact = false, $clone_task = true, $clone_project_file = false, $clone_task_file = false, $clone_note = true, $move_date = true, $notrigger = 0, $newthirdpartyid = 0)
+	public function createFromClone(User $user, $fromid, $clone_contact = false, $clone_task = true, $clone_project_file = false, $clone_task_file = false, $clone_note = true, $move_date = true, $notrigger = 0, $newthirdpartyid = 0, $force_entity=null)
 	{
 		global $langs, $conf;
 
@@ -1688,6 +1689,7 @@ class Project extends CommonObject
 
 		// Load source object
 		$clone_project->fetch($fromid);
+		$clone_project->entity = (! empty($force_entity) ? $force_entity : $clone_project->entity);
 		$clone_project->fetch_optionals();
 		if ($newthirdpartyid > 0) {
 			$clone_project->socid = $newthirdpartyid;
