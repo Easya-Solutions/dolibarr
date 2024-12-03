@@ -679,19 +679,30 @@ if (empty($reshook)) {
 	if ($action == "change_property" && GETPOST('btn_update_ticket_prop', 'alpha') && $permissiontoadd) {
 		$object->fetch(GETPOST('id', 'int'), '', GETPOST('track_id', 'alpha'));
 
-		$object->type_code = GETPOST('update_value_type', 'aZ09');
-		$object->severity_code = GETPOST('update_value_severity', 'aZ09');
-		$object->category_code = GETPOST('update_value_category', 'aZ09');
-
-		$ret = $object->update($user);
-		if ($ret > 0) {
-			//$log_action = $langs->trans('TicketLogPropertyChanged', $oldvalue_label, $newvalue_label);
-
-			setEventMessages($langs->trans('TicketUpdated'), null, 'mesgs');
-		} else {
+		if (!GETPOST("update_value_category", 'alpha')) {
 			$error++;
-			setEventMessages($object->error, $object->errors, 'errors');
+			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentities("TicketCategory")), null, 'errors');
+		} elseif (!GETPOST("update_value_severity", 'alpha')) {
+			$error++;
+			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentities("TicketSeverity")), null, 'errors');
 		}
+
+		if (!$error) {
+			$object->type_code = GETPOST('update_value_type', 'aZ09');
+			$object->severity_code = GETPOST('update_value_severity', 'aZ09');
+			$object->category_code = GETPOST('update_value_category', 'aZ09');
+
+			$ret = $object->update($user);
+			if ($ret > 0) {
+				//$log_action = $langs->trans('TicketLogPropertyChanged', $oldvalue_label, $newvalue_label);
+
+				setEventMessages($langs->trans('TicketUpdated'), null, 'mesgs');
+			} else {
+				$error++;
+				setEventMessages($object->error, $object->errors, 'errors');
+			}
+		}
+
 		$action = 'view';
 	}
 
