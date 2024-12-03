@@ -342,7 +342,7 @@ class FormTicket
 			$filter = 'public=1';
 		}
 		$selected = (GETPOST('category_code') ? GETPOST('category_code') : $this->category_code);
-		$this->selectGroupTickets($selected, 'category_code', $filter, 2, 1, 0, 0, 'minwidth200');
+		$this->selectGroupTickets($selected, 'category_code', $filter, 2, 0, 0, 0, 'minwidth200');
 		print '</td></tr>';
 
 		// Severity => Priority
@@ -817,8 +817,6 @@ class FormTicket
 			print '<select id="select'.$htmlname.'" class="flat minwidth100'.($morecss ? ' '.$morecss : '').'" name="'.$htmlname.'">';
 			if ($empty) {
 				print '<option value="">&nbsp;</option>';
-			} else {
-				print '<option value="">--&nbsp;'.$langs->trans('TicketSelectGroup').'&nbsp;--</option>';
 			}
 
 			if (is_array($ticketstat->cache_category_tickets) && count($ticketstat->cache_category_tickets)) {
@@ -1166,8 +1164,6 @@ class FormTicket
 		print '<select id="select'.$htmlname.'" class="flat minwidth100'.($morecss ? ' '.$morecss : '').'" name="'.$htmlname.'">';
 		if ($empty) {
 			print '<option value="">&nbsp;</option>';
-		} else {
-			print '<option value="">--&nbsp;'.$langs->trans('TicketSelectSeverity').'&nbsp;--</option>';
 		}
 
 		if (is_array($ticketstat->cache_severity_tickets) && count($ticketstat->cache_severity_tickets)) {
