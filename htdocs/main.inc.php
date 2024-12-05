@@ -2173,7 +2173,7 @@ function top_htmlhead($head, $title = '', $disablejs = 0, $disablehead = 0, $arr
 
 		if (!$disablejs && !empty($conf->use_javascript_ajax)) {
 			// CKEditor
-			if (empty($disableforlogin) && (isModEnabled('fckeditor') && (!getDolGlobalString('FCKEDITOR_EDITORNAME') || getDolGlobalString('FCKEDITOR_EDITORNAME') == 'ckeditor') && !defined('DISABLE_CKEDITOR')) || defined('FORCE_CKEDITOR')) {
+			if (empty($disableforlogin) && (isModEnabled('fckeditor') && (!getDolGlobalString('FCKEDITOR_EDITORNAME') || getDolGlobalString('FCKEDITOR_EDITORNAME') == 'ckeditor5') && !defined('DISABLE_CKEDITOR')) || defined('FORCE_CKEDITOR')) {
 				print '<!-- Includes JS for CKEditor -->'."\n";
 				$pathckeditor = DOL_URL_ROOT.'/includes/ckeditor5/ckeditor5/';
 				$jsckeditor = 'ckeditor5.js';
@@ -2199,6 +2199,35 @@ function top_htmlhead($head, $title = '', $disablejs = 0, $disablehead = 0, $arr
 						"ckeditor5/": "<?= $pathckeditor ?>"
 					}
 				}
+				</script>
+
+				<script type="module">
+				// THIS IS VERY MINIMAL.
+				// THIS MUST GO INTO doleditor.class.php
+				import {
+					ClassicEditor,
+					Essentials,
+					Paragraph,
+					Bold,
+					Italic,
+					Font
+				} from 'ckeditor5';
+
+				ClassicEditor
+					.create( document.querySelector( 'textarea' ), {
+						licenseKey: 'GPL', // Or <YOUR_LICENSE_KEY>
+						plugins: [ Essentials, Paragraph, Bold, Italic, Font ],
+						toolbar: [
+							'undo', 'redo', '|', 'bold', 'italic', '|',
+							'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
+						],
+					} )
+					.then( editor => {
+						window.editor = editor;
+					} )
+					.catch( error => {
+						console.error( error );
+					} );
 				</script>
 				<?php
 				print '<script>';

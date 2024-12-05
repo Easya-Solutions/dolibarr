@@ -336,39 +336,6 @@ class DolEditor
 				$out .= '});'."\n";	// end document.ready
 				$out .= '</script>'."\n";
 			}
-
-			if ($this->tool == 'ckeditor5' && !empty($conf->use_javascript_ajax) && isModEnabled('fckeditor')) {
-				$out.= "
-				<script type=\"module\">
-				$().ready(() => {
-					import {
-						ClassicEditor,
-						Essentials,
-						Paragraph,
-						Bold,
-						Italic,
-						Font
-					} from 'ckeditor5';
-
-					ClassicEditor
-						.create( document.querySelector( '#".$this->htmlname."' ), {
-							licenseKey: 'GPL', // Or <YOUR_LICENSE_KEY>
-							plugins: [ Essentials, Paragraph, Bold, Italic, Font ],
-							toolbar: [
-								'undo', 'redo', '|', 'bold', 'italic', '|',
-								'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
-							],
-						} )
-						.then( editor => {
-							window.editor = editor;
-						} )
-						.catch( error => {
-							console.error( error );
-						} );
-					}
-				);
-				</script>";
-			}
 		}
 
 		// Output editor ACE
