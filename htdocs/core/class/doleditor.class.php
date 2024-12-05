@@ -160,8 +160,8 @@ class DolEditor
 		}
 
 		// Define some properties
-		if (in_array($this->tool, array('textarea', 'ckeditor', 'ace'))) {
-			if ($this->tool == 'ckeditor' && !dol_textishtml($content)) {	// We force content to be into HTML if we are using an advanced editor if content is not HTML.
+		if (in_array($this->tool, array('textarea', 'ckeditor', 'ace', 'ckeditor5'))) {
+			if (($this->tool == 'ckeditor' || $this->tool == 'ckeditor5') && !dol_textishtml($content)) {	// We force content to be into HTML if we are using an advanced editor if content is not HTML.
 				$this->content = dol_nl2br($content);
 			} else {
 				$this->content = $content;
@@ -205,17 +205,18 @@ class DolEditor
 		$found = 0;
 		$out = '';
 
-		if (in_array($this->tool, array('textarea', 'ckeditor'))) {
+		if (in_array($this->tool, array('textarea', 'ckeditor', 'ckeditor5'))) {
 			$found = 1;
 			//$out.= '<textarea id="'.$this->htmlname.'" name="'.$this->htmlname.'" '.($this->readonly?' disabled':'').' rows="'.$this->rows.'"'.(preg_match('/%/',$this->cols)?' style="margin-top: 5px; width: '.$this->cols.'"':' cols="'.$this->cols.'"').' class="flat">';
 			// TODO We do not put the 'disabled' tag because on a read form, it change style with grey.
 			//print $this->content;
-			$out .= '<textarea id="'.$this->htmlname.'" name="'.$this->htmlname.'"';
-			$out .= ' rows="'.$this->rows.'"';
-			//$out .= ' style="height: 700px; min-height: 700px;"';
-			$out .= (preg_match('/%/', $this->cols) ? ' style="margin-top: 5px; width: '.$this->cols.'"' : ' cols="'.$this->cols.'"');
-			$out .= ' '.($moreparam ? $moreparam : '');
-			$out .= ' class="flat '.$morecss.'">';
+			$out .= '<textarea id="'.$this->htmlname.'" name="'.$this->htmlname.'">';
+			// $out .= '<textarea id="'.$this->htmlname.'" name="'.$this->htmlname.'"';
+			// $out .= ' rows="'.$this->rows.'"';
+			// //$out .= ' style="height: 700px; min-height: 700px;"';
+			// $out .= (preg_match('/%/', $this->cols) ? ' style="margin-top: 5px; width: '.$this->cols.'"' : ' cols="'.$this->cols.'"');
+			// $out .= ' '.($moreparam ? $moreparam : '');
+			// $out .= ' class="flat '.$morecss.'">';
 			$out .= htmlspecialchars($this->content);
 			$out .= '</textarea>';
 
@@ -334,6 +335,39 @@ class DolEditor
 				//$out .= '; CKEDITOR.on(\'instanceReady\', function(ck) { ck.editor.removeMenuItem(\'maximize\'); ck.editor.removeMenuItem(\'Undo\'); ck.editor.removeMenuItem(\'undo\'); console.log(ck.editor); console.log(ck.editor.toolbar[0]); }); ';
 				$out .= '});'."\n";	// end document.ready
 				$out .= '</script>'."\n";
+			}
+
+			if ($this->tool == 'ckeditor5' && !empty($conf->use_javascript_ajax) && isModEnabled('fckeditor')) {
+				$out.= "
+				<script type=\"module\">
+				$().ready(() => {
+					import {
+						ClassicEditor,
+						Essentials,
+						Paragraph,
+						Bold,
+						Italic,
+						Font
+					} from 'ckeditor5';
+
+					ClassicEditor
+						.create( document.querySelector( '#".$this->htmlname."' ), {
+							licenseKey: 'GPL', // Or <YOUR_LICENSE_KEY>
+							plugins: [ Essentials, Paragraph, Bold, Italic, Font ],
+							toolbar: [
+								'undo', 'redo', '|', 'bold', 'italic', '|',
+								'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
+							],
+						} )
+						.then( editor => {
+							window.editor = editor;
+						} )
+						.catch( error => {
+							console.error( error );
+						} );
+					}
+				);
+				</script>";
 			}
 		}
 

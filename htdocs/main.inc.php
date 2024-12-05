@@ -2109,6 +2109,7 @@ function top_htmlhead($head, $title = '', $disablejs = 0, $disablehead = 0, $arr
 			print '<link rel="stylesheet" type="text/css" href="'.DOL_URL_ROOT.'/theme/custom.css.php'.($ext ? '?'.$ext : '').'&amp;revision='.getDolGlobalInt("MAIN_IHM_PARAMS_REV").'">'."\n";
 		}
 
+
 		// Output standard javascript links
 		if (!defined('DISABLE_JQUERY') && !$disablejs && !empty($conf->use_javascript_ajax)) {
 			// JQuery. Must be before other includes
@@ -2153,7 +2154,7 @@ function top_htmlhead($head, $title = '', $disablejs = 0, $disablehead = 0, $arr
 				print 'var withInPlace = 300;'; // width in pixel for default string edit
 				print '</script>'."\n";
 				print '<script nonce="'.getNonce().'" src="'.DOL_URL_ROOT.'/core/js/editinplace.js'.($ext ? '?'.$ext : '').'"></script>'."\n";
-				print '<script nonce="'.getNonce().'" src="'.DOL_URL_ROOT.'/includes/jquery/plugins/jeditable/jquery.jeditable.ckeditor.js'.($ext ? '?'.$ext : '').'"></script>'."\n";
+				// print '<script nonce="'.getNonce().'" src="'.DOL_URL_ROOT.'/includes/jquery/plugins/jeditable/jquery.jeditable.ckeditor.js'.($ext ? '?'.$ext : '').'"></script>'."\n";
 			}
 			// jQuery Timepicker
 			if (getDolGlobalString('MAIN_USE_JQUERY_TIMEPICKER') || defined('REQUIRE_JQUERY_TIMEPICKER')) {
@@ -2174,26 +2175,38 @@ function top_htmlhead($head, $title = '', $disablejs = 0, $disablehead = 0, $arr
 			// CKEditor
 			if (empty($disableforlogin) && (isModEnabled('fckeditor') && (!getDolGlobalString('FCKEDITOR_EDITORNAME') || getDolGlobalString('FCKEDITOR_EDITORNAME') == 'ckeditor') && !defined('DISABLE_CKEDITOR')) || defined('FORCE_CKEDITOR')) {
 				print '<!-- Includes JS for CKEditor -->'."\n";
-				$pathckeditor = DOL_URL_ROOT.'/includes/ckeditor/ckeditor/';
-				$jsckeditor = 'ckeditor.js';
+				$pathckeditor = DOL_URL_ROOT.'/includes/ckeditor5/ckeditor5/';
+				$jsckeditor = 'ckeditor5.js';
+				$cssckeditor = 'ckeditor5.css';
 				if (constant('JS_CKEDITOR')) {
-					// To use external ckeditor 4 js lib
+					// To use external ckeditor js lib
 					$pathckeditor = constant('JS_CKEDITOR');
 				}
-				print '<script nonce="'.getNonce().'">';
-				print '/* enable ckeditor by main.inc.php */';
-				print 'var CKEDITOR_BASEPATH = \''.dol_escape_js($pathckeditor).'\';'."\n";
-				print 'var ckeditorConfig = \''.dol_escape_js(dol_buildpath($themesubdir.'/theme/'.$conf->theme.'/ckeditor/config.js'.($ext ? '?'.$ext : ''), 1)).'\';'."\n"; // $themesubdir='' in standard usage
-				print 'var ckeditorFilebrowserBrowseUrl = \''.DOL_URL_ROOT.'/core/filemanagerdol/browser/default/browser.php?Connector='.DOL_URL_ROOT.'/core/filemanagerdol/connectors/php/connector.php\';'."\n";
-				print 'var ckeditorFilebrowserImageBrowseUrl = \''.DOL_URL_ROOT.'/core/filemanagerdol/browser/default/browser.php?Type=Image&Connector='.DOL_URL_ROOT.'/core/filemanagerdol/connectors/php/connector.php\';'."\n";
-				print '</script>'."\n";
-				print '<script src="'.$pathckeditor.$jsckeditor.($ext ? '?'.$ext : '').'"></script>'."\n";
-				print '<script>';
-				if (GETPOST('mode', 'aZ09') == 'Full_inline') {
-					print 'CKEDITOR.disableAutoInline = false;'."\n";
-				} else {
-					print 'CKEDITOR.disableAutoInline = true;'."\n";
+				// print '<script nonce="'.getNonce().'">';
+				// print '/* enable ckeditor by main.inc.php */';
+				// print 'var CKEDITOR_BASEPATH = \''.dol_escape_js($pathckeditor).'\';'."\n";
+				// print 'var ckeditorConfig = \''.dol_escape_js(dol_buildpath($themesubdir.'/theme/'.$conf->theme.'/ckeditor/config.js'.($ext ? '?'.$ext : ''), 1)).'\';'."\n"; // $themesubdir='' in standard usage
+				// print 'var ckeditorFilebrowserBrowseUrl = \''.DOL_URL_ROOT.'/core/filemanagerdol/browser/default/browser.php?Connector='.DOL_URL_ROOT.'/core/filemanagerdol/connectors/php/connector.php\';'."\n";
+				// print 'var ckeditorFilebrowserImageBrowseUrl = \''.DOL_URL_ROOT.'/core/filemanagerdol/browser/default/browser.php?Type=Image&Connector='.DOL_URL_ROOT.'/core/filemanagerdol/connectors/php/connector.php\';'."\n";
+				// print '</script>'."\n";
+				// print '<script src="'.$pathckeditor.$jsckeditor.($ext ? '?'.$ext : '').'"></script>'."\n";
+				?>
+				<link rel="stylesheet" href="<?= $pathckeditor.$cssckeditor ?>">';
+				<script type="importmap">
+				{
+					"imports": {
+						"ckeditor5": "<?= $pathckeditor.$jsckeditor ?>",
+						"ckeditor5/": "<?= $pathckeditor ?>"
+					}
 				}
+				</script>
+				<?php
+				print '<script>';
+				// if (GETPOST('mode', 'aZ09') == 'Full_inline') {
+				// 	print 'CKEDITOR.disableAutoInline = false;'."\n";
+				// } else {
+				// 	print 'CKEDITOR.disableAutoInline = true;'."\n";
+				// }
 				print '</script>'."\n";
 			}
 
