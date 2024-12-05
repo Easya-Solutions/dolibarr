@@ -679,10 +679,10 @@ if (empty($reshook)) {
 	if ($action == "change_property" && GETPOST('btn_update_ticket_prop', 'alpha') && $permissiontoadd) {
 		$object->fetch(GETPOST('id', 'int'), '', GETPOST('track_id', 'alpha'));
 
-		if (!GETPOST("update_value_category", 'alpha')) {
+		if (!GETPOST("update_value_category", 'aZ09')) {
 			$error++;
 			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentities("TicketCategory")), null, 'errors');
-		} elseif (!GETPOST("update_value_severity", 'alpha')) {
+		} elseif (!GETPOST("update_value_severity", 'aZ09')) {
 			$error++;
 			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentities("TicketSeverity")), null, 'errors');
 		}
