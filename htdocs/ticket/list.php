@@ -415,7 +415,7 @@ foreach ($search as $key => $val) {
 	$mode_search = ((!empty($object->fields[$key]) && ($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key]))) ? 1 : 0);
 	// $search[$key] can be an array of values, or a string. We add filter if array not empty or if it is a string.
 	if ((is_array($search[$key]) && !empty($search[$key])) || (!is_array($search[$key]) && $search[$key] != '')) {
-		$sql .= natural_search($key, $search[$key], $mode_search);
+		$sql .= natural_search('t.'.$key, $search[$key], $mode_search);
 	}
 }
 if ($search_all) {
