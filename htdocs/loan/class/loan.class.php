@@ -309,6 +309,7 @@ class Loan extends CommonObject
 				$result = $accountline->delete_urls($user);
 				if ($result < 0) {
 					$error++;
+					$this->errors = array_merge($this->errors, [$accountline->error], $accountline->errors);
 				}
 			}
 		}

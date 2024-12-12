@@ -59,9 +59,6 @@ if ($id > 0) {
 if ($action == 'confirm_delete' && $confirm == 'yes' && $user->rights->loan->delete) {
 	$db->begin();
 
-	$sql = "UPDATE ".MAIN_DB_PREFIX."loan_schedule SET fk_bank = 0 WHERE fk_bank = ".((int) $payment->fk_bank);
-	$db->query($sql);
-
 	$fk_loan = $payment->fk_loan;
 
 	$result = $payment->delete($user);
@@ -222,10 +219,13 @@ print '</div>';
 print '<div class="tabsAction">';
 
 if (empty($action) && !empty($user->rights->loan->delete)) {
-	if (!$disable_delete) {
-		print dolGetButtonAction($langs->trans("Delete"), '', 'delete', $_SERVER["PHP_SELF"].'?id='.$id.'&action=delete&token='.newToken(), 'delete', 1);
-	} else {
+	if ($disable_delete) {
 		print dolGetButtonAction($langs->trans("CantRemovePaymentWithOneInvoicePaid"), $langs->trans("Delete"), 'delete', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=delete&token='.newToken(), 'delete', 0);
+	} elseif ($payment->isBankLineConciliated()) {
+		$langs->load('errors');
+		print dolGetButtonAction($langs->trans("ErrorCantDeletePaymentReconciliated"), $langs->trans("Delete"), 'delete', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=delete&token='.newToken(), 'delete', 0);
+	} else {
+		print dolGetButtonAction($langs->trans("Delete"), '', 'delete', $_SERVER["PHP_SELF"].'?id='.$id.'&action=delete&token='.newToken(), 'delete', 1);
 	}
 }
 

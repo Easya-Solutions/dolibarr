@@ -385,6 +385,11 @@ class PaymentLoan extends CommonObject
 
 		$this->db->begin();
 
+		if ($this->isBankLineConciliated()) {
+			$error++;
+			$this->errors[] = $langs->trans("ErrorCantDeletePaymentReconciliated");
+		}
+
 		if (!$error) {
 			$sql = "DELETE FROM ".MAIN_DB_PREFIX."bank_url";
 			$sql .= " WHERE type='payment_loan' AND url_id=".((int) $this->id);
@@ -450,6 +455,30 @@ class PaymentLoan extends CommonObject
 			$this->db->commit();
 			return 1;
 		}
+	}
+
+	/**
+	 * Is linked bank line conciliated ?
+	 * @return int 		-1 if error, 0 if false, 1 if true.
+	 */
+	function isBankLineConciliated()
+	{
+		$sql = "SELECT rappro FROM ".$this->db->prefix()."bank b";
+		$sql.= " LEFT JOIN ".$this->db->prefix()."payment_loan pl ON pl.fk_bank = b.rowid";
+		$sql.= " WHERE pl.rowid=".((int) $this->id);
+		$resql = $this->db->query($sql);
+		if (!$resql) {
+			$this->errors[] = "Error ".$this->db->lasterror();
+			return -1;
+		} elseif ($this->db->num_rows($resql) > 1) {
+			$mesg = __METHOD__.': too many rows in sql resultset';
+			dol_syslog($mesg, LOG_ERR);
+			$this->errors[] = $mesg;
+			return -1;
+		}
+
+		$obj = $this->db->fetch_object($resql);
+		return (int) !empty($obj->rappro);
 	}
 
 	/**
