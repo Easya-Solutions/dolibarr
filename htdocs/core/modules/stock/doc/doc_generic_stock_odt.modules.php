@@ -250,7 +250,7 @@ class doc_generic_stock_odt extends ModelePDFStock
 			}
 
 			$stockFournisseur = new ProductFournisseur($this->db);
-			$supplierprices = $stockFournisseur->list_stock_fournisseur_price($object->id);
+			$supplierprices = $stockFournisseur->list_product_fournisseur_price($object->id);
 			$object->supplierprices = $supplierprices;
 
 			$dir = $conf->product->dir_output;
