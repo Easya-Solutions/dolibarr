@@ -6,7 +6,7 @@ repos:
     rev: v4.5.0
     hooks:
       - id: no-commit-to-branch
-        args: [--branch, develop, --pattern, \d+.0]
+        args: [--branch, develop, --pattern, \d+.0$]
       - id: check-yaml
         args: [--unsafe]
       - id: check-json
