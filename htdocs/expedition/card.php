@@ -1220,7 +1220,9 @@ if ($action == 'create') {
 						if ($res < 0) {
 							dol_print_error($db, $product->error, $product->errors);
 						}
-						$productChildrenNb = $product->hasFatherOrChild(1);
+						if (getDolGlobalInt('PRODUIT_SOUSPRODUITS')) {
+							$productChildrenNb = $product->hasFatherOrChild(1);
+						}
 						if ($productChildrenNb > 0) {
 							$product->loadStockForVirtualProduct('warehouseopen');
 						} else {
@@ -1566,7 +1568,7 @@ if ($action == 'create') {
 									if (isModEnabled('stock')) {
 										print '<td class="left">';
 										if ($line->product_type == Product::TYPE_PRODUCT || !empty($conf->global->STOCK_SUPPORTS_SERVICES)) {
-											if ($product->stockable_product == Product::ENABLED_STOCK) {
+											if ($product->stockable_product == Product::ENABLED_STOCK || $productChildrenNb > 0) {
 												print $tmpwarehouseObject->getNomUrl(0).' ';
 												if ($productChildrenNb <= 0) {
 													print '<!-- Show details of stock -->';

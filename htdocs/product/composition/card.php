@@ -158,6 +158,7 @@ if ($action == 'search') {
 	$sql = 'SELECT DISTINCT p.rowid, p.ref, p.label, p.fk_product_type as type, p.barcode, p.price, p.price_ttc, p.price_base_type, p.entity,';
 	$sql .= ' p.fk_product_type, p.tms as datem, p.tobatch';
 	$sql .= ', p.tosell as status, p.tobuy as status_buy';
+	$sql .= ", p.stockable_product";
 	if (getDolGlobalInt('MAIN_MULTILANGS')) {
 		$sql .= ', pl.label as labelm, pl.description as descriptionm';
 	}
@@ -462,7 +463,7 @@ if ($id > 0 || !empty($ref)) {
 					// Qty + IncDec
 					if ($user->hasRight('produit', 'creer') || $user->hasRight('service', 'creer')) {
 						print '<td class="center"><input type="text" value="'.$nb_of_subproduct.'" name="TProduct['.$productstatic->id.'][qty]" class="right width40" /></td>';
-						print '<td class="center"><input type="checkbox" name="TProduct['.$productstatic->id.'][incdec]" value="1" '.($value['incdec'] == 1 ? 'checked' : '').' /></td>';
+						print '<td class="center"><input type="checkbox" name="TProduct['.$productstatic->id.'][incdec]" value="1"'.($value['incdec'] == 1 ? ' checked' : '').(empty($productstatic->stockable_product) ? ' disabled' : '').' /></td>';
 					} else {
 						print '<td>'.$nb_of_subproduct.'</td>';
 						print '<td>'.($value['incdec'] == 1 ? 'x' : '').'</td>';
@@ -691,6 +692,7 @@ if ($id > 0 || !empty($ref)) {
 						$productstatic->status = $objp->status;
 						$productstatic->status_buy = $objp->status_buy;
 						$productstatic->status_batch = $objp->tobatch;
+						$productstatic->stockable_product = $objp->stockable_product;
 
 						print '<td>'.$productstatic->getNomUrl(1, '', 24).'</td>';
 						$labeltoshow = $objp->label;
@@ -710,6 +712,10 @@ if ($id > 0 || !empty($ref)) {
 							$qty = 0;
 							$incdec = 0;
 						}
+						if (empty($productstatic->stockable_product)) {
+							$incdec = 0; // can't manage stock of component
+						}
+
 						// Contained into package
 						/*print '<td class="center"><input type="hidden" name="prod_id_'.$i.'" value="'.$objp->rowid.'">';
 						print '<input type="checkbox" '.$addchecked.'name="prod_id_chk'.$i.'" value="'.$objp->rowid.'"></td>';*/
@@ -718,13 +724,7 @@ if ($id > 0 || !empty($ref)) {
 
 						// Inc Dec
 						print '<td class="center">';
-						if ($qty) {
-							print '<input type="checkbox" name="prod_incdec_'.$i.'" value="1" '.($incdec ? 'checked' : '').'>';
-						} else {
-							// TODO Hide field and show it when setting a qty
-							print '<input type="checkbox" name="prod_incdec_'.$i.'" value="1" checked>';
-							//print '<input type="checkbox" disabled name="prod_incdec_'.$i.'" value="1" checked>';
-						}
+						print '<input type="checkbox" name="prod_incdec_'.$i.'" value="1"'.($incdec ? ' checked' : '').(empty($productstatic->stockable_product) ? ' disabled' : '').'>';
 						print '</td>';
 
 						print '</tr>';
