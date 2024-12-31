@@ -1626,37 +1626,45 @@ if ($placeid > 0) {
 
 				$htmlforlines .= '<td class="right">'.vatrate($line->remise_percent, true).'</td>';
 				$htmlforlines .= '<td class="right">';
+				$htmlforlines .= $line->qty;
 				if (isModEnabled('stock') && !empty($user->rights->stock->mouvement->lire)) {
 					$constantforkey = 'CASHDESK_ID_WAREHOUSE'.$_SESSION["takeposterminal"];
 					if (!empty($conf->global->$constantforkey) && $line->fk_product > 0 && empty($conf->global->TAKEPOS_HIDE_STOCK_ON_LINE)) {
-						$sql = "SELECT e.rowid, e.ref, e.lieu, e.fk_parent, e.statut, ps.reel, ps.rowid as product_stock_id, p.pmp";
-						$sql .= " FROM ".MAIN_DB_PREFIX."entrepot as e,";
-						$sql .= " ".MAIN_DB_PREFIX."product_stock as ps";
-						$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = ps.fk_product";
-						$sql .= " WHERE ps.reel != 0";
-						$sql .= " AND ps.fk_entrepot = ".((int) $conf->global->$constantforkey);
-						$sql .= " AND e.entity IN (".getEntity('stock').")";
-						$sql .= " AND ps.fk_product = ".((int) $line->fk_product);
-						$resql = $db->query($sql);
-						if ($resql) {
-							$obj = $db->fetch_object($resql);
-							$stock_real = price2num($obj->reel, 'MS');
-							$htmlforlines .= $line->qty;
-							if ($line->qty && $line->qty > $stock_real) {
-								$htmlforlines .= '<span style="color: var(--amountremaintopaycolor)">';
+						$productChildrenNb = 0;
+						if (getDolGlobalInt('PRODUIT_SOUSPRODUITS')) {
+							if (empty($line->product) || !($line->product->id > 0)) {
+								$line->fetch_product();
 							}
-							$htmlforlines .= ' <span class="posstocktoolow">('.$langs->trans("Stock").' '.$stock_real.')</span>';
-							if ($line->qty && $line->qty > $stock_real) {
-								$htmlforlines .= "</span>";
+							if (!empty($line->product)) {
+								$productChildrenNb = $line->product->hasFatherOrChild(1);
 							}
-						} else {
-							dol_print_error($db);
 						}
-					} else {
-						$htmlforlines .= $line->qty;
+						if ($productChildrenNb == 0) {
+							$sql = "SELECT e.rowid, e.ref, e.lieu, e.fk_parent, e.statut, ps.reel, ps.rowid as product_stock_id, p.pmp";
+							$sql .= " FROM ".MAIN_DB_PREFIX."entrepot as e,";
+							$sql .= " ".MAIN_DB_PREFIX."product_stock as ps";
+							$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = ps.fk_product";
+							$sql .= " WHERE ps.reel != 0";
+							$sql .= " AND ps.fk_entrepot = ".((int) $conf->global->$constantforkey);
+							$sql .= " AND e.entity IN (".getEntity('stock').")";
+							$sql .= " AND ps.fk_product = ".((int) $line->fk_product);
+							$resql = $db->query($sql);
+							if ($resql) {
+								$obj = $db->fetch_object($resql);
+								$stock_real = price2num($obj->reel, 'MS');
+								$htmlforlines .= $line->qty;
+								if ($line->qty && $line->qty > $stock_real) {
+									$htmlforlines .= '<span style="color: var(--amountremaintopaycolor)">';
+								}
+								$htmlforlines .= ' <span class="posstocktoolow">('.$langs->trans("Stock").' '.$stock_real.')</span>';
+								if ($line->qty && $line->qty > $stock_real) {
+									$htmlforlines .= "</span>";
+								}
+							} else {
+								dol_print_error($db);
+							}
+						}
 					}
-				} else {
-					$htmlforlines .= $line->qty;
 				}
 
 				$htmlforlines .= '</td>';
