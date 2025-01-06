@@ -188,7 +188,6 @@ class Odf
 			$fontDeclarations = array();
 
 			$convertedValue = $this->_replaceHtmlWithOdtTag($this->_getDataFromHtml($value), $customStyles, $fontDeclarations, $encode, $charset);
-			$convertedValue = preg_replace('/(\r\n|\r|\n)/i', "<text:line-break/>", $convertedValue);
 			foreach ($customStyles as $key => $val) {
 				array_push($automaticStyles, '<style:style style:name="customStyle' . $key . '" style:family="text">' . $val . '</style:style>');
 			}
