@@ -378,7 +378,9 @@ class doc_generic_shipment_odt extends ModelePdfExpedition
 					try {
 						if (preg_match('/logo$/', $key)) { // Image
 							//var_dump($value);exit;
-							if (file_exists($value)) {
+							if (empty($value)) {
+								$odfHandler->setVars($key, '', true, 'UTF-8');
+							} elseif (file_exists($value)) {
 								$odfHandler->setImage($key, $value);
 							} else {
 								$odfHandler->setVars($key, 'ErrorFileNotFound', true, 'UTF-8');
@@ -396,7 +398,9 @@ class doc_generic_shipment_odt extends ModelePdfExpedition
 					try {
 						if (preg_match('/logo$/', $key)) {	// Image
 							//var_dump($value);exit;
-							if (file_exists($value)) {
+							if (empty($value)) {
+								$odfHandler->setVars($key, '', true, 'UTF-8');
+							} elseif (file_exists($value)) {
 								$odfHandler->setImage($key, $value);
 							} else {
 								$odfHandler->setVars($key, 'ErrorFileNotFound', true, 'UTF-8');
@@ -418,7 +422,9 @@ class doc_generic_shipment_odt extends ModelePdfExpedition
 				foreach ($tmparray as $key => $value) {
 					try {
 						if (preg_match('/logo$/', $key)) {	// Image
-							if (file_exists($value)) {
+							if (empty($value)) {
+								$odfHandler->setVars($key, '', true, 'UTF-8');
+							} elseif (file_exists($value)) {
 								$odfHandler->setImage($key, $value);
 							} else {
 								$odfHandler->setVars($key, 'ErrorFileNotFound', true, 'UTF-8');
@@ -436,7 +442,9 @@ class doc_generic_shipment_odt extends ModelePdfExpedition
 					foreach ($tmparray as $key => $value) {
 						try {
 							if (preg_match('/logo$/', $key)) {	// Image
-								if (file_exists($value)) {
+								if (empty($value)) {
+									$odfHandler->setVars($key, '', true, 'UTF-8');
+								} elseif (file_exists($value)) {
 									$odfHandler->setImage($key, $value);
 								} else {
 									$odfHandler->setVars($key, 'ErrorFileNotFound', true, 'UTF-8');
@@ -463,7 +471,9 @@ class doc_generic_shipment_odt extends ModelePdfExpedition
 					try {
 						if (preg_match('/logo$/', $key)) {
 							// Image
-							if (file_exists($value)) {
+							if (empty($value)) {
+								$odfHandler->setVars($key, '', true, 'UTF-8');
+							} elseif (file_exists($value)) {
 								$odfHandler->setImage($key, $value);
 							} else {
 								$odfHandler->setVars($key, 'ErrorFileNotFound', true, 'UTF-8');

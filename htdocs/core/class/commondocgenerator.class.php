@@ -330,7 +330,11 @@ abstract class CommonDocGenerator
 		// phpcs:enable
 		global $conf, $extrafields;
 
-		$logotouse = $conf->user->dir_output . '/' . get_exdir(0, 0, 0, 0, $user, 'user') . 'photos/' . getImageFileNameForSize($user->photo, '_small');
+		if ($user->photo) {
+			$logotouse = $conf->user->dir_output . '/' . get_exdir(0, 0, 0, 0, $user, 'user') . 'photos/' . getImageFileNameForSize($user->photo, '_small');
+		} else {
+			$logotouse = DOL_DOCUMENT_ROOT.'/public/theme/common/nophoto.png';
+		}
 
 		$array_user = array(
 			'myuser_lastname' => $user->lastname,
@@ -437,7 +441,7 @@ abstract class CommonDocGenerator
 			$mysoc->state = getState($state_id, '0');
 		}
 
-		$logotouse = $conf->mycompany->dir_output.'/logos/thumbs/'.$mysoc->logo_small;
+		$logotouse = empty($mysoc->logo_small) ? 0 : $conf->mycompany->dir_output.'/logos/thumbs/'.$mysoc->logo_small;
 
 		return array(
 			'mycompany_logo' => $logotouse,
