@@ -1683,7 +1683,20 @@ class Categorie extends CommonObject
 		$linkend = '</a>';
 
 		$picto = 'category';
-
+		//////// EASYA - Fix for CVE-2024-55227
+		//////// Commented during backport (conflist) because not present on Easya 2024.
+		// $linkclose = '';
+		// if (empty($notooltip)) {
+		// 	if (getDolGlobalInt('MAIN_OPTIMIZEFORTEXTBROWSER')) {
+		// 		$label = $langs->trans("ShowMyObject");
+		// 		$linkclose .= ' alt="'.dolPrintHtmlForAttribute($label).'"';
+		// 	}
+		// 	$linkclose .= ($label ? ' title="'.dolPrintHtmlForAttribute($label).'"' : ' title="tocomplete"');
+		// 	$linkclose .= $dataparams.' class="'.$classfortooltip.' '.$forced_color.($morecss ? ' '.$morecss : '').'"';
+		// } else {
+		// 	$linkclose = ' class="'.$forced_color.($morecss ? ' '.$morecss : '').'"';
+		// }
+		////////
 
 		if ($withpicto) {
 			$result .= ($link.img_object($label, $picto, $dataparams.' class="'.$classfortooltip.'"').$linkend);

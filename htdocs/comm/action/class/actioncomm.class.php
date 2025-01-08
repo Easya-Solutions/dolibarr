@@ -1633,6 +1633,7 @@ class ActionComm extends CommonObject
 			$datas['note'] .= (dol_textishtml($texttoshow) ? str_replace(array("\r", "\n"), "", $texttoshow) : str_replace(array("\r", "\n"), '<br>', $texttoshow));
 			$datas['note'] .= '</div>';
 		}
+
 		// show categories for this record only in ajax to not overload lists
 		if (isModEnabled('categorie') && !$nofetch) {
 			require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
@@ -1734,6 +1735,7 @@ class ActionComm extends CommonObject
 			$tooltip .= (dol_textishtml($texttoshow) ? str_replace(array("\r", "\n"), "", $texttoshow) : str_replace(array("\r", "\n"), '<br>', $texttoshow));
 			$tooltip .= '</div>';
 		}
+
 		$linkclose = '';
 		$classfortooltip = 'classfortooltip';
 		$dataparams = '';
@@ -1753,9 +1755,9 @@ class ActionComm extends CommonObject
 		if (empty($notooltip)) {
 			if (!empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
 				$label = $langs->trans("ShowAction");
-				$linkclose .= ' alt="'.dol_escape_htmltag($tooltip, 1).'"';
+				$linkclose .= ' alt="'.dolPrintHTMLForAttribute($tooltip).'"';
 			}
-			$linkclose .= ($tooltip ? ' title="'.dol_escape_htmltag($tooltip, 1).'"' :  ' title="tocomplete"');
+			$linkclose .= ($tooltip ? ' title="'.dolPrintHTMLForAttribute($tooltip).'"' : ' title="tocomplete"');
 			$linkclose .= $dataparams.' class="'.$classname.' '.$classfortooltip.'"';
 		} else {
 			$linkclose .= ' class="'.$classname.'"';
