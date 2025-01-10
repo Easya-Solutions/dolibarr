@@ -150,6 +150,7 @@ if (empty($reshook)) {
 		$sql .= ' id.fk_product, id.batch, id.qty_stock, id.qty_view, id.qty_regulated, id.pmp_real';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'inventorydet as id';
 		$sql .= ' WHERE id.fk_inventory = '.((int) $object->id);
+		$sql .= ' ORDER BY id.rowid';
 
 		$resql = $db->query($sql);
 		if ($resql) {
@@ -182,7 +183,6 @@ if (empty($reshook)) {
 				if (isModEnabled('productbatch') && $product_static->hasbatch()) {
 					$realqtynow = $product_static->stock_warehouse[$line->fk_warehouse]->detail_batch[$line->batch]->qty;
 				}
-
 
 				if (!is_null($qty_view)) {
 					$stock_movement_qty = price2num($qty_view - $realqtynow, 'MS');
