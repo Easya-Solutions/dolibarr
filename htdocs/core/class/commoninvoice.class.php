@@ -461,6 +461,10 @@ abstract class CommonInvoice extends CommonObject
 			return 0;
 		}
 
+		if ($this->type == self::TYPE_DEPOSIT && !empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) {
+            return 1;
+        }
+
 		// If not a draft invoice and not temporary invoice
 		if ($tmppart !== 'PROV') {
 			$ventilExportCompta = $this->getVentilExportCompta();
