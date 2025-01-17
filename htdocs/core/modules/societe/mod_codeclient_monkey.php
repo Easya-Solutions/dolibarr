@@ -62,6 +62,9 @@ class mod_codeclient_monkey extends ModeleThirdPartyCode
 
 	public $prefixIsRequired; // Le champ prefix du tiers doit etre renseigne quand on utilise {pre}
 
+	public const REGEX_CUSTOMER = '/^CU[0-9]{2}[0-1][0-9]-[0-9]{4}$/';
+	public const REGEX_SUPPLIER = '/^SU[0-9]{2}[0-1][0-9]-[0-9]{4}$/';
+
 
 	/**
 	 * 	Constructor
@@ -256,13 +259,12 @@ class mod_codeclient_monkey extends ModeleThirdPartyCode
 	 */
 	public function verif_syntax($code)
 	{
-		// phpcs:enable
-		$res = 0;
-
-		if (dol_strlen($code) < 11) {
-			$res = -1;
+		if (strpos($code, $this->prefixcustomer) !== false) {
+			$res = preg_match(self::REGEX_CUSTOMER, $code) ? 0 : -1;
+		} elseif (strpos($code, $this->prefixsupplier) !== false) {
+			$res = preg_match(self::REGEX_SUPPLIER, $code) ? 0 : -1;
 		} else {
-			$res = 0;
+			$res = -1;
 		}
 		return $res;
 	}
