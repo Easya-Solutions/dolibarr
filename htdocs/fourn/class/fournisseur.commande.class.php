@@ -2312,6 +2312,16 @@ class CommandeFournisseur extends CommonOrder
 			$error++;
 		}
 
+		if (!$error) {
+			$sql1 = "UPDATE ".$this->db->prefix()."commandedet SET fk_commandefourndet = NULL WHERE fk_commandefourndet IN (SELECT rowid FROM ".$main." WHERE fk_commande = ".((int) $this->id).")";
+			dol_syslog(__METHOD__." linked order lines", LOG_DEBUG);
+			if (!$this->db->query($sql1)) {
+				$error++;
+				$this->error = $this->db->lasterror();
+				$this->errors[] = $this->db->lasterror();
+			}
+		}
+
 		$sql = "DELETE FROM ".MAIN_DB_PREFIX."commande_fournisseurdet WHERE fk_commande =".((int) $this->id);
 		dol_syslog(get_class($this)."::delete", LOG_DEBUG);
 		if (!$this->db->query($sql)) {
@@ -4137,7 +4147,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
 			return -1;
 		}
 
-		$sql1 = 'UPDATE '.MAIN_DB_PREFIX."commandedet SET fk_commandefourndet = NULL WHERE fk_commandefourndet=".((int) $this->id);
+		$sql1 = "UPDATE ".MAIN_DB_PREFIX."commandedet SET fk_commandefourndet = NULL WHERE fk_commandefourndet=".((int) $this->id);
 		$resql = $this->db->query($sql1);
 		if (!$resql) {
 			$this->db->rollback();
