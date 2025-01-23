@@ -98,8 +98,8 @@ class ShipmentKitTest extends CommonClassTest
 		$p2 = new Product($db);
 		$p2->initAsSpecimen();
 		$p2->type = Product::TYPE_PRODUCT;
-		$p1->ref = 'P2';
-		$p1->label = 'P2 not in sell';
+		$p2->ref = 'P2';
+		$p2->label = 'P2 not in sell';
 		$p2->status = 0;
 		$resultP2 = $p2->create($user);
 		if ($resultP2 < 0) {
@@ -353,7 +353,7 @@ class ShipmentKitTest extends CommonClassTest
 		$kitList = $this->createKits();
 
 		$toTestList = [
-			// add a simple product to kit with qty positive
+			// add a simple product to kit with qty positive as integer
 			'P1ToK1Qty5' => [
 				'kit' => 'K1',
 				'components' => [
@@ -374,84 +374,7 @@ class ShipmentKitTest extends CommonClassTest
 					['product' => 'P1', 'qty' => 0, 'incdec' => 1], // qty of "P1" is 0 and not added (standard behaviour)
 				],
 			],
-		];
-
-		foreach ($toTestList as $testKey => $testParamList) {
-			$db->begin();
-
-			$kitKey = $testParamList['kit'];
-			$componentList = $testParamList['components'];
-			$expectedComponentList = $testParamList['expected_components'];
-
-			/**
-			 * @var Product $kit
-			 */
-			$kit = $kitList[$kitKey];
-			$kitRef = $kit->ref;
-			foreach ($componentList as $component) {
-				$productKey = $component['product'];
-				$addQty = $component['qty'];
-				$incdec = $component['incdec'];
-
-				/**
-				 * @var Product $productToAdd
-				 */
-				$productToAdd = $productList[$productKey];
-				$productRef = $productToAdd->ref;
-				$result = $this->addToKit([$kit, $productToAdd, $addQty, $incdec]);
-				// success if result > 0
-				$this->assertGreaterThan(0, $result, 'Test '.$testKey.' : add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
-				print __METHOD__." result".$testKey."=".$result."\n";
-			}
-
-			//$kit->get_sousproduits_arbo(); // Load $object->sousprods
-			//$kitAllSubComponentsArr = $kit->get_arbo_each_prod();
-			//$kitAllSubComponentsCount = count($kitAllSubComponentsArr); // This includes all sub products into nb
-			$kitComponentsArr = $kit->getChildsArbo($kit->id, 1);
-			$kitComponentsCount = count($kitComponentsArr); // This includes only first level of children
-
-			// check all components are in kit with expected quantity and incdec
-			$foundComponentList = [];
-			foreach ($kitComponentsArr as $kitComponentValue) {
-				$foundComponentList[] = ['product' => $kitComponentValue[5], 'qty' => $kitComponentValue[1], 'incdec' => $kitComponentValue[4]];
-			}
-			$this->assertEqualsCanonicalizing($expectedComponentList, $foundComponentList, 'Test '.$testKey.': all components are not in kit [ref='.$kitRef.']');
-
-			// check components count
-			$this->assertEquals(count($expectedComponentList), $kitComponentsCount, 'Test '.$testKey.' : components count='.$kitComponentsCount.' for kit [ref='.$kitRef.']');
-
-			$db->rollback();
-		}
-
-		$db->rollback();
-
-		return $result;
-	}
-
-	/**
-	 * Test to add product component in virtual product
-	 *
-	 * @return	int			Return integer < 0 if KO, > 0 if OK or 0 if nothing done
-	 */
-	public function testKitAddServiceAsComponent()
-	{
-		global $conf, $db, $langs, $user;
-		$conf = $this->savconf;
-		$user = $this->savuser;
-		$langs = $this->savlangs;
-		$db = $this->savdb;
-
-		print "\n";
-
-		$result = 0;
-
-		$db->begin();
-
-		$productList = $this->createProducts();
-		$kitList = $this->createKits();
-
-		$toTestList = [
-			// add a simple service to kit with qty positive
+			// add a simple service to kit with qty positive as integer
 			'S1ToKS1Qty5' => [
 				'kit' => 'KS1',
 				'components' => [
@@ -472,6 +395,16 @@ class ShipmentKitTest extends CommonClassTest
 					['product' => 'S1', 'qty' => 0, 'incdec' => 1], // qty of "S1" is 0 and not added (standard behaviour)
 				],
 			],
+			// add a simple product to kit with qty positive as float
+			'P2ToK2QtyFloat' => [
+				'kit' => 'K2',
+				'components' => [
+					['product' => 'P2', 'qty' => 3.25, 'incdec' => 1],
+				],
+				'expected_components' => [
+					['product' => 'P2', 'qty' => 3.25, 'incdec' => 1],
+				],
+			],
 		];
 
 		foreach ($toTestList as $testKey => $testParamList) {
@@ -507,12 +440,14 @@ class ShipmentKitTest extends CommonClassTest
 			//$kitAllSubComponentsCount = count($kitAllSubComponentsArr); // This includes all sub products into nb
 			$kitComponentsArr = $kit->getChildsArbo($kit->id, 1);
 			$kitComponentsCount = count($kitComponentsArr); // This includes only first level of children
+			//print __METHOD__." kitComponentsArr=".var_export($kitComponentsArr, true)."\n";
 
 			// check all components are in kit with expected quantity and incdec
 			$foundComponentList = [];
 			foreach ($kitComponentsArr as $kitComponentValue) {
 				$foundComponentList[] = ['product' => $kitComponentValue[5], 'qty' => $kitComponentValue[1], 'incdec' => $kitComponentValue[4]];
 			}
+			//print __METHOD__." foundComponentList=".var_export($foundComponentList, true)."\n";
 			$this->assertEqualsCanonicalizing($expectedComponentList, $foundComponentList, 'Test '.$testKey.': all components are not in kit [ref='.$kitRef.']');
 
 			// check components count
