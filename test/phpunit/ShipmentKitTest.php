@@ -90,7 +90,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultP1 = $p1->create($user);
 		if ($resultP1 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultP1=".$resultP1;
+			$messageList[] = __METHOD__." resultP1=".$resultP1.", error=".$p1->errorsToString();
 		}
 		$productList['P1'] = $p1;
 
@@ -104,7 +104,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultP2 = $p2->create($user);
 		if ($resultP2 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultP2=".$resultP2;
+			$messageList[] = __METHOD__." resultP2=".$resultP2.", error=".$p2->errorsToString();
 		}
 		$productList['P2'] = $p2;
 
@@ -120,7 +120,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultP3L = $p3l->create($user);
 		if ($resultP3L < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultP3L=".$resultP3L;
+			$messageList[] = __METHOD__." resultP3L=".$resultP3L.", error=".$p3l->errorsToString();
 		}
 		$productList['P3L'] = $p3l;
 
@@ -131,12 +131,12 @@ class ShipmentKitTest extends CommonClassTest
 		$p4s->ref = 'P4S';
 		$p4s->label = 'P4S using serial number';
 		$p4s->status = 1;
-		$p3l->status_batch = 2;
-		$p3l->sell_or_eat_by_mandatory = Product::SELL_OR_EAT_BY_MANDATORY_ID_SELL_AND_EAT;
+		$p4s->status_batch = 2;
+		$p4s->sell_or_eat_by_mandatory = Product::SELL_OR_EAT_BY_MANDATORY_ID_SELL_AND_EAT;
 		$resultP4S = $p4s->create($user);
 		if ($resultP4S < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultP4S=".$resultP4S;
+			$messageList[] = __METHOD__." resultP4S=".$resultP4S.", error=".$p4s->errorsToString();
 		}
 		$productList['P4S'] = $p4s;
 
@@ -150,7 +150,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultS1 = $s1->create($user);
 		if ($resultS1 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultS1=".$resultS1;
+			$messageList[] = __METHOD__." resultS1=".$resultS1.", error=".$s1->errorsToString();
 		}
 		$productList['S1'] = $s1;
 
@@ -164,7 +164,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultS2 = $s2->create($user);
 		if ($resultS2 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultS2=".$resultS2;
+			$messageList[] = __METHOD__." resultS2=".$resultS2.", error=".$s2->errorsToString();
 		}
 		$productList['S2'] = $s2;
 
@@ -198,7 +198,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultK1 = $k1->create($user);
 		if ($resultK1 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultK1=".$resultK1;
+			$messageList[] = __METHOD__." resultK1=".$resultK1.", error=".$k1->errorsToString();
 		}
 		$kitList['K1'] = $k1;
 
@@ -212,7 +212,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultKS1 = $ks1->create($user);
 		if ($resultKS1 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultKS1=".$resultKS1;
+			$messageList[] = __METHOD__." resultKS1=".$resultKS1.", error=".$ks1->errorsToString();
 		}
 		$kitList['KS1'] = $ks1;
 
@@ -226,7 +226,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultKS2 = $ks2->create($user);
 		if ($resultKS2 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultKS2=".$resultKS2;
+			$messageList[] = __METHOD__." resultKS2=".$resultKS2.", error=".$ks2->errorsToString();
 		}
 		$kitList['KS2'] = $ks2;
 
@@ -240,7 +240,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultK2 = $k2->create($user);
 		if ($resultK2 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultK2=".$resultK2;
+			$messageList[] = __METHOD__." resultK2=".$resultK2.", error=".$k2->errorsToString();
 		}
 		$kitList['K2'] = $k2;
 
@@ -254,7 +254,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultK3 = $k3->create($user);
 		if ($resultK3 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultK3=".$resultK3;
+			$messageList[] = __METHOD__." resultK3=".$resultK3.", error=".$k3->errorsToString();
 		}
 		$kitList['K3'] = $k3;
 
@@ -268,7 +268,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultK4 = $k4->create($user);
 		if ($resultK4 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultK4=".$resultK4;
+			$messageList[] = __METHOD__." resultK4=".$resultK4.", error=".$k4->errorsToString();
 		}
 		$kitList['K4'] = $k4;
 
@@ -282,7 +282,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultK5 = $k5->create($user);
 		if ($resultK5 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultK5=".$resultK5;
+			$messageList[] = __METHOD__." resultK5=".$resultK5.", error=".$k5->errorsToString();
 		}
 		$kitList['K5'] = $k5;
 
@@ -296,7 +296,7 @@ class ShipmentKitTest extends CommonClassTest
 		$resultK6 = $k6->create($user);
 		if ($resultK6 < 0) {
 			$error++;
-			$messageList[] = __METHOD__." resultK6=".$resultK6;
+			$messageList[] = __METHOD__." resultK6=".$resultK6.", error=".$k6->errorsToString();
 		}
 		$kitList['K6'] = $k6;
 
@@ -314,7 +314,13 @@ class ShipmentKitTest extends CommonClassTest
 	 */
 	public function addToKit($paramList)
 	{
+		/**
+		 * @var Product $kit
+		 */
 		$kit = $paramList[0];
+		/**
+		 * @var Product $product
+		 */
 		$product = $paramList[1];
 		$qty = $paramList[2];
 		$incdec = $paramList[3];
@@ -339,26 +345,103 @@ class ShipmentKitTest extends CommonClassTest
 
 		print "\n";
 
-		$to_test = [
-			0 => [
+		$result = 0;
+
+		$db->begin();
+
+		$productList = $this->createProducts();
+		$kitList = $this->createKits();
+
+		$toTestList = [
+			// add a simple product to kit with qty positive
+			'P1ToK1Qty5' => [
 				'kit' => 'K1',
-				'products' => [
-					['prod' => P1, 'qty' => 3],
-					['prod' => P1, 'qty' => 0]
-				]
-        'expected_products' => []
-    ],
-    1 => [
-		'kit' => 'K1',
-		'products' => [
-			['prod' => P1, 'qty' => 3, 'incdec' => 1],
-			['prod' => P1, 'qty' => 5, 'incdec' => 0],
-		]
-        'expected_products' => [            // test on count(expected products)
-		['prod' => P1, 'qty' => 5, 'incdec' => 0],
-	]
-    ],
-];
+				'components' => [
+					['product' => 'P1', 'qty' => 5, 'incdec' => 0],
+				],
+				'expected_components' => [
+					['product' => 'P1', 'qty' => 5, 'incdec' => 0],
+				],
+			],
+			// add a simple product and the same product with qty = 0
+			'P1ToK1Qty3AndRemoved' => [
+				'kit' => 'K1',
+				'components' => [
+					['product' => 'P1', 'qty' => 3, 'incdec' => 1],
+					['product' => 'P1', 'qty' => 0, 'incdec' => 1],
+				],
+				'expected_components' => [
+					['product' => 'P1', 'qty' => 0, 'incdec' => 1], // qty of "P1" is 0 and not added (standard behaviour)
+				],
+			],
+		];
+
+		foreach ($toTestList as $testKey => $testParamList) {
+			$db->begin();
+
+			$kitKey = $testParamList['kit'];
+			$componentList = $testParamList['components'];
+			$expectedComponentList = $testParamList['expected_components'];
+
+			/**
+			 * @var Product $kit
+			 */
+			$kit = $kitList[$kitKey];
+			$kitRef = $kit->ref;
+			foreach ($componentList as $component) {
+				$productKey = $component['product'];
+				$addQty = $component['qty'];
+				$incdec = $component['incdec'];
+
+				/**
+				 * @var Product $productToAdd
+				 */
+				$productToAdd = $productList[$productKey];
+				$productRef = $productToAdd->ref;
+				$result = $this->addToKit([$kit, $productToAdd, $addQty, $incdec]);
+				// success if result > 0
+				$this->assertGreaterThan(0, $result, 'Test '.$testKey.' : add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
+				print __METHOD__." result".$testKey."=".$result."\n";
+			}
+
+			//$kit->get_sousproduits_arbo(); // Load $object->sousprods
+			//$kitAllSubComponentsArr = $kit->get_arbo_each_prod();
+			//$kitAllSubComponentsCount = count($kitAllSubComponentsArr); // This includes all sub products into nb
+			$kitComponentsArr = $kit->getChildsArbo($kit->id, 1);
+			$kitComponentsCount = count($kitComponentsArr); // This includes only first level of children
+
+			// check all components are in kit with expected quantity and incdec
+			$foundComponentList = [];
+			foreach ($kitComponentsArr as $kitComponentValue) {
+				$foundComponentList[] = ['product' => $kitComponentValue[5], 'qty' => $kitComponentValue[1], 'incdec' => $kitComponentValue[4]];
+			}
+			$this->assertEqualsCanonicalizing($expectedComponentList, $foundComponentList, 'Test '.$testKey.': all components are not in kit [ref='.$kitRef.']');
+
+			// check components count
+			$this->assertEquals(count($expectedComponentList), $kitComponentsCount, 'Test '.$testKey.' : components count='.$kitComponentsCount.' for kit [ref='.$kitRef.']');
+
+			$db->rollback();
+		}
+
+		$db->rollback();
+
+		return $result;
+	}
+
+	/**
+	 * Test to add product component in virtual product
+	 *
+	 * @return	int			Return integer < 0 if KO, > 0 if OK or 0 if nothing done
+	 */
+	public function testKitAddServiceAsComponent()
+	{
+		global $conf, $db, $langs, $user;
+		$conf = $this->savconf;
+		$user = $this->savuser;
+		$langs = $this->savlangs;
+		$db = $this->savdb;
+
+		print "\n";
 
 		$result = 0;
 
@@ -367,59 +450,73 @@ class ShipmentKitTest extends CommonClassTest
 		$productList = $this->createProducts();
 		$kitList = $this->createKits();
 
-
-		$addToKitList = [
-			'P1ToK1Qty3Inc1' => [
-				'kit' => $kitList['K1'],
-				'products' => [
-					[$productList['P1'], 3, 1],
-					[$productList['P1'], 0, 1],
+		$toTestList = [
+			// add a simple service to kit with qty positive
+			'S1ToKS1Qty5' => [
+				'kit' => 'KS1',
+				'components' => [
+					['product' => 'S1', 'qty' => 5, 'incdec' => 0],
 				],
-				//'expected_products' =>
-			], // add product "P1" to kit "K1" with qty = 3 and inc/dec = 1
-			//'P1ToK1Qty0Inc1' => [$kitList['K1'], ], // add product "P1" to kit "K1" with qty = 0 and inc/dec = 1
+				'expected_components' => [
+					['product' => 'S1', 'qty' => 5, 'incdec' => 0],
+				],
+			],
+			// add a simple service and the same service with qty = 0
+			'S1ToKS1Qty3AndRemoved' => [
+				'kit' => 'KS1',
+				'components' => [
+					['product' => 'S1', 'qty' => 3, 'incdec' => 1],
+					['product' => 'S1', 'qty' => 0, 'incdec' => 1],
+				],
+				'expected_components' => [
+					['product' => 'S1', 'qty' => 0, 'incdec' => 1], // qty of "S1" is 0 and not added (standard behaviour)
+				],
+			],
 		];
-		foreach ($addToKitList as $addKey => $addToKit) {
 
+		foreach ($toTestList as $testKey => $testParamList) {
 			$db->begin();
 
-			//foreach ($addToKit as  => ) {
+			$kitKey = $testParamList['kit'];
+			$componentList = $testParamList['components'];
+			$expectedComponentList = $testParamList['expected_components'];
 
-			//}
 			/**
 			 * @var Product $kit
 			 */
-			$kit = $addToKit[0];
-			/**
-			 * @var Product $component
-			 */
-			$component = $addToKit[1];
+			$kit = $kitList[$kitKey];
 			$kitRef = $kit->ref;
-			$productRef = $component->ref;
-			$addQty = $addToKit[2];
-			$incdec = $addToKit[3];
-			$result = $this->addToKit($addToKit);
-			$this->assertGreaterThan(0, $result, 'Add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
-			print __METHOD__." result".$addKey."=".$result."\n";
+			foreach ($componentList as $component) {
+				$productKey = $component['product'];
+				$addQty = $component['qty'];
+				$incdec = $component['incdec'];
 
-
-			if ($addQty >= 0) {
-				$kit->get_sousproduits_arbo(); // Load $object->sousprods
-				$prods_arbo = $kit->get_arbo_each_prod();
-				$nbofsubsubproducts = count($prods_arbo); // This includes all sub products into nb
-				$prodschild = $kit->getChildsArbo($kit->id, 1);
-				$nbofsubproducts = count($prodschild); // This includes only first level of children
-
-				// TODO : check P1 is in K1 if qty > 0
-				// TODO : check P1 is not in K1 if qty = 0
-
-				// TODO : check components count
-				if ($addQty != $nbofsubproducts) {
-					$result = -1;
-				}
-				//$this->assertEquals(count($expected_products), $nbofsubproducts, 'Add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
-				//print __METHOD__." result=".$result."\n";
+				/**
+				 * @var Product $productToAdd
+				 */
+				$productToAdd = $productList[$productKey];
+				$productRef = $productToAdd->ref;
+				$result = $this->addToKit([$kit, $productToAdd, $addQty, $incdec]);
+				// success if result > 0
+				$this->assertGreaterThan(0, $result, 'Test '.$testKey.' : add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
+				print __METHOD__." result".$testKey."=".$result."\n";
 			}
+
+			//$kit->get_sousproduits_arbo(); // Load $object->sousprods
+			//$kitAllSubComponentsArr = $kit->get_arbo_each_prod();
+			//$kitAllSubComponentsCount = count($kitAllSubComponentsArr); // This includes all sub products into nb
+			$kitComponentsArr = $kit->getChildsArbo($kit->id, 1);
+			$kitComponentsCount = count($kitComponentsArr); // This includes only first level of children
+
+			// check all components are in kit with expected quantity and incdec
+			$foundComponentList = [];
+			foreach ($kitComponentsArr as $kitComponentValue) {
+				$foundComponentList[] = ['product' => $kitComponentValue[5], 'qty' => $kitComponentValue[1], 'incdec' => $kitComponentValue[4]];
+			}
+			$this->assertEqualsCanonicalizing($expectedComponentList, $foundComponentList, 'Test '.$testKey.': all components are not in kit [ref='.$kitRef.']');
+
+			// check components count
+			$this->assertEquals(count($expectedComponentList), $kitComponentsCount, 'Test '.$testKey.' : components count='.$kitComponentsCount.' for kit [ref='.$kitRef.']');
 
 			$db->rollback();
 		}
