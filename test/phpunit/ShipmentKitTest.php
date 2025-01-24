@@ -760,10 +760,6 @@ class ShipmentKitTest extends CommonClassTest
 		$productList = $this->createProducts();
 		$kitList = $this->createKits();
 
-		foreach($kitList as $kit) {
-			print $kit->ref;
-		}
-
 		$to_test = [
 			# nesting on a level of 5
 			'nesting_5' => [
@@ -810,8 +806,6 @@ class ShipmentKitTest extends CommonClassTest
 		foreach ($to_test as $case_name => $case) {
 			$db->begin();
 
-			print ($case['top_kit']);
-
 			$top_kit = clone $kitList[$case['top_kit']];
 			$inner_kit = clone $kitList[$case['inner_kit']];
 			// Having different ref is necessary so products stay separated in DB.
@@ -825,8 +819,7 @@ class ShipmentKitTest extends CommonClassTest
 			$lower_kit->ref .= '_0'.$case_name;
 			$lower_kit->label .= '_0'.$case_name;
 			$lower_kit->create($user);
-			$addToKit = [$lower_kit, $productList[$case['base_product']], $case['qty_each_level'], 1];
-			$result = $this->addToKit($addToKit);
+			$result = $lower_kit->add_sousproduit($lower_kit->id, $productList[$case['base_product']]->id, $case['qty_each_level'], 1);
 			$this->assertGreaterThan(0, $result);
 			
 			# Build nested kits
@@ -838,15 +831,13 @@ class ShipmentKitTest extends CommonClassTest
 				$current_kit->ref .= '_'.$n.$case_name;
 				$current_kit->label .= '_'.$n.$case_name;
 				$current_kit->create($user);
-				$addToKit = [$current_kit, $lower_kit, $case['qty_each_level'], 1];
-				$result = $this->addToKit($addToKit);
+				$result = $current_kit->add_sousproduit($current_kit->id, $lower_kit->id, $case['qty_each_level'], 1);
 				$this->assertGreaterThan(0, $result);
 				$lower_kit = clone $current_kit;
 			}
 
 			# Insert in top kit
-			$addToKit = [$top_kit, $lower_kit, $case['qty_each_level'], 1];
-			$result = $this->addToKit($addToKit);
+			$result = $top_kit->add_sousproduit($top_kit->id, $lower_kit->id, $case['qty_each_level'], 1);
 			$this->assertGreaterThan(0, $result);
 
 			# Test content of kit
@@ -887,32 +878,32 @@ class ShipmentKitTest extends CommonClassTest
 		$kitList = $this->createKits();
 
 		# kit in itself
-		$result = $this->addToKit([$kitList['K1'], $kitList['K1'], 1,1]);
+		$result = $kitList['K1']->add_sousproduit($kitList['K1']->id, $kitList['K1']->id, 1,1);
 		$this->assertLessThan(0, $result);
 
 		# kit in itself when kit already contains a pproduct
-		$result = $this->addToKit([$kitList['K1'], $productList['P1'], 1,1]);
+		$result = $kitList['K1']->add_sousproduit($kitList['K1']->id, $productList['P1']->id, 1,1);
 		$this->assertGreaterThan(0, $result);
-		$result = $this->addToKit([$kitList['K1'], $kitList['K1'], 1,1]);
+		$result = $kitList['K1']->add_sousproduit($kitList['K1']->id, $kitList['K1']->id, 1,1);
 		$this->assertLessThan(0, $result);
 
 		# Kit in itself on nested level, without a product
-		$result = $this->addToKit([$kitList['K1'], $kitList['K2'], 1,1]);
+		$result = $kitList['K1']->add_sousproduit($kitList['K1']->id, $kitList['K2']->id, 1,1);
 		$this->assertGreaterThan(0, $result);
-		$result = $this->addToKit([$kitList['K2'], $kitList['K3'], 1,1]);
+		$result = $kitList['K2']->add_sousproduit($kitList['K2']->id, $kitList['K3']->id, 1,1);
 		$this->assertGreaterThan(0, $result);
-		$result = $this->addToKit([$kitList['K3'], $kitList['K1'], 1,1]);
+		$result = $kitList['K3']->add_sousproduit($kitList['K3']->id, $kitList['K1']->id, 1,1);
 		$this->assertLessThan(0, $result);
 
 
 		# Kit in itself on nested level, with a product
-		$result = $this->addToKit([$kitList['K1'], $productList['P1'], 1,1]);
+		$result = $kitList['K1']->add_sousproduit($kitList['K1']->id, $productList['P1']->id, 1,1);
 		$this->assertGreaterThan(0, $result);
-		$result = $this->addToKit([$kitList['K1'], $kitList['K2'], 1,1]);
+		$result = $kitList['K1']->add_sousproduit($kitList['K1']->id, $kitList['K2']->id, 1,1);
 		$this->assertGreaterThan(0, $result);
-		$result = $this->addToKit([$kitList['K2'], $kitList['K3'], 1,1]);
+		$result = $kitList['K2']->add_sousproduit($kitList['K2']->id, $kitList['K3']->id, 1,1);
 		$this->assertGreaterThan(0, $result);
-		$result = $this->addToKit([$kitList['K3'], $kitList['K1'], 1,1]);
+		$result = $kitList['K3']->add_sousproduit($kitList['K3']->id, $kitList['K1']->id, 1,1);
 		$this->assertLessThan(0, $result);
 
 		$db->rollback();
