@@ -426,50 +426,6 @@ class ShipmentKitTest extends CommonClassTest
 	}
 
 	/**
-	 * Add product to a virtual product (kit)
-	 * @param 	array		$paramList		Array of parameters : [Product kit, Product component, flot qty, int incdec]
-	 * @return	int			Return integer < 0 if KO, > 0 if OK
-	 */
-	public function addToKit($paramList)
-	{
-		/**
-		 * @var Product $kit
-		 */
-		$kit = $paramList[0];
-		/**
-		 * @var Product $product
-		 */
-		$product = $paramList[1];
-		$qty = $paramList[2];
-		$incdec = $paramList[3];
-
-		$result = $kit->add_sousproduit($kit->id, $product->id, $qty, $incdec);
-
-		return $result;
-	}
-
-	/**
-	 * Add product to a virtual product (kit)
-	 * @param 	array		$paramList		Array of parameters : [Product kit, Product component]
-	 * @return	int			Return integer < 0 if KO, > 0 if OK
-	 */
-	public function delToKit($paramList)
-	{
-		/**
-		 * @var Product $kit
-		 */
-		$kit = $paramList[0];
-		/**
-		 * @var Product $product
-		 */
-		$product = $paramList[1];
-
-		$result = $kit->del_sousproduit($kit->id, $product->id);
-
-		return $result;
-	}
-
-	/**
 	 * Test to add product component in virtual product
 	 *
 	 * @return	int			Return integer < 0 if KO, > 0 if OK or 0 if nothing done
@@ -498,19 +454,17 @@ class ShipmentKitTest extends CommonClassTest
 				'components' => [
 					['product' => 'P1', 'qty' => 5, 'incdec' => 0],
 				],
-				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'P1', 'qty' => 5, 'incdec' => 0],
 				],
 			],
-			// add a simple product and the same product with qty = 0 (using "Product::add_sousproduit")
+			// add a simple product and the same product with qty = 0
 			'P1ToK1Qty3AndRemoved' => [
 				'kit' => 'K1',
 				'components' => [
 					['product' => 'P1', 'qty' => 3, 'incdec' => 1],
 					['product' => 'P1', 'qty' => 0, 'incdec' => 1],
 				],
-				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'P1', 'qty' => 0, 'incdec' => 1], // qty of "P1" is 0 and not added (standard behaviour)
 				],
@@ -521,19 +475,17 @@ class ShipmentKitTest extends CommonClassTest
 				'components' => [
 					['product' => 'S1', 'qty' => 5, 'incdec' => 0],
 				],
-				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'S1', 'qty' => 5, 'incdec' => 0],
 				],
 			],
-			// add a simple service and the same service with qty = 0 (using "Product::add_sousproduit")
+			// add a simple service and the same service with qty = 0
 			'S1ToKS1Qty3AndRemoved' => [
 				'kit' => 'KS1',
 				'components' => [
 					['product' => 'S1', 'qty' => 3, 'incdec' => 1],
 					['product' => 'S1', 'qty' => 0, 'incdec' => 1],
 				],
-				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'S1', 'qty' => 0, 'incdec' => 1], // qty of "S1" is 0 and not added (standard behaviour)
 				],
@@ -544,75 +496,20 @@ class ShipmentKitTest extends CommonClassTest
 				'components' => [
 					['product' => 'P2', 'qty' => 3.25, 'incdec' => 1],
 				],
-				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'P2', 'qty' => 3.25, 'incdec' => 1],
 				],
 			],
-			// add a simple product to kit with qty negative (using "Product::add_sousproduit")
+			// add a simple product to kit with qty negative
 			'P2ToK2QtyNegative' => [
 				'kit' => 'K2',
 				'components' => [
 					['product' => 'P2', 'qty' => -1, 'incdec' => 1],
 				],
-				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'P2', 'qty' => -1, 'incdec' => 1],
 				],
 			],
-			// add a simple product to kit with qty = 0 (using "Product::del_sousproduit")
-			'P2ToK2QtyNegativeUsingDel' => [
-				'kit' => 'K2',
-				'components' => [
-					['product' => 'P2', 'qty' => -1, 'incdec' => 1],
-				],
-				'using_method' => 'del_sousproduit',
-				'expected_components' => [],
-			],
-			// add a simple product to kit with qty = 0 (using the same code in user interface : product/composition/card.php)
-			'P2ToK2QtyNegativeUsingUI' => [
-				'kit' => 'K2',
-				'components' => [
-					['product' => 'P2', 'qty' => 0, 'incdec' => 1],
-				],
-				'using_method' => 'ui',
-				'expected_components' => [],
-			],
-			// TODO : add a simple product to kit and add one not in sell
-//			'P1AndP2NotInSellToK1Qty1' => [
-//				'kit' => 'K1',
-//				'components' => [
-//					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
-//					['product' => 'P2', 'qty' => 1, 'incdec' => 1],
-//				],
-//				'using_method' => 'ui',
-//				'expected_components' => [
-//					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
-//					//['product' => 'P2', 'qty' => 1, 'incdec' => 1], // not in sell so it will not be added
-//				],
-//			],
-			// TODO : add two products in sell to kit and change one product to not in sell
-			'P1AndP3LToK1Qty1AndChangeP1NotInSell' => [
-				'kit' => 'K1',
-				'components' => [
-					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
-					['product' => 'P3L', 'qty' => 1, 'incdec' => 1],
-				],
-				'using_method' => 'ui',
-				'expected_components' => [
-					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
-					['product' => 'P3L', 'qty' => 1, 'incdec' => 1],
-				],
-			],
-			// add a product not exist in kit (id of product is higher than last product in database)
-//			'ProductNotExistToK1' => [
-//				'kit' => 'K1',
-//				'components' => [
-//					['product' => 999999999, 'qty' => 5, 'incdec' => 0],
-//				],
-//				'using_method' => 'ui',
-//				'expected_components' => [],
-//			],
 		];
 
 		foreach ($toTestList as $testKey => $testParamList) {
@@ -620,7 +517,6 @@ class ShipmentKitTest extends CommonClassTest
 
 			$kitKey = $testParamList['kit'];
 			$componentList = $testParamList['components'];
-			$usingMethod = $testParamList['using_method'];
 			$expectedComponentList = $testParamList['expected_components'];
 
 			/**
@@ -636,30 +532,9 @@ class ShipmentKitTest extends CommonClassTest
 				/**
 				 * @var Product $productToAdd
 				 */
-				if (!isset($productList[$productKey])) {
-					$productToAdd = new Product($db);
-					$productToAdd->initAsSpecimen();
-					$productToAdd->id = $productKey;
-					//$productToAdd->type = Product::TYPE_PRODUCT;
-					//$productToAdd->ref = (string) $productKey;
-					//$productToAdd->label = 'Product not exist';
-					//$productToAdd->status = 1;
-				} else {
-					$productToAdd = $productList[$productKey];
-				}
+				$productToAdd = $productList[$productKey];
 				$productRef = $productToAdd->ref;
-				if ($usingMethod == 'ui') {
-					if ($addQty > 0) {
-						$usingMethod = 'add_sousproduit';
-					} else {
-						$usingMethod = 'del_sousproduit';
-					}
-				}
-				if ($usingMethod == 'del_sousproduit') {
-					$result = $this->delToKit([$kit, $productToAdd]);
-				} else {
-					$result = $this->addToKit([$kit, $productToAdd, $addQty, $incdec]);
-				}
+				$result = $kit->add_sousproduit($kit->id, $productToAdd->id, $addQty, $incdec);
 				// success if result > 0
 				$this->assertGreaterThan(0, $result, 'Test '.$testKey.' : add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
 				print __METHOD__." result".$testKey."=".$result."\n";
@@ -678,6 +553,90 @@ class ShipmentKitTest extends CommonClassTest
 				$foundComponentList[] = ['product' => $kitComponentValue[5], 'qty' => $kitComponentValue[1], 'incdec' => $kitComponentValue[4]];
 			}
 			//print __METHOD__." foundComponentList=".var_export($foundComponentList, true)."\n";
+			$this->assertEqualsCanonicalizing($expectedComponentList, $foundComponentList, 'Test '.$testKey.': all components are not in kit [ref='.$kitRef.']');
+
+			// check components count
+			$this->assertEquals(count($expectedComponentList), $kitComponentsCount, 'Test '.$testKey.' : components count='.$kitComponentsCount.' for kit [ref='.$kitRef.']');
+
+			$db->rollback();
+		}
+
+		$db->rollback();
+
+		return $result;
+	}
+
+	/**
+	 * Test to add a non exist product component in virtual product
+	 *
+	 * @return	int			Return integer < 0 if KO, > 0 if OK or 0 if nothing done
+	 */
+	public function testKitAddNonExistProductAsComponent()
+	{
+		global $conf, $db, $langs, $user;
+		$conf = $this->savconf;
+		$user = $this->savuser;
+		$langs = $this->savlangs;
+		$db = $this->savdb;
+
+		print __METHOD__."\n";
+
+		$result = 0;
+
+		$db->begin();
+
+		$productList = $this->createProducts();
+		$kitList = $this->createKits();
+
+		$toTestList = [
+			// add a product not exist in kit (id of product is higher than last product in database)
+			'ProductNotExistToK1' => [
+				'kit' => 'K1',
+				'components' => [
+					['product' => 999999999, 'qty' => 1, 'incdec' => 0],
+				],
+				'expected_components' => [],
+			],
+		];
+
+		foreach ($toTestList as $testKey => $testParamList) {
+			$db->begin();
+
+			$kitKey = $testParamList['kit'];
+			$componentList = $testParamList['components'];
+			$expectedComponentList = $testParamList['expected_components'];
+
+			/**
+			 * @var Product $kit
+			 */
+			$kit = $kitList[$kitKey];
+			$kitRef = $kit->ref;
+			foreach ($componentList as $component) {
+				$productKey = $component['product'];
+				$addQty = $component['qty'];
+				$incdec = $component['incdec'];
+
+				/**
+				 * @var Product $productToAdd
+				 */
+				$productToAdd = new Product($db);
+				$productToAdd->initAsSpecimen();
+				$productToAdd->id = $productKey;
+				$productRef = $productToAdd->ref;
+				$result = $kit->add_sousproduit($kit->id, $productToAdd->id, $addQty, $incdec);
+				// it shouldn't be possible to insert a non exist product into a kit (success if result < 0)
+				$this->assertLessThan(0, $result, 'Test '.$testKey.' : add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
+				print __METHOD__." result".$testKey."=".$result."\n";
+			}
+
+			$kitComponentsArr = $kit->getChildsArbo($kit->id, 1);
+			$kitComponentsCount = count($kitComponentsArr); // This includes only first level of children
+
+			// check all components are in kit with expected quantity and incdec
+			$foundComponentList = [];
+			foreach ($kitComponentsArr as $kitComponentValue) {
+				$foundComponentList[] = ['product' => $kitComponentValue[5], 'qty' => $kitComponentValue[1], 'incdec' => $kitComponentValue[4]];
+			}
 			$this->assertEqualsCanonicalizing($expectedComponentList, $foundComponentList, 'Test '.$testKey.': all components are not in kit [ref='.$kitRef.']');
 
 			// check components count
