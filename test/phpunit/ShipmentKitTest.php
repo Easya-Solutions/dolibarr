@@ -784,4 +784,179 @@ class ShipmentKitTest extends CommonClassTest
 
 		return $result;
 	}
+
+	/**
+	 * We want to test that a kit can contain another kit, and be nested on many levels.
+	 */
+	public function testNestedSubKits()
+	{
+		global $conf, $db, $langs, $user;
+		$conf = $this->savconf;
+		$user = $this->savuser;
+		$langs = $this->savlangs;
+		$db = $this->savdb;
+
+		$db->begin();
+
+		$productList = $this->createProducts();
+		$kitList = $this->createKits();
+
+		foreach($kitList as $kit) {
+			print $kit->ref;
+		}
+
+		$to_test = [
+			# nesting on a level of 5
+			'nesting_5' => [
+				"nesting_level" => 5,
+				"top_kit" => 'K1', # product kit that should contain products components
+				"inner_kit" => 'K1',
+				"base_product" => 'P1',
+				"qty_each_level" => 1,
+				"expected_nb_subsubproducts" => 5, // one product for each nesting level
+				"expected_qty_of_base_product" => 1,
+			],
+			# nesting on a level of 5, but qty is 2 at each level -> total qty is 2^(5) = 32
+			'nesting_5_qty_2' => [
+				"nesting_level" => 5,
+				"top_kit" => 'K1', # product kit that should contain products components
+				"inner_kit" => 'K1',
+				"base_product" => 'P1',
+				"qty_each_level" => 2,
+				"expected_nb_subsubproducts" => 5, // one product for each nesting level
+				"expected_qty_of_base_product" => 32,
+			],
+			# nesting on a level of 20
+			'nesting_20' => [
+				"nesting_level" => 20,
+				"top_kit" => 'K1', # product kit that should contain products components
+				"inner_kit" => 'K1',
+				"base_product" => 'P1',
+				"qty_each_level" => 1,
+				"expected_nb_subsubproducts" => 20,
+				"expected_qty_of_base_product" => 1,
+			],
+			# nesting on a level of 20 with qty = 10 at each level : expecting 10^20 base product
+			'nesting_20_qty_10' => [
+				"nesting_level" => 20,
+				"top_kit" => 'K1', # product kit that should contain products components
+				"inner_kit" => 'K1',
+				"base_product" => 'P1',
+				"qty_each_level" => 10,
+				"expected_nb_subsubproducts" => 20,
+				"expected_qty_of_base_product" => 100000000000000000000,
+			],
+		];
+
+		foreach ($to_test as $case_name => $case) {
+			$db->begin();
+
+			print ($case['top_kit']);
+
+			$top_kit = clone $kitList[$case['top_kit']];
+			$inner_kit = clone $kitList[$case['inner_kit']];
+			// Having different ref is necessary so products stay separated in DB.
+			// Having different labels make things easier to debug test
+			$top_kit->ref .= '_'.$case_name;
+			$top_kit->label .= '_'.$case_name;
+			$top_kit -> create($user);
+
+			# Add component in lower kit
+			$lower_kit = clone $inner_kit;
+			$lower_kit->ref .= '_0'.$case_name;
+			$lower_kit->label .= '_0'.$case_name;
+			$lower_kit->create($user);
+			$addToKit = [$lower_kit, $productList[$case['base_product']], $case['qty_each_level'], 1];
+			$result = $this->addToKit($addToKit);
+			$this->assertGreaterThan(0, $result);
+			
+			# Build nested kits
+			$n = 0;
+			while ($n < $case['nesting_level'] - 2) { # -2 because we do one insert before (lowest insert) and one on top kit
+				$n++;
+				$current_kit = new Product($db);
+				$current_kit = clone $inner_kit;
+				$current_kit->ref .= '_'.$n.$case_name;
+				$current_kit->label .= '_'.$n.$case_name;
+				$current_kit->create($user);
+				$addToKit = [$current_kit, $lower_kit, $case['qty_each_level'], 1];
+				$result = $this->addToKit($addToKit);
+				$this->assertGreaterThan(0, $result);
+				$lower_kit = clone $current_kit;
+			}
+
+			# Insert in top kit
+			$addToKit = [$top_kit, $lower_kit, $case['qty_each_level'], 1];
+			$result = $this->addToKit($addToKit);
+			$this->assertGreaterThan(0, $result);
+
+			# Test content of kit
+			$top_kit->get_sousproduits_arbo(); // Load $object->sousprods
+			$prods_arbo = $top_kit->get_arbo_each_prod();
+			// var_dump($prods_arbo);
+			$nbofsubsubproducts = count($prods_arbo); // This includes all sub products into nb
+
+			// Check there is one product for each product used in arbo
+			$this->assertEquals($case['expected_nb_subsubproducts'], $nbofsubsubproducts,"Testing NUMBER of products in arbo for $case_name");
+			// Check the number for base product is right
+			foreach($prods_arbo as $prod) {
+				if ($prod['ref'] == $case['base_product']) {
+					$this->assertEquals($case['expected_qty_of_base_product'], $prod['nb_total'],"Testing QUANTITY of products in arbo for $case_name");
+				}
+			}
+
+			$db->rollback();
+		}
+
+		$db->rollback();
+	}
+
+	/**
+	 * We want that inserting a kit into itself gives an error
+	 */
+	public function testKitsRecursivityFails()
+	{
+		global $conf, $db, $langs, $user;
+		$conf = $this->savconf;
+		$user = $this->savuser;
+		$langs = $this->savlangs;
+		$db = $this->savdb;
+
+		$db->begin();
+
+		$productList = $this->createProducts();
+		$kitList = $this->createKits();
+
+		# kit in itself
+		$result = $this->addToKit([$kitList['K1'], $kitList['K1'], 1,1]);
+		$this->assertLessThan(0, $result);
+
+		# kit in itself when kit already contains a pproduct
+		$result = $this->addToKit([$kitList['K1'], $productList['P1'], 1,1]);
+		$this->assertGreaterThan(0, $result);
+		$result = $this->addToKit([$kitList['K1'], $kitList['K1'], 1,1]);
+		$this->assertLessThan(0, $result);
+
+		# Kit in itself on nested level, without a product
+		$result = $this->addToKit([$kitList['K1'], $kitList['K2'], 1,1]);
+		$this->assertGreaterThan(0, $result);
+		$result = $this->addToKit([$kitList['K2'], $kitList['K3'], 1,1]);
+		$this->assertGreaterThan(0, $result);
+		$result = $this->addToKit([$kitList['K3'], $kitList['K1'], 1,1]);
+		$this->assertLessThan(0, $result);
+
+
+		# Kit in itself on nested level, with a product
+		$result = $this->addToKit([$kitList['K1'], $productList['P1'], 1,1]);
+		$this->assertGreaterThan(0, $result);
+		$result = $this->addToKit([$kitList['K1'], $kitList['K2'], 1,1]);
+		$this->assertGreaterThan(0, $result);
+		$result = $this->addToKit([$kitList['K2'], $kitList['K3'], 1,1]);
+		$this->assertGreaterThan(0, $result);
+		$result = $this->addToKit([$kitList['K3'], $kitList['K1'], 1,1]);
+		$this->assertLessThan(0, $result);
+
+		$db->rollback();
+	}
+
 }
