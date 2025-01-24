@@ -28,6 +28,8 @@ global $conf, $db, $langs, $user;
 //require_once 'PHPUnit/Autoload.php';
 require_once dirname(__FILE__).'/../../htdocs/master.inc.php';
 require_once dirname(__FILE__).'/../../htdocs/product/class/product.class.php';
+require_once dirname(__FILE__).'/../../htdocs/societe/class/societe.class.php';
+require_once dirname(__FILE__).'/../../htdocs/commande/class/commande.class.php';
 require_once dirname(__FILE__).'/CommonClassTest.class.php';
 
 if (empty($user->id)) {
@@ -76,7 +78,9 @@ class ShipmentKitTest extends CommonClassTest
 	{
 		global $db, $user;
 
-		$productList = [];
+		print __METHOD__."\n";
+
+		$list = [];
 		$error = 0;
 		$messageList = [];
 
@@ -87,12 +91,15 @@ class ShipmentKitTest extends CommonClassTest
 		$p1->ref = 'P1';
 		$p1->label = 'P1 in sell';
 		$p1->status = 1;
-		$resultP1 = $p1->create($user);
+		$resultP1 = $p1->fetch(0, $p1->ref);
+		if ($resultP1 == 0) {
+			$resultP1 = $p1->create($user);
+		}
 		if ($resultP1 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultP1=".$resultP1.", error=".$p1->errorsToString();
 		}
-		$productList['P1'] = $p1;
+		$list['P1'] = $p1;
 
 		// P2 : product not in sell
 		$p2 = new Product($db);
@@ -101,12 +108,15 @@ class ShipmentKitTest extends CommonClassTest
 		$p2->ref = 'P2';
 		$p2->label = 'P2 not in sell';
 		$p2->status = 0;
-		$resultP2 = $p2->create($user);
+		$resultP2 = $p2->fetch(0, $p2->ref);
+		if ($resultP2 == 0) {
+			$resultP2 = $p2->create($user);
+		}
 		if ($resultP2 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultP2=".$resultP2.", error=".$p2->errorsToString();
 		}
-		$productList['P2'] = $p2;
+		$list['P2'] = $p2;
 
 		// P3L : product using lot
 		$p3l = new Product($db);
@@ -117,12 +127,15 @@ class ShipmentKitTest extends CommonClassTest
 		$p3l->status = 1;
 		$p3l->status_batch = 1;
 		$p3l->sell_or_eat_by_mandatory = Product::SELL_OR_EAT_BY_MANDATORY_ID_NONE;
-		$resultP3L = $p3l->create($user);
+		$resultP3L = $p3l->fetch(0, $p3l->ref);
+		if ($resultP3L == 0) {
+			$resultP3L = $p3l->create($user);
+		}
 		if ($resultP3L < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultP3L=".$resultP3L.", error=".$p3l->errorsToString();
 		}
-		$productList['P3L'] = $p3l;
+		$list['P3L'] = $p3l;
 
 		// P4S : product with serial number
 		$p4s = new Product($db);
@@ -133,12 +146,15 @@ class ShipmentKitTest extends CommonClassTest
 		$p4s->status = 1;
 		$p4s->status_batch = 2;
 		$p4s->sell_or_eat_by_mandatory = Product::SELL_OR_EAT_BY_MANDATORY_ID_SELL_AND_EAT;
-		$resultP4S = $p4s->create($user);
+		$resultP4S = $p4s->fetch(0, $p4s->ref);
+		if ($resultP4S == 0) {
+			$resultP4S = $p4s->create($user);
+		}
 		if ($resultP4S < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultP4S=".$resultP4S.", error=".$p4s->errorsToString();
 		}
-		$productList['P4S'] = $p4s;
+		$list['P4S'] = $p4s;
 
 		// S1 : service in sell
 		$s1 = new Product($db);
@@ -147,12 +163,15 @@ class ShipmentKitTest extends CommonClassTest
 		$s1->ref = 'S1';
 		$s1->label = 'S1 in sell';
 		$s1->status = 1;
-		$resultS1 = $s1->create($user);
+		$resultS1 = $s1->fetch(0, $s1->ref);
+		if ($resultS1 == 0) {
+			$resultS1 = $s1->create($user);
+		}
 		if ($resultS1 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultS1=".$resultS1.", error=".$s1->errorsToString();
 		}
-		$productList['S1'] = $s1;
+		$list['S1'] = $s1;
 
 		// S2 : service not in sell
 		$s2 = new Product($db);
@@ -161,18 +180,21 @@ class ShipmentKitTest extends CommonClassTest
 		$s2->ref = 'S2';
 		$s2->label = 'S2 in sell';
 		$s2->status = 0;
-		$resultS2 = $s2->create($user);
+		$resultS2 = $s2->fetch(0, $s2->ref);
+		if ($resultS2 == 0) {
+			$resultS2 = $s2->create($user);
+		}
 		if ($resultS2 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultS2=".$resultS2.", error=".$s2->errorsToString();
 		}
-		$productList['S2'] = $s2;
+		$list['S2'] = $s2;
 
 		if ($error) {
 			print implode("\n", $messageList)."\n";
 		}
 
-		return $productList;
+		return $list;
 	}
 
 	/**
@@ -184,7 +206,9 @@ class ShipmentKitTest extends CommonClassTest
 	{
 		global $db, $user;
 
-		$kitList = [];
+		print __METHOD__."\n";
+
+		$list = [];
 		$error = 0;
 		$messageList = [];
 
@@ -195,12 +219,15 @@ class ShipmentKitTest extends CommonClassTest
 		$k1->ref = 'K1';
 		$k1->label = 'K1 with components in sell';
 		$k1->status = 1;
-		$resultK1 = $k1->create($user);
+		$resultK1 = $k1->fetch(0, $k1->ref);
+		if ($resultK1 == 0) {
+			$resultK1 = $k1->create($user);
+		}
 		if ($resultK1 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultK1=".$resultK1.", error=".$k1->errorsToString();
 		}
-		$kitList['K1'] = $k1;
+		$list['K1'] = $k1;
 
 		// KS1 : kit with services as components
 		$ks1 = new Product($db);
@@ -209,12 +236,15 @@ class ShipmentKitTest extends CommonClassTest
 		$ks1->ref = 'KS1';
 		$ks1->label = 'KS1 with services as components';
 		$ks1->status = 1;
-		$resultKS1 = $ks1->create($user);
+		$resultKS1 = $ks1->fetch(0, $ks1->ref);
+		if ($resultKS1 == 0) {
+			$resultKS1 = $ks1->create($user);
+		}
 		if ($resultKS1 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultKS1=".$resultKS1.", error=".$ks1->errorsToString();
 		}
-		$kitList['KS1'] = $ks1;
+		$list['KS1'] = $ks1;
 
 		// KS2 : kit with services as components
 		$ks2 = new Product($db);
@@ -223,12 +253,15 @@ class ShipmentKitTest extends CommonClassTest
 		$ks2->ref = 'KS2';
 		$ks2->label = 'KS2 with services';
 		$ks2->status = 1;
-		$resultKS2 = $ks2->create($user);
+		$resultKS2 = $ks2->fetch(0, $ks2->ref);
+		if ($resultKS2 == 0) {
+			$resultKS2 = $ks2->create($user);
+		}
 		if ($resultKS2 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultKS2=".$resultKS2.", error=".$ks2->errorsToString();
 		}
-		$kitList['KS2'] = $ks2;
+		$list['KS2'] = $ks2;
 
 		// K2 : kit with product components not in sell
 		$k2 = new Product($db);
@@ -237,12 +270,15 @@ class ShipmentKitTest extends CommonClassTest
 		$k2->ref = 'K2';
 		$k2->label = 'K2 with components not in sell';
 		$k2->status = 0;
-		$resultK2 = $k2->create($user);
+		$resultK2 = $k2->fetch(0, $k2->ref);
+		if ($resultK2 == 0) {
+			$resultK2 = $k2->create($user);
+		}
 		if ($resultK2 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultK2=".$resultK2.", error=".$k2->errorsToString();
 		}
-		$kitList['K2'] = $k2;
+		$list['K2'] = $k2;
 
 		// K3 : kit with product components
 		$k3 = new Product($db);
@@ -251,12 +287,15 @@ class ShipmentKitTest extends CommonClassTest
 		$k3->ref = 'K3';
 		$k3->label = 'K3 with product components';
 		$k3->status = 1;
-		$resultK3 = $k3->create($user);
+		$resultK3 = $k3->fetch(0, $k3->ref);
+		if ($resultK3 == 0) {
+			$resultK3 = $k3->create($user);
+		}
 		if ($resultK3 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultK3=".$resultK3.", error=".$k3->errorsToString();
 		}
-		$kitList['K3'] = $k3;
+		$list['K3'] = $k3;
 
 		// K4 : service kit in sell
 		$k4 = new Product($db);
@@ -265,12 +304,15 @@ class ShipmentKitTest extends CommonClassTest
 		$k4->ref = 'K4';
 		$k4->label = 'K4 with services components in sell';
 		$k4->status = 1;
-		$resultK4 = $k4->create($user);
+		$resultK4 = $k4->fetch(0, $k4->ref);
+		if ($resultK4 == 0) {
+			$resultK4 = $k4->create($user);
+		}
 		if ($resultK4 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultK4=".$resultK4.", error=".$k4->errorsToString();
 		}
-		$kitList['K4'] = $k4;
+		$list['K4'] = $k4;
 
 		// K5 : service kit not in sell
 		$k5 = new Product($db);
@@ -279,12 +321,15 @@ class ShipmentKitTest extends CommonClassTest
 		$k5->ref = 'K5';
 		$k5->label = 'K5 with services components not in sell';
 		$k5->status = 0;
-		$resultK5 = $k5->create($user);
+		$resultK5 = $k5->fetch(0, $k5->ref);
+		if ($resultK5 == 0) {
+			$resultK5 = $k5->create($user);
+		}
 		if ($resultK5 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultK5=".$resultK5.", error=".$k5->errorsToString();
 		}
-		$kitList['K5'] = $k5;
+		$list['K5'] = $k5;
 
 		// K6 : service kit
 		$k6 = new Product($db);
@@ -293,18 +338,91 @@ class ShipmentKitTest extends CommonClassTest
 		$k6->ref = 'K6';
 		$k6->label = 'K6 with services components';
 		$k6->status = 0;
-		$resultK6 = $k6->create($user);
+		$resultK6 = $k6->fetch(0, $k6->ref);
+		if ($resultK6 == 0) {
+			$resultK6 = $k6->create($user);
+		}
 		if ($resultK6 < 0) {
 			$error++;
 			$messageList[] = __METHOD__." resultK6=".$resultK6.", error=".$k6->errorsToString();
 		}
-		$kitList['K6'] = $k6;
+		$list['K6'] = $k6;
 
 		if ($error) {
 			print implode("\n", $messageList)."\n";
 		}
 
-		return $kitList;
+		return $list;
+	}
+
+	/**
+	 * Create companies
+	 *
+	 * @return	array	List of companies
+	 */
+	public function createCompanies()
+	{
+		global $db, $user;
+
+		$list = [];
+		$error = 0;
+		$messageList = [];
+
+		// T1 : customer company
+		$company = new Societe($db);
+		$company->initAsSpecimen();
+		$company->ref = 'T1';
+		$company->name = 'T1';
+		$company->client = 1;
+		$company->code_client = 'auto';
+		$company->code_fournisseur = 'auto';
+		$companyId = $company->create($user);
+		if ($companyId <= 0) {
+			$error++;
+			$messageList[] = __METHOD__." companyId=".$companyId.", error=".$company->errorsToString();
+		}
+		$list['T1'] = $company;
+
+		if ($error) {
+			print implode("\n", $messageList)."\n";
+		}
+
+		return $list;
+	}
+
+	/**
+	 * Create customers orders
+	 *
+	 * @return	array	List of customers orders
+	 */
+	public function createCustomerOrders()
+	{
+		global $db, $user;
+
+		$list = [];
+		$error = 0;
+		$messageList = [];
+
+		$companyList = $this->createCompanies();
+
+		// C1 : customer order with company T1
+		$company = $companyList['T1'];
+		$order = new Commande($db);
+		$order->initAsSpecimen();
+		$order->ref = 'C1';
+		$order->socid = $company->id;
+		$result = $order->create($user);
+		if ($result < 0) {
+			$error++;
+			$messageList[] = __METHOD__." result=".$result.", error=".$order->errorsToString();
+		}
+		$list['C1'] = $order;
+
+		if ($error) {
+			print implode("\n", $messageList)."\n";
+		}
+
+		return $list;
 	}
 
 	/**
@@ -331,6 +449,27 @@ class ShipmentKitTest extends CommonClassTest
 	}
 
 	/**
+	 * Add product to a virtual product (kit)
+	 * @param 	array		$paramList		Array of parameters : [Product kit, Product component]
+	 * @return	int			Return integer < 0 if KO, > 0 if OK
+	 */
+	public function delToKit($paramList)
+	{
+		/**
+		 * @var Product $kit
+		 */
+		$kit = $paramList[0];
+		/**
+		 * @var Product $product
+		 */
+		$product = $paramList[1];
+
+		$result = $kit->del_sousproduit($kit->id, $product->id);
+
+		return $result;
+	}
+
+	/**
 	 * Test to add product component in virtual product
 	 *
 	 * @return	int			Return integer < 0 if KO, > 0 if OK or 0 if nothing done
@@ -343,7 +482,7 @@ class ShipmentKitTest extends CommonClassTest
 		$langs = $this->savlangs;
 		$db = $this->savdb;
 
-		print "\n";
+		print __METHOD__."\n";
 
 		$result = 0;
 
@@ -359,17 +498,19 @@ class ShipmentKitTest extends CommonClassTest
 				'components' => [
 					['product' => 'P1', 'qty' => 5, 'incdec' => 0],
 				],
+				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'P1', 'qty' => 5, 'incdec' => 0],
 				],
 			],
-			// add a simple product and the same product with qty = 0
+			// add a simple product and the same product with qty = 0 (using "Product::add_sousproduit")
 			'P1ToK1Qty3AndRemoved' => [
 				'kit' => 'K1',
 				'components' => [
 					['product' => 'P1', 'qty' => 3, 'incdec' => 1],
 					['product' => 'P1', 'qty' => 0, 'incdec' => 1],
 				],
+				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'P1', 'qty' => 0, 'incdec' => 1], // qty of "P1" is 0 and not added (standard behaviour)
 				],
@@ -380,17 +521,19 @@ class ShipmentKitTest extends CommonClassTest
 				'components' => [
 					['product' => 'S1', 'qty' => 5, 'incdec' => 0],
 				],
+				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'S1', 'qty' => 5, 'incdec' => 0],
 				],
 			],
-			// add a simple service and the same service with qty = 0
+			// add a simple service and the same service with qty = 0 (using "Product::add_sousproduit")
 			'S1ToKS1Qty3AndRemoved' => [
 				'kit' => 'KS1',
 				'components' => [
 					['product' => 'S1', 'qty' => 3, 'incdec' => 1],
 					['product' => 'S1', 'qty' => 0, 'incdec' => 1],
 				],
+				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'S1', 'qty' => 0, 'incdec' => 1], // qty of "S1" is 0 and not added (standard behaviour)
 				],
@@ -401,10 +544,75 @@ class ShipmentKitTest extends CommonClassTest
 				'components' => [
 					['product' => 'P2', 'qty' => 3.25, 'incdec' => 1],
 				],
+				'using_method' => 'add_sousproduit',
 				'expected_components' => [
 					['product' => 'P2', 'qty' => 3.25, 'incdec' => 1],
 				],
 			],
+			// add a simple product to kit with qty negative (using "Product::add_sousproduit")
+			'P2ToK2QtyNegative' => [
+				'kit' => 'K2',
+				'components' => [
+					['product' => 'P2', 'qty' => -1, 'incdec' => 1],
+				],
+				'using_method' => 'add_sousproduit',
+				'expected_components' => [
+					['product' => 'P2', 'qty' => -1, 'incdec' => 1],
+				],
+			],
+			// add a simple product to kit with qty = 0 (using "Product::del_sousproduit")
+			'P2ToK2QtyNegativeUsingDel' => [
+				'kit' => 'K2',
+				'components' => [
+					['product' => 'P2', 'qty' => -1, 'incdec' => 1],
+				],
+				'using_method' => 'del_sousproduit',
+				'expected_components' => [],
+			],
+			// add a simple product to kit with qty = 0 (using the same code in user interface : product/composition/card.php)
+			'P2ToK2QtyNegativeUsingUI' => [
+				'kit' => 'K2',
+				'components' => [
+					['product' => 'P2', 'qty' => 0, 'incdec' => 1],
+				],
+				'using_method' => 'ui',
+				'expected_components' => [],
+			],
+			// TODO : add a simple product to kit and add one not in sell
+//			'P1AndP2NotInSellToK1Qty1' => [
+//				'kit' => 'K1',
+//				'components' => [
+//					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
+//					['product' => 'P2', 'qty' => 1, 'incdec' => 1],
+//				],
+//				'using_method' => 'ui',
+//				'expected_components' => [
+//					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
+//					//['product' => 'P2', 'qty' => 1, 'incdec' => 1], // not in sell so it will not be added
+//				],
+//			],
+			// TODO : add two products in sell to kit and change one product to not in sell
+			'P1AndP3LToK1Qty1AndChangeP1NotInSell' => [
+				'kit' => 'K1',
+				'components' => [
+					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
+					['product' => 'P3L', 'qty' => 1, 'incdec' => 1],
+				],
+				'using_method' => 'ui',
+				'expected_components' => [
+					['product' => 'P1', 'qty' => 1, 'incdec' => 1],
+					['product' => 'P3L', 'qty' => 1, 'incdec' => 1],
+				],
+			],
+			// add a product not exist in kit (id of product is higher than last product in database)
+//			'ProductNotExistToK1' => [
+//				'kit' => 'K1',
+//				'components' => [
+//					['product' => 999999999, 'qty' => 5, 'incdec' => 0],
+//				],
+//				'using_method' => 'ui',
+//				'expected_components' => [],
+//			],
 		];
 
 		foreach ($toTestList as $testKey => $testParamList) {
@@ -412,6 +620,7 @@ class ShipmentKitTest extends CommonClassTest
 
 			$kitKey = $testParamList['kit'];
 			$componentList = $testParamList['components'];
+			$usingMethod = $testParamList['using_method'];
 			$expectedComponentList = $testParamList['expected_components'];
 
 			/**
@@ -427,9 +636,30 @@ class ShipmentKitTest extends CommonClassTest
 				/**
 				 * @var Product $productToAdd
 				 */
-				$productToAdd = $productList[$productKey];
+				if (!isset($productList[$productKey])) {
+					$productToAdd = new Product($db);
+					$productToAdd->initAsSpecimen();
+					$productToAdd->id = $productKey;
+					//$productToAdd->type = Product::TYPE_PRODUCT;
+					//$productToAdd->ref = (string) $productKey;
+					//$productToAdd->label = 'Product not exist';
+					//$productToAdd->status = 1;
+				} else {
+					$productToAdd = $productList[$productKey];
+				}
 				$productRef = $productToAdd->ref;
-				$result = $this->addToKit([$kit, $productToAdd, $addQty, $incdec]);
+				if ($usingMethod == 'ui') {
+					if ($addQty > 0) {
+						$usingMethod = 'add_sousproduit';
+					} else {
+						$usingMethod = 'del_sousproduit';
+					}
+				}
+				if ($usingMethod == 'del_sousproduit') {
+					$result = $this->delToKit([$kit, $productToAdd]);
+				} else {
+					$result = $this->addToKit([$kit, $productToAdd, $addQty, $incdec]);
+				}
 				// success if result > 0
 				$this->assertGreaterThan(0, $result, 'Test '.$testKey.' : add product [ref='.$productRef.'] to kit [ref='.$kitRef.'] with qty='.$addQty.' and incdec='.$incdec);
 				print __METHOD__." result".$testKey."=".$result."\n";
@@ -455,6 +685,100 @@ class ShipmentKitTest extends CommonClassTest
 
 			$db->rollback();
 		}
+
+		$db->rollback();
+
+		return $result;
+	}
+
+	/**
+	 * Test to create order and add a kit
+	 *
+	 * @return	int			Return integer < 0 if KO, > 0 if OK or 0 if nothing done
+	 */
+	public function testCustomerOrderCreateAndAddKit()
+	{
+		global $conf,$user,$langs,$db;
+		$conf = $this->savconf;
+		$user = $this->savuser;
+		$langs = $this->savlangs;
+		$db = $this->savdb;
+
+		print __METHOD__."\n";
+
+		$result = 0;
+
+		$db->begin();
+
+		$productList = $this->createProducts();
+		$kitList = $this->createKits();
+		$customerOrderList = $this->createCustomerOrders();
+
+		// add a kit un customer order
+		/**
+		 * @var Product $kitToAdd
+		 */
+		$kitToAdd = $kitList['K1'];
+
+		/**
+		 * @var Commande $customerOrder
+		 */
+		$customerOrder = $customerOrderList['C1'];
+		$desc = $kitToAdd->label;
+		$pu_ht = $kitToAdd->price;
+		$pu_ttc = $kitToAdd->price_ttc;
+		//$price_min = $kitToAdd->price_min;
+		//$price_min_ttc = $kitToAdd->price_min_ttc;
+		$price_base_type = $kitToAdd->price_base_type;
+		$qty = 1.0;
+		$tva_tx = 20.0;
+		$txlocaltax1 = 0.0;
+		$txlocaltax2 = 0.0;
+		$idprod = $kitToAdd->id;
+		$remise_percent = 0.0;
+		$info_bits = 0;
+		$fk_remise_percent = 0.0;
+		$date_start = '';
+		$date_end = '';
+		$type = $kitToAdd->type;
+		$rank = -1;
+		$special_code = 0;
+		$fk_parent_line = 0;
+		$fournprice = null;
+		$buyingprice = 0;
+		$label = '';
+		$array_options = array();
+		$fk_unit = null;
+		$pu_ht_devise = 0.0;
+		$result = $customerOrder->addline(
+			$desc,
+			$pu_ht,
+			$qty,
+			$tva_tx,
+			$txlocaltax1,
+			$txlocaltax2,
+			$idprod,
+			$remise_percent,
+			$info_bits,
+			$fk_remise_percent,
+			$price_base_type,
+			$pu_ttc,
+			$date_start,
+			$date_end,
+			$type,
+			$rank,
+			$special_code,
+			$fk_parent_line,
+			$fournprice,
+			$buyingprice,
+			$label,
+			$array_options,
+			$fk_unit,
+			'',
+			0,
+			$pu_ht_devise
+		);
+		$this->assertGreaterThan(0, $result, $customerOrder->errorsToString());
 
 		$db->rollback();
 
