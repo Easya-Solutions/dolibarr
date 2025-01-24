@@ -4790,6 +4790,11 @@ class Product extends CommonObject
 	{
 		global $user;
 
+		if ($id_pere == $id_fils) {
+			$this->errors[] = 'ERROR : recursivity of kit '.$id_fils;
+			return -1;
+		}
+
 		// phpcs:enable
 		// Clean parameters
 		if (!is_numeric($id_pere)) {
@@ -4802,18 +4807,30 @@ class Product extends CommonObject
 			$incdec = 0;
 		}
 
-		$result = $this->del_sousproduit($id_pere, $id_fils);
-		if ($result < 0) {
-			return $result;
-		}
+		// Check not already father of id_pere (to avoid father -> child1 -> child2 -> ... ->father links)
+		$sql = "WITH RECURSIVE father_child (first_father, child) AS (";
+		$sql.= "  SELECT fk_product_pere, fk_product_fils FROM llx_product_association WHERE fk_product_pere = ".(int) $id_fils;
+		$sql.= "  UNION ALL";
+		$sql.= "  SELECT fc.first_father, pa.fk_product_fils";
+		$sql.= "    FROM father_child fc";
+		$sql.= "    LEFT JOIN llx_product_association pa ON fc.child = pa.fk_product_pere";
+		$sql.= ")";
+		$sql.= "SELECT first_father, child FROM father_child";
+		$sql.= " WHERE first_father = ".(int) $id_fils." AND child = ". (int) $id_pere;
 
-		// Check not already father of id_pere (to avoid father -> child -> father links)
-		$sql = "SELECT fk_product_pere from ".$this->db->prefix()."product_association";
-		$sql .= " WHERE fk_product_pere = ".((int) $id_fils)." AND fk_product_fils = ".((int) $id_pere);
-		if (!$this->db->query($sql)) {
+		$resql = $this->db->query($sql);
+		if (!$resql) {
 			dol_print_error($this->db);
 			return -1;
+		}
+		elseif ($this->db->num_rows($resql)) {
+			$this->errors[] = 'ERROR : recursivity of kit '.$id_fils;
+			return -1;
 		} else {
+			$result = $this->del_sousproduit($id_pere, $id_fils);
+			if ($result < 0) {
+				return $result;
+			}
 			//Selection of the highest row
 			$sql = "SELECT MAX(rang) as max_rank FROM ".$this->db->prefix()."product_association";
 			$sql .= " WHERE fk_product_pere  = ".((int) $id_pere);
