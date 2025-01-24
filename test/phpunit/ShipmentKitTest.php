@@ -801,10 +801,6 @@ class ShipmentKitTest extends CommonClassTest
 		$productList = $this->createProducts();
 		$kitList = $this->createKits();
 
-		foreach($kitList as $kit) {
-			print $kit->ref;
-		}
-
 		$to_test = [
 			# nesting on a level of 5
 			'nesting_5' => [
@@ -850,8 +846,6 @@ class ShipmentKitTest extends CommonClassTest
 
 		foreach ($to_test as $case_name => $case) {
 			$db->begin();
-
-			print ($case['top_kit']);
 
 			$top_kit = clone $kitList[$case['top_kit']];
 			$inner_kit = clone $kitList[$case['inner_kit']];
