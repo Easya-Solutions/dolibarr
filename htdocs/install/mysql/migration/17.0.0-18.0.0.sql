@@ -490,7 +490,7 @@ ALTER TABLE llx_partnership ADD COLUMN email_partnership varchar(64) after fk_me
 ALTER TABLE llx_contratdet ADD INDEX idx_contratdet_statut (statut);
 
 ALTER TABLE fk_product_price_product DROP FOREIGN KEY fk_product_price_product;
- 
+
 ALTER TABLE llx_societe_rib ADD COLUMN ext_payment_site varchar(128);
 
 -- Drop the composite unique index that exists on llx_commande_fournisseur to rebuild a new one without the fk_soc.
@@ -572,6 +572,9 @@ UPDATE llx_menu SET url = '/fourn/paiement/list.php?mainmenu=billing&leftmenu=su
 
 UPDATE llx_paiement SET ref = rowid WHERE ref IS NULL OR ref = '';
 
+-- rename const WORKFLOW_EXPEDITION_CLASSIFY_CLOSED_INVOICE to WORKFLOW_RECEPTION_CLASSIFY_CLOSED_INVOICE
+UPDATE llx_const SET name = 'WORKFLOW_RECEPTION_CLASSIFY_CLOSED_INVOICE' WHERE name = 'WORKFLOW_EXPEDITION_CLASSIFY_CLOSED_INVOICE';
+
 -- Easya 2024
 
 -- Backport VAT by entity #24965 - Also available on Easya 2022
@@ -630,3 +633,24 @@ ALTER TABLE llx_mrp_production_extrafields DROP INDEX idx_mrp_production_fk_obje
 ALTER TABLE llx_mrp_production_extrafields ADD UNIQUE INDEX uk_mrp_production_fk_object (fk_object);
 UPDATE llx_mrp_production SET disable_stock_change = 0 WHERE disable_stock_change IS NULL;
 -- v21
+
+-- ADD fk_soc_rib in prelevement
+ALTER TABLE llx_prelevement_demande ADD COLUMN fk_soc_rib integer DEFAULT NULL;
+ALTER TABLE llx_prelevement_lignes ADD COLUMN fk_soc_rib integer DEFAULT NULL;
+
+-- Update website type
+UPDATE llx_societe_account SET site = 'dolibarr_website' WHERE fk_website > 0 AND site IS NULL;
+ALTER TABLE llx_societe_account MODIFY COLUMN site varchar(128) NOT NULL;
+
+-- Add VAT by department
+ALTER TABLE llx_c_tva ADD COLUMN fk_department_buyer integer DEFAULT NULL AFTER fk_pays;
+ALTER TABLE llx_c_tva ADD INDEX idx_tva_fk_department_buyer (fk_department_buyer);
+ALTER TABLE llx_c_tva ADD CONSTRAINT fk_tva_fk_department_buyer FOREIGN KEY (fk_department_buyer) REFERENCES llx_c_departements (rowid);
+
+-- linked object
+ALTER TABLE llx_element_element MODIFY COLUMN sourcetype VARCHAR(64) NOT NULL;
+ALTER TABLE llx_element_element MODIFY COLUMN targettype VARCHAR(64) NOT NULL;
+ALTER TABLE llx_c_type_contact MODIFY COLUMN element VARCHAR(64) NOT NULL;
+
+-- delete a constant that should not be set
+DELETE FROM llx_const WHERE name = 'INVOICE_USE_RETAINED_WARRANTY' AND value = -1;

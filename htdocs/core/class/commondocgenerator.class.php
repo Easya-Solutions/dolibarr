@@ -572,6 +572,14 @@ abstract class CommonDocGenerator
 			$resarray[$array_key.'_total_discount_ht'] = '';
 		}
 
+		if ($object->element == 'facture' || $object->element == 'invoice_supplier') {
+			if ($object->type == 0) {
+			$resarray[$array_key.'_type_label'] = $outputlangs->transnoentities("PdfInvoiceTitle");
+			} else {
+			$resarray[$array_key.'_type_label'] = (empty($object)) ? '' : $object->getLibType(0);
+			}
+		}
+
 		// Fetch project information if there is a project assigned to this object
 		if ($object->element != "project" && !empty($object->fk_project) && $object->fk_project > 0) {
 			if (!is_object($object->project)) {
@@ -685,6 +693,9 @@ abstract class CommonDocGenerator
 			'line_date_start'=>dol_print_date($line->date_start, 'day'),
 			'line_date_start_locale'=>dol_print_date($line->date_start, 'day', 'tzserver', $outputlangs),
 			'line_date_start_rfc'=>dol_print_date($line->date_start, 'dayrfc'),
+			'line_date_start_real'=>dol_print_date($line->date_start_real, 'day'),
+			'line_date_start_real_locale'=>dol_print_date($line->date_start_real, 'day', 'tzserver', $outputlangs),
+			'line_date_start_real_rfc'=>dol_print_date($line->date_start_real, 'dayrfc'),
 			'line_date_end'=>dol_print_date($line->date_end, 'day'),
 			'line_date_end_locale'=>dol_print_date($line->date_end, 'day', 'tzserver', $outputlangs),
 			'line_date_end_rfc'=>dol_print_date($line->date_end, 'dayrfc'),

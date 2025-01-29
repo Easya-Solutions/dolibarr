@@ -1455,6 +1455,8 @@ class CommandeFournisseur extends CommonOrder
 
 		// We set order into draft status
 		$this->brouillon = 1;
+		$this->statut = self::STATUS_DRAFT;	// deprecated
+		$this->status = self::STATUS_DRAFT;
 
 		$sql = "INSERT INTO ".MAIN_DB_PREFIX."commande_fournisseur (";
 		$sql .= "ref";
@@ -3047,7 +3049,7 @@ class CommandeFournisseur extends CommonOrder
 		$sql .= $this->db->order("rowid", "ASC");
 		$sql .= $this->db->plimit(1);
 		$resql = $this->db->query($sql);
-		if ($resql) {
+		if ($resql && $this->db->num_rows($resql)) {
 			$obj = $this->db->fetch_object($resql);
 			$prodid = $obj->rowid;
 		}
@@ -4135,7 +4137,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
 			return -1;
 		}
 
-		$sql1 = 'UPDATE '.MAIN_DB_PREFIX."commandedet SET fk_commandefourndet = NULL WHERE rowid=".((int) $this->id);
+		$sql1 = 'UPDATE '.MAIN_DB_PREFIX."commandedet SET fk_commandefourndet = NULL WHERE fk_commandefourndet=".((int) $this->id);
 		$resql = $this->db->query($sql1);
 		if (!$resql) {
 			$this->db->rollback();

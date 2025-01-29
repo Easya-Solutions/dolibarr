@@ -2111,7 +2111,9 @@ abstract class CommonObject
 		$sql = "SELECT MAX(te.".$fieldid.")";
 		$sql .= " FROM ".(empty($nodbprefix) ?$this->db->prefix():'').$this->table_element." as te";
 		if ($this->element == 'user' && !empty($conf->global->MULTICOMPANY_TRANSVERSE_MODE)) {
-			$sql .= ",".$this->db->prefix()."usergroup_user as ug";
+			if (empty($user->admin) || !empty($user->entity) || $conf->entity != 1) {
+				$sql .= " INNER JOIN ".MAIN_DB_PREFIX."usergroup_user as ug ON ug.fk_user = te.rowid";
+			}
 		}
 		if (isset($this->ismultientitymanaged) && !is_numeric($this->ismultientitymanaged)) {
 			$tmparray = explode('@', $this->ismultientitymanaged);
@@ -2148,7 +2150,6 @@ abstract class CommonObject
 				if (!empty($user->admin) && empty($user->entity) && $conf->entity == 1) {
 					$sql .= " AND te.entity IS NOT NULL"; // Show all users
 				} else {
-					$sql .= " AND ug.fk_user = te.rowid";
 					$sql .= " AND ug.entity IN (".getEntity('usergroup').")";
 				}
 			} else {
@@ -2181,7 +2182,9 @@ abstract class CommonObject
 		$sql = "SELECT MIN(te.".$fieldid.")";
 		$sql .= " FROM ".(empty($nodbprefix) ?$this->db->prefix():'').$this->table_element." as te";
 		if ($this->element == 'user' && !empty($conf->global->MULTICOMPANY_TRANSVERSE_MODE)) {
-			$sql .= ",".$this->db->prefix()."usergroup_user as ug";
+			if (empty($user->admin) || !empty($user->entity) || $conf->entity != 1) {
+				$sql .= " INNER JOIN ".MAIN_DB_PREFIX."usergroup_user as ug ON ug.fk_user = te.rowid";
+			}
 		}
 		if (isset($this->ismultientitymanaged) && !is_numeric($this->ismultientitymanaged)) {
 			$tmparray = explode('@', $this->ismultientitymanaged);
@@ -2218,7 +2221,6 @@ abstract class CommonObject
 				if (!empty($user->admin) && empty($user->entity) && $conf->entity == 1) {
 					$sql .= " AND te.entity IS NOT NULL"; // Show all users
 				} else {
-					$sql .= " AND ug.fk_user = te.rowid";
 					$sql .= " AND ug.entity IN (".getEntity('usergroup').")";
 				}
 			} else {
@@ -3074,10 +3076,11 @@ abstract class CommonObject
 			if ($resql) {
 				$i = 0;
 				$num = $this->db->num_rows($resql);
+				$grandchild = getDolGlobalInt('MAIN_CARE_GRANDCHILD');
 				while ($i < $num) {
 					$row = $this->db->fetch_row($resql);
 					$rows[] = $row[0]; // Add parent line into array rows
-					$childrens = $this->getChildrenOfLine($row[0]);
+					$childrens = $this->getChildrenOfLine($row[0], $grandchild);
 					if (!empty($childrens)) {
 						foreach ($childrens as $child) {
 							array_push($rows, $child);
@@ -3842,7 +3845,7 @@ abstract class CommonObject
 	 *	@param		int		$origin_id	Linked element id
 	 * 	@param		User	$f_user		User that create
 	 * 	@param		int		$notrigger	1=Does not execute triggers, 0=execute triggers
-	 *	@return		int					<=0 if KO, >0 if OK
+	 *	@return		int					Return integer <=0 if KO, >0 if OK
 	 *	@see		fetchObjectLinked(), updateObjectLinked(), deleteObjectLinked()
 	 */
 	public function add_object_linked($origin = null, $origin_id = null, $f_user = null, $notrigger = 0)
@@ -3867,17 +3870,16 @@ abstract class CommonObject
 			$origin = 'order_supplier';
 		}
 
-		// Elements of the core modules which have `$module` property but may to which we don't want to prefix module part to the element name for finding the linked object in llx_element_element.
-		// It's because an entry for this element may be exist in llx_element_element before this modification (version <=14.2) and ave named only with their element name in fk_source or fk_target.
-		$coremodule = array('knowledgemanagement', 'partnership', 'workstation', 'ticket', 'recruitment', 'eventorganization', 'asset');
-		// Add module part to target type if object has $module property and isn't in core modules.
-		$targettype = ((!empty($this->module) && ! in_array($this->module, $coremodule)) ? $this->module.'_' : '').$this->element;
+		// Add module part to target type
+		$targettype = $this->getElementType();
 
-		$parameters = array('targettype'=>$targettype);
-		// Hook for explicitly set the targettype if it must be differtent than $this->element
+		$parameters = array('targettype' => $targettype);
+		// Hook for explicitly set the targettype if it must be different than $this->element
 		$reshook = $hookmanager->executeHooks('setLinkedObjectSourceTargetType', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 		if ($reshook > 0) {
-			if (!empty($hookmanager->resArray['targettype'])) $targettype = $hookmanager->resArray['targettype'];
+			if (!empty($hookmanager->resArray['targettype'])) {
+				$targettype = $hookmanager->resArray['targettype'];
+			}
 		}
 
 		$this->db->begin();
@@ -3922,6 +3924,21 @@ abstract class CommonObject
 	}
 
 	/**
+	 * Return an element type string formatted like element_element target_type and source_type
+	 *
+	 * @return string
+	 */
+	public function getElementType()
+	{
+		// Elements of the core modules having a `$module` property but for which we may not want to prefix the element name with the module name for finding the linked object in llx_element_element.
+		// It's because existing llx_element_element entries inserted prior to this modification (version <=14.2) may already use the element name alone in fk_source or fk_target (without the module name prefix).
+		$coreModule = array('knowledgemanagement', 'partnership', 'workstation', 'ticket', 'recruitment', 'eventorganization', 'asset');
+		// Add module part to target type if object has $module property and isn't in core modules.
+		return ((!empty($this->module) && !in_array($this->module, $coreModule)) ? $this->module.'_' : '').$this->element;
+	}
+
+
+	/**
 	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
 	 *		this->linkedObjectsIds array +
 	 *		this->linkedObjects array if $loadalsoobjects = 1 or $loadalsoobjects = type
@@ -3932,23 +3949,24 @@ abstract class CommonObject
 	 *  - source id+type + target type -> will get list of targets of the type linked to source
 	 *  - target id+type + source type -> will get list of sources of the type linked to target
 	 *
-	 *	@param	int			$sourceid			Object source id (if not defined, $this->id)
+	 *	@param	?int		$sourceid			Object source id (if not defined, $this->id)
 	 *	@param  string		$sourcetype			Object source type (if not defined, $this->element)
-	 *	@param  int			$targetid			Object target id (if not defined, $this->id)
+	 *	@param  ?int		$targetid			Object target id (if not defined, $this->id)
 	 *	@param  string		$targettype			Object target type (if not defined, $this->element)
 	 *	@param  string		$clause				'OR' or 'AND' clause used when both source id and target id are provided
-	 *  @param  int			$alsosametype		0=Return only links to object that differs from source type. 1=Include also link to objects of same type.
+	 *  @param  int<0,1>	$alsosametype		0=Return only links to object that differs from source type. 1=Include also link to objects of same type.
 	 *  @param  string		$orderby			SQL 'ORDER BY' clause
-	 *  @param	int|string	$loadalsoobjects	Load also array this->linkedObjects. Use 0 to increase performances, Use 1 to load all, Use value of type ('facture', 'facturerec', ...) to load only a type of object.
-	 *	@return int								<0 if KO, >0 if OK
+	 *  @param	int<0,1>|string	$loadalsoobjects	Load also the array $this->linkedObjects. Use 0 to not load (increase performances), Use 1 to load all, Use value of type ('facture', 'facturerec', ...) to load only a type of object.
+	 *	@return int<-1,1>						Return integer <0 if KO, >0 if OK
 	 *  @see	add_object_linked(), updateObjectLinked(), deleteObjectLinked()
 	 */
 	public function fetchObjectLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $clause = 'OR', $alsosametype = 1, $orderby = 'sourcetype', $loadalsoobjects = 1)
 	{
-		global $conf, $hookmanager, $action;
+		global $hookmanager, $action;
 
 		// Important for pdf generation time reduction
 		// This boolean is true if $this->linkedObjects has already been loaded with all objects linked without filter
+		// If you need to force the reload, you can call clearObjectLinkedCache() before calling fetchObjectLinked()
 		if ($this->id > 0 && !empty($this->linkedObjectsFullLoaded[$this->id])) {
 			return 1;
 		}
@@ -3961,14 +3979,22 @@ abstract class CommonObject
 		$withtargettype = false;
 		$withsourcetype = false;
 
-		$parameters = array('sourcetype'=>$sourcetype, 'sourceid'=>$sourceid, 'targettype'=>$targettype, 'targetid'=>$targetid);
+		$parameters = array('sourcetype' => $sourcetype, 'sourceid' => $sourceid, 'targettype' => $targettype, 'targetid' => $targetid);
 		// Hook for explicitly set the targettype if it must be differtent than $this->element
 		$reshook = $hookmanager->executeHooks('setLinkedObjectSourceTargetType', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 		if ($reshook > 0) {
-			if (!empty($hookmanager->resArray['sourcetype'])) $sourcetype = $hookmanager->resArray['sourcetype'];
-			if (!empty($hookmanager->resArray['sourceid'])) $sourceid = $hookmanager->resArray['sourceid'];
-			if (!empty($hookmanager->resArray['targettype'])) $targettype = $hookmanager->resArray['targettype'];
-			if (!empty($hookmanager->resArray['targetid'])) $targetid = $hookmanager->resArray['targetid'];
+			if (!empty($hookmanager->resArray['sourcetype'])) {
+				$sourcetype = $hookmanager->resArray['sourcetype'];
+			}
+			if (!empty($hookmanager->resArray['sourceid'])) {
+				$sourceid = $hookmanager->resArray['sourceid'];
+			}
+			if (!empty($hookmanager->resArray['targettype'])) {
+				$targettype = $hookmanager->resArray['targettype'];
+			}
+			if (!empty($hookmanager->resArray['targetid'])) {
+				$targetid = $hookmanager->resArray['targetid'];
+			}
 		}
 
 		if (!empty($sourceid) && !empty($sourcetype) && empty($targetid)) {
@@ -3988,6 +4014,9 @@ abstract class CommonObject
 		$targetid = (!empty($targetid) ? $targetid : $this->id);
 		$sourcetype = (!empty($sourcetype) ? $sourcetype : $this->element);
 		$targettype = (!empty($targettype) ? $targettype : $this->element);
+		// TODO use this below when all easya is compatible with like module_element label (who has not been used because bugged at this time)
+//		$sourcetype = (!empty($sourcetype) ? $sourcetype : $this->getElementType());
+//		$targettype = (!empty($targettype) ? $targettype : $this->getElementType());
 
 		/*if (empty($sourceid) && empty($targetid))
 		 {
@@ -4047,98 +4076,21 @@ abstract class CommonObject
 			if (!empty($this->linkedObjectsIds)) {
 				$tmparray = $this->linkedObjectsIds;
 				foreach ($tmparray as $objecttype => $objectids) {       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
-					// Parse element/subelement (ex: project_task, cabinetmed_consultation, ...)
-					$module = $element = $subelement = $objecttype;
-					$regs = array();
-					if ($objecttype != 'supplier_proposal' && $objecttype != 'order_supplier' && $objecttype != 'invoice_supplier'
-						&& preg_match('/^([^_]+)_([^_]+)/i', $objecttype, $regs)) {
-						$module = $element = $regs[1];
-						$subelement = $regs[2];
-					}
+					$element_properties = getElementProperties($objecttype);
+					$element = $element_properties['element'];
+					$classPath = $element_properties['classpath'];
+					$classFile = $element_properties['classfile'];
+					$className = $element_properties['classname'];
+					$module = $element_properties['module'];
 
-					$classpath = $element.'/class';
-					// To work with non standard classpath or module name
-					if ($objecttype == 'facture') {
-						$classpath = 'compta/facture/class';
-					} elseif ($objecttype == 'facturerec') {
-						$classpath = 'compta/facture/class';
-						$module = 'facture';
-					} elseif ($objecttype == 'propal') {
-						$classpath = 'comm/propal/class';
-					} elseif ($objecttype == 'supplier_proposal') {
-						$classpath = 'supplier_proposal/class';
-					} elseif ($objecttype == 'shipping') {
-						$classpath = 'expedition/class';
-						$subelement = 'expedition';
-						$module = 'expedition';
-					} elseif ($objecttype == 'delivery') {
-						$classpath = 'delivery/class';
-						$subelement = 'delivery';
-						$module = 'delivery_note';
-					} elseif ($objecttype == 'invoice_supplier' || $objecttype == 'order_supplier') {
-						$classpath = 'fourn/class';
-						$module = 'fournisseur';
-					} elseif ($objecttype == 'fichinter') {
-						$classpath = 'fichinter/class';
-						$subelement = 'fichinter';
-						$module = 'ficheinter';
-					} elseif ($objecttype == 'subscription') {
-						$classpath = 'adherents/class';
-						$module = 'adherent';
-					} elseif ($objecttype == 'contact') {
-						 $module = 'societe';
-					}
-					// Set classfile
-					$classfile = strtolower($subelement);
-					$classname = ucfirst($subelement);
-
-					if ($objecttype == 'order') {
-						$classfile = 'commande';
-						$classname = 'Commande';
-					} elseif ($objecttype == 'invoice_supplier') {
-						$classfile = 'fournisseur.facture';
-						$classname = 'FactureFournisseur';
-					} elseif ($objecttype == 'order_supplier') {
-						$classfile = 'fournisseur.commande';
-						$classname = 'CommandeFournisseur';
-					} elseif ($objecttype == 'supplier_proposal') {
-						$classfile = 'supplier_proposal';
-						$classname = 'SupplierProposal';
-					} elseif ($objecttype == 'facturerec') {
-						$classfile = 'facture-rec';
-						$classname = 'FactureRec';
-					} elseif ($objecttype == 'subscription') {
-						$classfile = 'subscription';
-						$classname = 'Subscription';
-					} elseif ($objecttype == 'project' || $objecttype == 'projet') {
-						$classpath = 'projet/class';
-						$classfile = 'project';
-						$classname = 'Project';
-					} elseif ($objecttype == 'conferenceorboothattendee') {
-						$classpath = 'eventorganization/class';
-						$classfile = 'conferenceorboothattendee';
-						$classname = 'ConferenceOrBoothAttendee';
-						$module = 'eventorganization';
-					} elseif ($objecttype == 'conferenceorbooth') {
-						$classpath = 'eventorganization/class';
-						$classfile = 'conferenceorbooth';
-						$classname = 'ConferenceOrBooth';
-						$module = 'eventorganization';
-					} elseif ($objecttype == 'mo') {
-						$classpath = 'mrp/class';
-						$classfile = 'mo';
-						$classname = 'Mo';
-						$module = 'mrp';
-					}
-
-					// Here $module, $classfile and $classname are set, we can use them.
+					// Here $module, $classFile and $className are set, we can use them.
 					if (isModEnabled($module) && (($element != $this->element) || $alsosametype)) {
 						if ($loadalsoobjects && (is_numeric($loadalsoobjects) || ($loadalsoobjects === $objecttype))) {
-							dol_include_once('/'.$classpath.'/'.$classfile.'.class.php');
-							//print '/'.$classpath.'/'.$classfile.'.class.php '.class_exists($classname);
-							if (class_exists($classname)) {
+							dol_include_once('/'.$classPath.'/'.$classFile.'.class.php');
+							if (class_exists($className)) {
 								foreach ($objectids as $i => $objectid) {	// $i is rowid into llx_element_element
-									$object = new $classname($this->db);
+									$object = new $className($this->db);
+									'@phan-var-force CommonObject $object';
 									$ret = $object->fetch($objectid);
 									if ($ret >= 0) {
 										$this->linkedObjects[$objecttype][$i] = $object;
@@ -4161,7 +4113,7 @@ abstract class CommonObject
 	/**
 	 *	Clear the cache saying that all linked object were already loaded. So next fetchObjectLinked will reload all links.
 	 *
-	 *	@return int						<0 if KO, >0 if OK
+	 *	@return int						Return integer <0 if KO, >0 if OK
 	 *  @see	fetchObjectLinked()
 	 */
 	public function clearObjectLinkedCache()
@@ -4245,17 +4197,17 @@ abstract class CommonObject
 	/**
 	 *	Delete all links between an object $this
 	 *
-	 *	@param	int		$sourceid		Object source id
+	 *	@param	?int	$sourceid		Object source id
 	 *	@param  string	$sourcetype		Object source type
-	 *	@param  int		$targetid		Object target id
+	 *	@param  ?int	$targetid		Object target id
 	 *	@param  string	$targettype		Object target type
 	 *  @param	int		$rowid			Row id of line to delete. If defined, other parameters are not used.
-	 * 	@param	User	$f_user			User that create
-	 * 	@param	int		$notrigger		1=Does not execute triggers, 0= execute triggers
+	 * 	@param	?User	$f_user			User that create
+	 * 	@param	int<0,1>	$notrigger		1=Does not execute triggers, 0= execute triggers
 	 *	@return     					int	>0 if OK, <0 if KO
 	 *	@see	add_object_linked(), updateObjectLinked(), fetchObjectLinked()
 	 */
-	public function deleteObjectLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $rowid = '', $f_user = null, $notrigger = 0)
+	public function deleteObjectLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $rowid = 0, $f_user = null, $notrigger = 0)
 	{
 		global $user;
 		$deletesource = false;
@@ -7459,7 +7411,12 @@ abstract class CommonObject
 			}
 		} elseif ($type == 'password') {
 			// If prefix is 'search_', field is used as a filter, we use a common text field.
-			$out = '<input type="'.($keyprefix == 'search_' ? 'text' : 'password').'" class="flat '.$morecss.'" name="'.$keyprefix.$key.$keysuffix.'" id="'.$keyprefix.$key.$keysuffix.'" value="'.$value.'" '.($moreparam ? $moreparam : '').'>';
+			if ($keyprefix.$key.$keysuffix == 'pass_crypted') {
+				$out = '<input type="'.($keyprefix == 'search_' ? 'text' : 'password').'" class="flat '.$morecss.'" name="pass" id="pass" value="" '.($moreparam ? $moreparam : '').'>';
+				$out .= '<input type="hidden" name="pass_crypted" id="pass_crypted" value="'.$value.'" '.($moreparam ? $moreparam : '').'>';
+			} else {
+				$out = '<input type="'.($keyprefix == 'search_' ? 'text' : 'password').'" class="flat '.$morecss.'" name="'.$keyprefix.$key.$keysuffix.'" id="'.$keyprefix.$key.$keysuffix.'" value="'.$value.'" '.($moreparam ? $moreparam : '').'>';
+			}
 		} elseif ($type == 'array') {
 			$newval = $val;
 			$newval['type'] = 'varchar(256)';
@@ -7918,7 +7875,8 @@ abstract class CommonObject
 				$value = '';
 			}
 		} elseif ($type == 'password') {
-			$value = preg_replace('/./i', '*', $value);
+			$value = '<span class="opacitymedium">'.$langs->trans("Encrypted").'</span>';
+			//$value = preg_replace('/./i', '*', $value);
 		} elseif ($type == 'array') {
 			$value = implode('<br>', $value);
 		} else {	// text|html|varchar
@@ -8238,6 +8196,10 @@ abstract class CommonObject
 					if (($mode == 'create') && abs($visibility) != 1 && abs($visibility) != 3) {
 						continue; // <> -1 and <> 1 and <> 3 = not visible on forms, only on list
 					} elseif (($mode == 'edit') && abs($visibility) != 1 && abs($visibility) != 3 && abs($visibility) != 4) {
+						// We need to make sure, that the values of hidden extrafields are also part of $_POST. Otherwise, they would be empty after an update of the object. See also getOptionalsFromPost
+						$ef_name = 'options_' . $key;
+						$ef_value = $this->array_options[$ef_name];
+						$out .= '<input type="hidden" name="' . $ef_name . '" id="' . $ef_name . '" value="' . $ef_value . '" />' . "\n";
 						continue; // <> -1 and <> 1 and <> 3 = not visible on forms, only on list and <> 4 = not visible at the creation
 					} elseif ($mode == 'view' && empty($visibility)) {
 						continue;
@@ -8359,7 +8321,7 @@ abstract class CommonObject
 								}
 							}
 							$datekey = $keyprefix.'options_'.$key.$keysuffix;
-							$value = (GETPOSTISSET($datekey)) ? dol_mktime(12, 0, 0, GETPOST($datekey.'month', 'int', 3), GETPOST($datekey.'day', 'int', 3), GETPOST($datekey.'year', 'int', 3)) : $datenotinstring;
+							$value = (GETPOSTISSET($datekey) && $this->id == GETPOST('elrowid', 'int')) ? dol_mktime(12, 0, 0, GETPOST($datekey.'month', 'int', 3), GETPOST($datekey.'day', 'int', 3), GETPOST($datekey.'year', 'int', 3)) : $datenotinstring;
 						}
 						if (in_array($extrafields->attributes[$this->table_element]['type'][$key], array('datetime'))) {
 							$datenotinstring = null;
@@ -9293,6 +9255,7 @@ abstract class CommonObject
 	public function createCommon(User $user, $notrigger = false)
 	{
 		global $langs;
+
 		dol_syslog(get_class($this)."::createCommon create", LOG_DEBUG);
 
 		$error = 0;
@@ -9307,6 +9270,10 @@ abstract class CommonObject
 		if (array_key_exists('fk_user_creat', $fieldvalues) && !($fieldvalues['fk_user_creat'] > 0)) {
 			$fieldvalues['fk_user_creat'] = $user->id;
 			$this->fk_user_creat = $user->id;
+		}
+		if (array_key_exists('pass_crypted', $fieldvalues) && property_exists($this, 'pass')) {
+			// @phan-suppress-next-line PhanUndeclaredProperty
+			$fieldvalues['pass_crypted'] = dol_hash($this->pass);
 		}
 		if (array_key_exists('user_modification_id', $fieldvalues) && !($fieldvalues['user_modification_id'] > 0)) {
 			$fieldvalues['user_modification_id'] = $user->id;
@@ -9547,6 +9514,7 @@ abstract class CommonObject
 		if ($resql) {
 			$num_rows = $this->db->num_rows($resql);
 			$i = 0;
+			$this->lines = array();
 			while ($i < $num_rows) {
 				$obj = $this->db->fetch_object($resql);
 				if ($obj) {

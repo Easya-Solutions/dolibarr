@@ -277,6 +277,9 @@ if (empty($reshook) && $action == 'add') {
 		$datef = dol_mktime(GETPOST("p2hour", 'int'), GETPOST("p2min", 'int'), GETPOST("apsec", 'int'), GETPOST("p2month", 'int'), GETPOST("p2day", 'int'), GETPOST("p2year", 'int'), 'tzuserrel');
 	}
 
+	//set end date to now if percentage is set to 100 and end date not set
+	$datef = (!$datef && $percentage == 100)?dol_now():$datef;
+
 	// Check parameters
 	if (!$datef && $percentage == 100) {
 		$error++; $donotclearsession = 1;
@@ -1584,6 +1587,41 @@ if ($action == 'create') {
 		print '</table>';
 		print '</div>';
 
+		$reminderDefaultEventTypes = getDolGlobalString('AGENDA_DEFAULT_REMINDER_EVENT_TYPES', '');
+		$reminderDefaultOffset = getDolGlobalInt('AGENDA_DEFAULT_REMINDER_OFFSET', 30);
+		$reminderDefaultUnit = getDolGlobalString('AGENDA_DEFAULT_REMINDER_OFFSET_UNIT');
+		$reminderDefaultEmailModel = getDolGlobalInt('AGENDA_DEFAULT_REMINDER_EMAIL_MODEL');
+
+		print "\n".'<script type="text/javascript">';
+		print '$(document).ready(function () {
+				const reminderDefaultEventTypes = 	'.$reminderDefaultEventTypes.';
+				$("#actioncode").change(function(){
+					var selected_event_type = $("#actioncode option:selected").val();
+
+					if (reminderDefaultEventTypes.includes(selected_event_type)) {
+						$(".reminderparameters").show();
+						$("#addreminder").prop("checked", true);
+
+						// Set period with default reminder period
+						$("[name=\"offsetvalue\"]").val("' . $reminderDefaultOffset . '");
+						$("#select_offsetunittype_duration").select2("destroy");
+						$("#select_offsetunittype_duration").val("'.$reminderDefaultUnit.'");
+						$("#select_offsetunittype_duration").select2();
+
+						$("#selectremindertype").select2("destroy");
+						$("#selectremindertype").val("email");
+						$("#selectremindertype").select2();
+
+						// Set default reminder mail model
+						$("#select_actioncommsendmodel_mail").closest("tr").show();
+						$("#select_actioncommsendmodel_mail").select2("destroy");
+						$("#select_actioncommsendmodel_mail").val("'.$reminderDefaultEmailModel.'");
+						$("#select_actioncommsendmodel_mail").select2();
+					}
+				});
+		   })';
+		print '</script>'."\n";
+
 		print "\n".'<script type="text/javascript">';
 		print '$(document).ready(function () {
 	            		$("#addreminder").click(function(){
@@ -2090,7 +2128,7 @@ if ($id > 0) {
 			// Mail Model
 			if (getDolGlobalString('AGENDA_REMINDER_EMAIL')) {
 				print '<tr '.$hide.'><td class="titlefieldcreate nowrap">'.$langs->trans("EMailTemplates").'</td><td colspan="3">';
-				print $form->selectModelMail('actioncommsend', 'actioncomm_send', 1, 1);
+				print $form->selectModelMail('actioncommsend', 'actioncomm_send', 1, 1, $actionCommReminder->fk_email_template);
 				print '</td></tr>';
 			}
 
@@ -2118,6 +2156,40 @@ if ($id > 0) {
                    })';
 			print '</script>'."\n";
 
+			$reminderDefaultEventTypes = getDolGlobalString('AGENDA_DEFAULT_REMINDER_EVENT_TYPES', '');
+			$reminderDefaultOffset = getDolGlobalString('AGENDA_DEFAULT_REMINDER_OFFSET', 30);
+			$reminderDefaultUnit = getDolGlobalString('AGENDA_DEFAULT_REMINDER_OFFSET_UNIT');
+			$reminderDefaultEmailModel = getDolGlobalString('AGENDA_DEFAULT_REMINDER_EMAIL_MODEL');
+
+			print "\n".'<script type="text/javascript">';
+			print '$(document).ready(function () {
+					const reminderDefaultEventTypes = 	'.$reminderDefaultEventTypes.';
+					$("#actioncode").change(function(){
+						var selected_event_type = $("#actioncode option:selected").val();
+
+						if (reminderDefaultEventTypes.includes(selected_event_type)) {
+							$(".reminderparameters").show();
+							$("#addreminder").prop("checked", true);
+
+							// Set period with default reminder period
+							$("#offsetvalue").val('.$reminderDefaultOffset.');
+							$("#select_offsetunittype_duration").select2("destroy");
+							$("#select_offsetunittype_duration").val("'.$reminderDefaultUnit.'");
+							$("#select_offsetunittype_duration").select2();
+
+							$("#selectremindertype").select2("destroy");
+							$("#selectremindertype").val("email");
+							$("#selectremindertype").select2();
+
+							// Set default reminder mail model
+							$("#select_actioncommsendmodel_mail").closest("tr").show();
+							$("#select_actioncommsendmodel_mail").select2("destroy");
+							$("#select_actioncommsendmodel_mail").val("'.$reminderDefaultEmailModel.'");
+							$("#select_actioncommsendmodel_mail").select2();
+						}
+					});
+			   })';
+			print '</script>'."\n";
 			print '</div>';		// End of div for reminderparameters
 		}
 
@@ -2226,9 +2298,10 @@ if ($id > 0) {
 
 		// Type
 		if (!empty($conf->global->AGENDA_USE_EVENT_TYPE)) {
+			$labeltype = ($langs->transnoentities("Action".$object->type_code) != "Action".$object->type_code) ? $langs->transnoentities("Action".$object->type_code) : $object->type_label;
 			print '<tr><td class="titlefield">'.$langs->trans("Type").'</td><td>';
 			print $object->getTypePicto();
-			print $langs->trans("Action".$object->type_code);
+			print $labeltype;
 			print '</td></tr>';
 		}
 

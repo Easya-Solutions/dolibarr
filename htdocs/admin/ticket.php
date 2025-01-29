@@ -141,6 +141,12 @@ if ($action == 'updateMask') {
 		if (!($res > 0)) {
 			$error++;
 		}
+
+		$param_auto_assign = GETPOST('TICKET_CLIENT_OTHER_TICKET_ONLY_OPEN', 'alpha');
+		$res = dolibarr_set_const($db, 'TICKET_CLIENT_OTHER_TICKET_ONLY_OPEN', $param_auto_assign, 'chaine', 0, '', $conf->entity);
+		if (!($res > 0)) {
+			$error++;
+		}
 	}
 
 	$param_limit_view = GETPOST('TICKET_LIMIT_VIEW_ASSIGNED_ONLY', 'alpha');
@@ -534,16 +540,11 @@ print $formcategory->textwithpicto('', $langs->trans("TicketsAutoReadTicketHelp"
 print '</td>';
 print '</tr>';
 
-// Auto assign ticket at user who created it
+// Auto assign ticket to user who created it
 print '<tr class="oddeven">';
 print '<td>'.$langs->trans("TicketsAutoAssignTicket").'</td>';
 print '<td class="left">';
-if ($conf->use_javascript_ajax) {
-	print ajax_constantonoff('TICKET_AUTO_ASSIGN_USER_CREATE');
-} else {
-	$arrval = array('0' => $langs->trans("No"), '1' => $langs->trans("Yes"));
-	print $formcategory->selectarray("TICKET_AUTO_ASSIGN_USER_CREATE", $arrval, getDolGlobalString('TICKET_AUTO_ASSIGN_USER_CREATE'));
-}
+print '<input class="minwidth100" type="text" id="TICKET_AUTO_ASSIGN_USER_CREATE" name="TICKET_AUTO_ASSIGN_USER_CREATE" value="'.getDolGlobalString('TICKET_AUTO_ASSIGN_USER_CREATE').'">';
 print '</td>';
 print '<td class="center">';
 print $formcategory->textwithpicto('', $langs->trans("TicketsAutoAssignTicketHelp"), 1, 'help');
@@ -562,6 +563,21 @@ if ($conf->use_javascript_ajax) {
 print '</td>';
 print '<td class="center">';
 print $formcategory->textwithpicto('', $langs->trans("TicketsAutoNotifyCloseHelp"), 1, 'help');
+print '</td>';
+print '</tr>';
+
+// Enable open only filter on other ticket list
+print '<tr class="oddeven"><td>'.$langs->trans("TicketsClientOtherTicketOnlyOpen").'</td>';
+print '<td class="left">';
+if ($conf->use_javascript_ajax) {
+	print ajax_constantonoff('TICKET_CLIENT_OTHER_TICKET_ONLY_OPEN');
+} else {
+	$arrval = array('0' => $langs->trans("No"), '1' => $langs->trans("Yes"));
+	print $formcategory->selectarray("TICKET_CLIENT_OTHER_TICKET_ONLY_OPEN", $arrval, getDolGlobalString('TICKET_CLIENT_OTHER_TICKET_ONLY_OPEN'));
+}
+print '</td>';
+print '<td class="center">';
+print $formcategory->textwithpicto('', $langs->trans("TicketsClientOtherTicketOnlyOpenHelp"), 1, 'help');
 print '</td>';
 print '</tr>';
 

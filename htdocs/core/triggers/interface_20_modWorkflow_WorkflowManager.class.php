@@ -280,8 +280,8 @@ class InterfaceWorkflowManager extends DolibarrTriggers
 							$totalonlinkedelements += $element->total_ht;
 						}
 					}
-					dol_syslog("Amount of linked reception = ".$totalonlinkedelements.", of invoice = ".$object->total_ht.", egality is ".($totalonlinkedelements == $object->total_ht), LOG_DEBUG);
-					if ($totalonlinkedelements == $object->total_ht) {
+					dol_syslog("Amount of linked reception = ".$totalonlinkedelements.", of invoice = ".$object->total_ht.", egality is ".((string) $totalonlinkedelements == (string) $object->total_ht), LOG_DEBUG);
+					if ( (string) $totalonlinkedelements == (string) $object->total_ht) {
 						foreach ($object->linkedObjects['reception'] as $element) {
 							$ret = $element->setBilled();
 							if ($ret < 0) {
@@ -473,9 +473,6 @@ class InterfaceWorkflowManager extends DolibarrTriggers
 						continue;
 					}
 					$number_contracts_found = count($list);
-					if ($number_contracts_found == 0) {
-						continue;
-					}
 
 					foreach ($list as $linked_contract) {
 						$object->setContract($linked_contract->id);
@@ -497,7 +494,7 @@ class InterfaceWorkflowManager extends DolibarrTriggers
 				$fichinter->fk_project = (int) $object->fk_project;
 				$fichinter->fk_contrat = (int) $object->fk_contract;
 				$fichinter->author = $user->id;
-				$fichinter->model_pdf = (getDolGlobalString('FICHEINTER_ADDON_PDF')) ? getDolGlobalString('FICHEINTER_ADDON_PDF') : 'soleil';
+				$fichinter->model_pdf = getDolGlobalString('FICHEINTER_ADDON_PDF', 'soleil');
 				$fichinter->origin = $object->element;
 				$fichinter->origin_id = $object->id;
 

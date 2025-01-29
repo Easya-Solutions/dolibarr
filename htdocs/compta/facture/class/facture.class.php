@@ -504,8 +504,8 @@ class Facture extends CommonInvoice
 		$this->ref_client = trim($this->ref_client);
 
 		$this->note = (isset($this->note) ? trim($this->note) : trim($this->note_private)); // deprecated
-		$this->note_private = (isset($this->note_private) ? trim($this->note_private) : trim($this->note_private));
-		$this->note_public = trim($this->note_public);
+		$this->note_private = (isset($this->note_private) ? trim($this->note_private) : '');
+		$this->note_public = (isset($this->note_public) ? trim($this->note_public) : '');
 		if (!$this->cond_reglement_id) {
 			$this->cond_reglement_id = 0;
 		}
@@ -5851,9 +5851,9 @@ class Facture extends CommonInvoice
 							$joinFileName = [];
 							$joinFileMime = [];
 							if ($arraymessage->joinfiles == 1 && !empty($tmpinvoice->last_main_doc)) {
-								$joinFile[] = DOL_DATA_ROOT.$tmpinvoice->last_main_doc;
+								$joinFile[] = DOL_DATA_ROOT.'/'.$tmpinvoice->last_main_doc;
 								$joinFileName[] = basename($tmpinvoice->last_main_doc);
-								$joinFileMime[] = dol_mimetype(DOL_DATA_ROOT.$tmpinvoice->last_main_doc);
+								$joinFileMime[] = dol_mimetype(DOL_DATA_ROOT.'/'.$tmpinvoice->last_main_doc);
 							}
 
 							// Mail Creation

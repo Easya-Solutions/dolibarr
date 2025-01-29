@@ -88,6 +88,8 @@ SearchString=Chaîne de recherche
 NotAvailableWhenAjaxDisabled=Non disponible quand Ajax est désactivé
 AllowToSelectProjectFromOtherCompany=Sur les éléments d'un tiers, autorise la sélection d'un projet lié à un autre tiers
 TimesheetPreventAfterFollowingMonths=Empêcher l'enregistrement du temps consacré après le nombre de mois suivant
+PROJECT_DISPLAY_LINKED_BY_CONTACT=Afficher projet lié par un contact commun
+PROJECT_DISPLAY_LINKED_BY_CONTACT_help=Cette option ajoute une nouvelle liste dans l'onglet projet avec tous les projets liés à ce tiers via une relation de contact.
 JavascriptDisabled=Javascript désactivé
 UsePreviewTabs=Afficher les onglets "Aperçu"
 ShowPreview=Afficher aperçu
@@ -1109,7 +1111,7 @@ BackToModuleList=Retour liste des modules
 BackToDictionaryList=Retour liste des dictionnaires
 TypeOfRevenueStamp=Type de timbre fiscal
 VATManagement=Gestion TVA
-VATIsUsedDesc=Le taux de TVA proposé par défaut lors de la création de propositions commerciales, factures, commandes, etc... répond à la règle standard suivante:<br>Si vendeur non assujetti à TVA, TVA par défaut=0. Fin de règle.<br>Si le (pays vendeur= pays acheteur) alors TVA par défaut=TVA du produit vendu. Fin de règle.<br>Si vendeur et acheteur dans Communauté européenne et bien vendu= moyen de transport neuf (auto, bateau, avion), TVA par défaut=0 (La TVA doit être payée par acheteur au centre d'impôts de son pays et non au vendeur). Fin de règle.<br>Si vendeur et acheteur dans Communauté européenne et acheteur= particulier alors TVA par défaut=TVA du produit vendu. Fin de règle.<br>Si vendeur et acheteur sont dans la Communauté européenne et que l'acheteur est une société alors TVA par défaut=0. Fin de règle.<br>Sinon la TVA proposée par défaut=0. Fin de règle.
+VATIsUsedDesc=Le taux de TVA proposé par défaut lors de la création de propositions commerciales, factures, commandes, etc... répond à la règle standard suivante:<br>Si vendeur non assujetti à TVA, TVA par défaut=0. Fin de règle.<br>Si le département de l'acheteur possède un taux de TVA contenu dans le dictionnaire des taux de TVA alors c'est le taux de TVA par défaut. Fin de règle.<br>Si le (pays vendeur= pays acheteur) alors TVA par défaut=TVA du produit vendu. Fin de règle.<br>Si vendeur et acheteur dans Communauté européenne et bien vendu= moyen de transport neuf (auto, bateau, avion), TVA par défaut=0 (La TVA doit être payée par acheteur au centre d'impôts de son pays et non au vendeur). Fin de règle.<br>Si vendeur et acheteur dans Communauté européenne et acheteur= particulier alors TVA par défaut=TVA du produit vendu. Fin de règle.<br>Si vendeur et acheteur sont dans la Communauté européenne et que l'acheteur est une société alors TVA par défaut=0. Fin de règle.<br>Sinon la TVA proposée par défaut=0. Fin de règle.
 VATIsNotUsedDesc=Le taux de TVA proposé par défaut est 0. C'est le cas d'associations, particuliers ou certaines petites sociétés.
 VATIsUsedExampleFR=En France, cela signifie que les entreprises ou les organisations sont assujetis à la tva (réel ou normal).
 VATIsNotUsedExampleFR=En France, il s'agit des associations ne déclarant pas de TVA ou sociétés, organismes ou professions libérales ayant choisi le régime fiscal micro entreprise (TVA en franchise) et payant une TVA en franchise sans faire de déclaration de TVA. Ce choix fait de plus apparaître la mention "TVA non applicable - art-293B du CGI" sur les factures.
@@ -1765,6 +1767,7 @@ SendingsNumberingModules=Modèles de numérotation des expéditions
 SendingsAbility=Prise en charge des bons d'expédition pour les livraisons clients
 NoNeedForDeliveryReceipts=Dans le plupart des cas, la fiche expédition est utilisée en tant que bon d'expédition (liste des produits expédiés) et bon de livraison (signée par le client). Le bon de réception est un doublon de fonctionnalité et est rarement utilisé.
 FreeLegalTextOnShippings=Mention complémentaire sur les expéditions
+DontPrefillShipmentQty = Ne pas pré-remplir les quantités des lignes à la création d'une expédition
 ##### Deliveries #####
 DeliveryOrderNumberingModules=Modèle de numérotation des bons de réception client
 DeliveryOrderModel=Modèle de bon de réception client
@@ -2407,4 +2410,6 @@ AtBottomOfPage=En bas de page
 FailedAuth=échecs d'authentification
 MaxNumberOfFailedAuth=Max number of failed authentication in 24h to deny login.
 SpecialCharActivation=Activez le bouton pour ouvrir un clavier virtuel pour saisir des caractères spéciaux
+UrlPublicInterfaceLabelAdmin=URL alternative pour l'interface publique
+UrlPublicInterfaceHelpAdmin=Il est possible de définir un alias vers le serveur web et ainsi rendre l'interface publique accessible avec une autre URL (le serveur hôte virtuel doit agir comme un proxy sur l'URL standard)
 ContactsDefaultRoles=Pour les les tiers de type "particulier" un contact peut-être créé simultanément. Définissez ici les rôles qui seront systématiquement attribués à ce contact.

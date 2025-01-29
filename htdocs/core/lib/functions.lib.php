@@ -159,7 +159,36 @@ function getDolGlobalInt($key, $default = 0)
 	// return $conf->global->$key ?? $default;
 	return (int) (isset($conf->global->$key) ? $conf->global->$key : $default);
 }
+// backport from develop
+/**
+ * Return a Dolibarr global constant float value.
+ * The constants $conf->global->xxx are loaded by the script master.inc.php included at begin of any PHP page.
+ *
+ * @param string 	$key 		Key to return value, return $default if not set
+ * @param float 		$default 	Value to return if not defined
+ * @return float					Value returned
+ * @see getDolUserInt()
+ */
+function getDolGlobalFloat($key, $default = 0)
+{
+	global $conf;
+	return (float) (isset($conf->global->$key) ? $conf->global->$key : $default);
+}
 
+/**
+ * Return a Dolibarr global constant boolean value.
+ * The constants $conf->global->xxx are loaded by the script master.inc.php included at begin of any PHP page.
+ *
+ * @param string 	$key 		Key to return value, return $default if not set
+ * @param bool 		$default 	Value to return if not defined
+ * @return bool					Value returned
+ */
+function getDolGlobalBool($key, $default = false)
+{
+	global $conf;
+	return (bool) ($conf->global->$key ?? $default);
+}
+// End of backport
 /**
  * Return Dolibarr user constant string value
  *
@@ -198,6 +227,42 @@ function getDolUserInt($key, $default = 0, $tmpuser = null)
 	return (int) (empty($tmpuser->conf->$key) ? $default : $tmpuser->conf->$key);
 }
 
+
+/**
+ * This mapping defines the conversion to the current internal
+ * names from the alternative allowed names (including effectively deprecated
+ * and future new names (not yet used as internal names).
+ *
+ * This allows to map any temporary or future name to the effective internal name.
+ *
+ * The value is typically the name of module's root directory.
+ */
+define(
+	'MODULE_MAPPING',
+	array(
+		// Map deprecated names to new names
+		'adherent' => 'member',  // Has new directory
+		'member_type' => 'adherent_type',   // No directory, but file called adherent_type
+		'banque' => 'bank',   // Has new directory
+		'contrat' => 'contract', // Has new directory
+		'entrepot' => 'stock',   // Has new directory
+		'projet' => 'project', // Has new directory
+		'categorie' => 'category', // Has old directory
+		'commande' => 'order',    // Has old directory
+		'expedition' => 'shipping', // Has old directory
+		'facture' => 'invoice', // Has old directory
+		'fichinter' => 'intervention', // Has old directory
+		'ficheinter' => 'intervention',  // Backup for 'fichinter'
+		'propale' => 'propal', // Has old directory
+		'socpeople' => 'contact', // Has old directory
+		'fournisseur' => 'supplier',  // Has old directory
+
+		'actioncomm' => 'agenda',  // NO module directory (public dir agenda)
+		'product_price' => 'productprice', // NO directory
+		'product_fournisseur_price' => 'productsupplierprice', // NO directory
+	)
+);
+
 /**
  * Is Dolibarr module enabled
  *
@@ -208,23 +273,36 @@ function isModEnabled($module)
 {
 	global $conf;
 
-	// Fix special cases
-	$arrayconv = array(
-		'bank' => 'banque',
-		'category' => 'categorie',
-		'contract' => 'contrat',
-		'project' => 'projet',
-		'delivery_note' => 'expedition'
-	);
-	if (empty($conf->global->MAIN_USE_NEW_SUPPLIERMOD)) {
+	// Fix old names (map to new names)
+	$arrayconv = MODULE_MAPPING;
+	$arrayconvbis = array_flip(MODULE_MAPPING);
+
+	if (!getDolGlobalString('MAIN_USE_NEW_SUPPLIERMOD')) {
+		// Special cases: both use the same module.
 		$arrayconv['supplier_order'] = 'fournisseur';
 		$arrayconv['supplier_invoice'] = 'fournisseur';
 	}
-	if (!empty($arrayconv[$module])) {
-		$module = $arrayconv[$module];
+	// Special case.
+	// @TODO Replace isModEnabled('delivery_note') with
+	// isModEnabled('shipping') && getDolGlobalString('MAIN_SUBMODULE_EXPEDITION')
+	if ($module == 'delivery_note') {
+		if (!getDolGlobalString('MAIN_SUBMODULE_EXPEDITION')) {
+			return false;
+		} else {
+			$module = 'shipping';
+		}
 	}
 
-	return !empty($conf->modules[$module]);
+	$module_alt = $module;
+	if (!empty($arrayconv[$module])) {
+		$module_alt = $arrayconv[$module];
+	}
+	$module_bis = $module;
+	if (!empty($arrayconvbis[$module])) {
+		$module_bis = $arrayconvbis[$module];
+	}
+
+	return !empty($conf->modules[$module]) || !empty($conf->modules[$module_alt]) || !empty($conf->modules[$module_bis]);
 	//return !empty($conf->$module->enabled);
 }
 
@@ -1820,8 +1898,10 @@ function dol_syslog($message, $level = LOG_INFO, $ident = 0, $suffixinfilename =
 	if (!empty($message)) {
 		// Test log level
 		$logLevels = array(LOG_EMERG=>'EMERG', LOG_ALERT=>'ALERT', LOG_CRIT=>'CRITICAL', LOG_ERR=>'ERR', LOG_WARNING=>'WARN', LOG_NOTICE=>'NOTICE', LOG_INFO=>'INFO', LOG_DEBUG=>'DEBUG');
+
 		if (!array_key_exists($level, $logLevels)) {
-			throw new Exception('Incorrect log level');
+			dol_syslog('Error Bad Log Level '.$level, LOG_ERR);
+			$level = $logLevels[LOG_ERR];
 		}
 		if ($level > getDolGlobalInt('SYSLOG_LEVEL')) {
 			return;
@@ -2453,7 +2533,16 @@ function dol_banner_tab($object, $paramid, $morehtml = '', $shownav = 1, $fieldi
 		} else {
 			$morehtmlstatus .= '<span class="statusrefbuy">'.$object->getLibStatut(6, 1).'</span>';
 		}
-	} elseif (in_array($object->element, array('facture', 'invoice', 'invoice_supplier', 'chargesociales', 'loan', 'tva', 'salary'))) {
+	} elseif (in_array($object->element, array('facture', 'invoice', 'invoice_supplier'))) {
+		$totalallpayments = $object->getSommePaiement(0);
+		$totalallpayments += $object->getSumCreditNotesUsed(0);
+		$totalallpayments += $object->getSumDepositsUsed(0);
+		$tmptxt = $object->getLibStatut(6, $totalallpayments);
+		if (empty($tmptxt) || $tmptxt == $object->getLibStatut(3)) {
+			$tmptxt = $object->getLibStatut(5, $totalallpayments);
+		}
+		$morehtmlstatus .= $tmptxt;
+	} elseif (in_array($object->element, array('chargesociales', 'loan', 'tva'))) {
 		$tmptxt = $object->getLibStatut(6, $object->totalpaid);
 		if (empty($tmptxt) || $tmptxt == $object->getLibStatut(3)) {
 			$tmptxt = $object->getLibStatut(5, $object->totalpaid);
@@ -2973,6 +3062,10 @@ function dol_print_date($time, $format = '', $tzoutput = 'auto', $outputlangs = 
  */
 function dol_getdate($timestamp, $fast = false, $forcetimezone = '')
 {
+	if ($timestamp === '') {
+		return array();
+	}
+
 	$datetimeobj = new DateTime();
 	$datetimeobj->setTimestamp($timestamp); // Use local PHP server timezone
 	if ($forcetimezone) {
@@ -3243,7 +3336,7 @@ function dol_print_email($email, $cid = 0, $socid = 0, $addlink = 0, $max = 64, 
 			$newemail .= 'mailto:';
 		}
 		$newemail .= $email;
-		$newemail .= '">';
+		$newemail .= '" target="_blank">';
 		$newemail .= dol_trunc($email, $max);
 		$newemail .= '</a>';
 		if ($showinvalid && !isValidEmail($email)) {
@@ -5933,9 +6026,10 @@ function price($amount, $form = 0, $outlangs = '', $trunc = 1, $rounding = -1, $
 		$nbdecimal = dol_strlen($decpart);
 	}
 	// Si on depasse max
-	if ($trunc && $nbdecimal > $conf->global->MAIN_MAX_DECIMALS_SHOWN) {
-		$nbdecimal = $conf->global->MAIN_MAX_DECIMALS_SHOWN;
-		if (preg_match('/\.\.\./i', $conf->global->MAIN_MAX_DECIMALS_SHOWN)) {
+	$max_nbdecimal = (int) str_replace('...', '', getDolGlobalString('MAIN_MAX_DECIMALS_SHOWN'));
+	if ($trunc && $nbdecimal > $max_nbdecimal) {
+		$nbdecimal = $max_nbdecimal;
+		if (preg_match('/\.\.\./i', getDolGlobalString('MAIN_MAX_DECIMALS_SHOWN'))) {
 			// Si un affichage est tronque, on montre des ...
 			$end = '...';
 		}
@@ -6663,11 +6757,12 @@ function get_product_localtax_for_country($idprod, $local, $thirdpartytouse)
 /**
  *	Function that return vat rate of a product line (according to seller, buyer and product vat rate)
  *   VATRULE 1: If seller does not use VAT, default VAT is 0. End of rule.
- *	 VATRULE 2: If the (seller country = buyer country) then the default VAT = VAT of the product sold. End of rule.
- *	 VATRULE 3: If (seller and buyer in the European Community) and (property sold = new means of transport such as car, boat, plane) then VAT by default = 0 (VAT must be paid by the buyer to the tax center of his country and not to the seller). End of rule.
- *	 VATRULE 4: If (seller and buyer in the European Community) and (buyer = individual) then VAT by default = VAT of the product sold. End of rule
- *	 VATRULE 5: If (seller and buyer in European Community) and (buyer = company) then VAT by default=0. End of rule
- *	 VATRULE 6: Otherwise the VAT proposed by default=0. End of rule.
+ *   VATRULE 2: If buyer department has a VAT rule from vat rates dictionary then it's the default VAT rate. End of rule.
+ *	 VATRULE 3: If the (seller country = buyer country) then the default VAT = VAT of the product sold. End of rule.
+ *	 VATRULE 4: If (seller and buyer in the European Community) and (property sold = new means of transport such as car, boat, plane) then VAT by default = 0 (VAT must be paid by the buyer to the tax center of his country and not to the seller). End of rule.
+ *	 VATRULE 5: If (seller and buyer in the European Community) and (buyer = individual) then VAT by default = VAT of the product sold. End of rule
+ *	 VATRULE 6: If (seller and buyer in European Community) and (buyer = company) then VAT by default=0. End of rule
+ *	 VATRULE 7: Otherwise the VAT proposed by default=0. End of rule.
  *
  *	@param	Societe		$thirdparty_seller    	Objet societe vendeuse
  *	@param  Societe		$thirdparty_buyer   	Objet societe acheteuse
@@ -6678,7 +6773,7 @@ function get_product_localtax_for_country($idprod, $local, $thirdpartytouse)
  */
 function get_default_tva(Societe $thirdparty_seller, Societe $thirdparty_buyer, $idprod = 0, $idprodfournprice = 0)
 {
-	global $conf;
+	global $conf, $db;
 
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 
@@ -6718,15 +6813,33 @@ function get_default_tva(Societe $thirdparty_seller, Societe $thirdparty_buyer, 
 		return 0;
 	}
 
+	// 'VATRULE 2' - Force VAT if a buyer department is defined on vat rates dictionary
+	if (!empty($thirdparty_buyer->state_id)) {
+		$sql = "SELECT d.rowid, t.taux as vat_default_rate, t.code as vat_default_code ";
+		$sql .= " FROM ".$db->prefix()."c_tva as t";
+		$sql .= " INNER JOIN ".$db->prefix()."c_departements as d ON t.fk_department_buyer = d.rowid";
+		$sql .= " WHERE d.rowid = ".((int) $thirdparty_buyer->state_id);
+		$sql .= " ORDER BY t.use_default DESC, t.taux DESC, t.code ASC, t.recuperableonly ASC";
+
+		$res = $db->query($sql);
+		if ($res) {
+			if ($db->num_rows($res)) {
+				$obj = $db->fetch_object($res);
+				return $obj->vat_default_rate.' ('.$obj->vat_default_code.')';
+			}
+			$db->free($res);
+		}
+	}
+
 	// If the (seller country = buyer country) then the default VAT = VAT of the product sold. End of rule.
 	if (($seller_country_code == $buyer_country_code)
 	|| (in_array($seller_country_code, array('FR', 'MC')) && in_array($buyer_country_code, array('FR', 'MC')))) { // Warning ->country_code not always defined
-		//print 'VATRULE 2';
+		//print 'VATRULE 3';
 		$tmpvat = get_product_vat_for_country($idprod, $thirdparty_seller, $idprodfournprice);
 
 		if ($seller_country_code == 'IN' && getDolGlobalString('MAIN_SALETAX_AUTOSWITCH_I_CS_FOR_INDIA')) {
 			// Special case for india.
-			//print 'VATRULE 2b';
+			//print 'VATRULE 3b';
 			$reg = array();
 			if (preg_match('/C+S-(\d+)/', $tmpvat, $reg) && $thirdparty_seller->state_id != $thirdparty_buyer->state_id) {
 				// we must revert the C+S into I
@@ -6741,7 +6854,7 @@ function get_default_tva(Societe $thirdparty_seller, Societe $thirdparty_buyer, 
 	}
 
 	// If (seller and buyer in the European Community) and (property sold = new means of transport such as car, boat, plane) then VAT by default = 0 (VAT must be paid by the buyer to the tax center of his country and not to the seller). End of rule.
-	// 'VATRULE 3' - Not supported
+	// 'VATRULE 4' - Not supported
 
 	// If (seller and buyer in the European Community) and (buyer = individual) then VAT by default = VAT of the product sold. End of rule
 	// If (seller and buyer in European Community) and (buyer = company) then VAT by default=0. End of rule
@@ -6755,10 +6868,10 @@ function get_default_tva(Societe $thirdparty_seller, Societe $thirdparty_buyer, 
 		}
 
 		if (!$isacompany) {
-			//print 'VATRULE 4';
+			//print 'VATRULE 5';
 			return get_product_vat_for_country($idprod, $thirdparty_seller, $idprodfournprice);
 		} else {
-			//print 'VATRULE 5';
+			//print 'VATRULE 6';
 			return 0;
 		}
 	}
@@ -6775,7 +6888,7 @@ function get_default_tva(Societe $thirdparty_seller, Societe $thirdparty_buyer, 
 
 	// Otherwise the VAT proposed by default=0. End of rule.
 	// Rem: This means that at least one of the 2 is outside the European Community and the country differs
-	//print 'VATRULE 6';
+	//print 'VATRULE 7';
 	return 0;
 }
 
@@ -10537,7 +10650,7 @@ function getAdvancedPreviewUrl($modulepart, $relativepath, $alldata = 0, $param 
 
 		// We need to urlencode the parameter after the dol_escape_js($tmpurl) because  $tmpurl may contain n url with param file=abc%27def if file has a ' inside.
 		// and when we click on href with this javascript string, a urlcode is done by browser, converted the %27 of file param
-		return 'javascript:document_preview(\''.urlencode(dol_escape_js($tmpurl)).'\', \''.urlencode(dol_mimetype($relativepath)).'\', \''.urlencode(dol_escape_js($title)).'\')';
+		return 'javascript:document_preview(\''.urlencode(dol_escape_js($tmpurl)).'\', \''.urlencode(dol_mimetype($relativepath)).'\', \''.rawurlencode(dol_escape_js($title)).'\')';
 	} else {
 		return '';
 	}

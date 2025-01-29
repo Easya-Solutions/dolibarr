@@ -23,6 +23,7 @@ create table llx_c_tva
   rowid             integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entity            integer DEFAULT 1 NOT NULL,
   fk_pays           integer NOT NULL,
+  fk_department_buyer integer DEFAULT NULL,                         -- Id of department for VAT rule or NULL to keep rule on country
   code              varchar(10) DEFAULT '',                         -- a key to describe vat entry, for example FR20
   taux              double  NOT NULL,
   localtax1         varchar(20)  NOT NULL DEFAULT '0',

@@ -287,7 +287,7 @@ if (empty($reshook)) {
 				}
 
 				// Auto assign user
-				if (getDolGlobalString('TICKET_AUTO_ASSIGN_USER_CREATE')) {
+				if ((empty($fk_user_assign) && getDolGlobalInt('TICKET_AUTO_ASSIGN_USER_CREATE') == 1) || (getDolGlobalInt('TICKET_AUTO_ASSIGN_USER_CREATE') == 2)) {
 					$result = $object->assignUser($user, $user->id, 1);
 					$object->add_contact($user->id, "SUPPORTTEC", 'internal');
 				}
@@ -463,7 +463,7 @@ if (empty($reshook)) {
 	// Action to add a message (private or not, with email or not).
 	// This may also send an email (concatenated with email_intro and email footer if checkbox was selected)
 	if ($action == 'add_message' && GETPOSTISSET('btn_add_message') && $permissiontoread) {
-		$ret = $object->newMessage($user, $action, (GETPOST('private_message', 'alpha') == "on" ? 1 : 0), 0);
+		$ret = $object->newMessage($user, $action, GETPOSTINT('private_message'), 0);
 
 		if ($ret > 0) {
 			if (!empty($backtopage)) {
@@ -980,7 +980,7 @@ if ($action == 'create' || $action == 'presend') {
 			}
 			$morehtmlref .= $form->form_thirdparty($url_page_current.'?track_id='.$object->track_id, $object->socid, $action == 'editcustomer' ? 'editcustomer' : 'none', '', 1, 0, 0, array(), 1);
 			if (!empty($object->socid)) {
-				$morehtmlref .= ' - <a href="'.DOL_URL_ROOT.'/ticket/list.php?socid='.$object->socid.'&sortfield=t.datec&sortorder=desc">'.img_picto($langs->trans("Tickets"), 'ticket', 'class="pictofixedwidth"').' '.$langs->trans("TicketHistory").'</a>';
+				$morehtmlref .= ' - <a href="'.DOL_URL_ROOT.'/ticket/list.php?socid='.$object->socid.'&sortfield=t.datec&sortorder=desc'.(getDolGlobalString('TICKET_CLIENT_OTHER_TICKET_ONLY_OPEN')?'&search_fk_statut[]=openall':'').'">'.img_picto($langs->trans("Tickets"), 'ticket', 'class="pictofixedwidth"').' '.$langs->trans("TicketHistory").'</a>';
 			}
 		}
 
