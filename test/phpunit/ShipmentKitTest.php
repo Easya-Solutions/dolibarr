@@ -376,10 +376,13 @@ class ShipmentKitTest extends CommonClassTest
 		$company->client = 1;
 		$company->code_client = 'auto';
 		$company->code_fournisseur = 'auto';
-		$companyId = $company->create($user);
-		if ($companyId <= 0) {
+		$result = $company->fetch(0, $company->ref);
+		if ($result == 0) {
+			$result = $company->create($user);
+		}
+		if ($result < 0) {
 			$error++;
-			$messageList[] = __METHOD__." companyId=".$companyId.", error=".$company->errorsToString();
+			$messageList[] = __METHOD__." result=".$result.", error=".$company->errorsToString();
 		}
 		$list['T1'] = $company;
 
@@ -411,7 +414,10 @@ class ShipmentKitTest extends CommonClassTest
 		$order->initAsSpecimen();
 		$order->ref = 'C1';
 		$order->socid = $company->id;
-		$result = $order->create($user);
+		$result = $order->fetch(0, $order->ref);
+		if ($result == 0) {
+			$result = $order->create($user);
+		}
 		if ($result < 0) {
 			$error++;
 			$messageList[] = __METHOD__." result=".$result.", error=".$order->errorsToString();
