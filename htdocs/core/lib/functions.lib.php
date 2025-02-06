@@ -1694,6 +1694,43 @@ function dolPrintHTML($s)
 }
 
 /**
+ * Return a string ready to be output into an HTML attribute (alt, title, data-html, ...)
+ * With dolPrintHTMLForAttribute(), the content is HTML encode, even if it is already HTML content.
+ *
+ * @param	string	$s						String to print
+ * @param	int		$escapeonlyhtmltags		1=Escape only html tags, not the special chars like accents.
+ * @return	string							String ready for HTML output
+ * @see dolPrintHTML(), dolPrintHTMLFortextArea()
+ */
+function dolPrintHTMLForAttribute($s, $escapeonlyhtmltags = 0)
+{
+	// The dol_htmlentitiesbr will convert simple text into html, including switching accent into HTML entities
+	// The dol_escape_htmltag will escape html tags.
+	if ($escapeonlyhtmltags) {
+		return dol_escape_htmltag(dol_string_onlythesehtmltags($s, 1, 0, 0, 0, array('br', 'b', 'font', 'hr', 'span')), 1, -1, '', 1, 1);
+	} else {
+		return dol_escape_htmltag(dol_string_onlythesehtmltags(dol_htmlentitiesbr($s), 1, 0, 0, 0, array('br', 'b', 'font', 'hr', 'span')), 1, -1, '', 0, 1);
+	}
+}
+
+/**
+ * Return a string ready to be output on a href attribute (this one need a special because we need content is HTML with no way to detect it is HTML).
+ * With dolPrintHTMLForAttribute(), the content is HTML encode, even if it is already HTML content.
+ *
+ * @param	string	$s		String to print
+ * @return	string			String ready for HTML output
+ * @see dolPrintHTML(), dolPrintHTMLFortextArea()
+ */
+function dolPrintHTMLForAttributeUrl($s)
+{
+	// The dol_htmlentitiesbr has been removed compared to dolPrintHTMLForAttribute because we know content is a HTML URL string (even if we have no way to detect it automatically)
+	// The dol_escape_htmltag will escape html chars.
+	$escapeonlyhtmltags = 1;
+	return dol_escape_htmltag(dol_string_onlythesehtmltags($s, 1, 1, 1, 0, array()), 0, 0, '', $escapeonlyhtmltags, 1);
+}
+
+
+/**
  * Return a string ready to be output on input textarea
  * To use text inside an attribute, use can use only dol_escape_htmltag()
  *
