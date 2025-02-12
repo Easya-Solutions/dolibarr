@@ -338,7 +338,7 @@ if ($type_element == 'contract') { 	// Order
 }
 
 $parameters = array();
-$reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters); // Note that $action and $object may have been modified by hook
+$reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $object); // Note that $action and $object may have been modified by hook
 
 if (!empty($sql_select)) {
 	$sql = $sql_select;
@@ -496,6 +496,7 @@ if ($sql_select) {
 
 		if (is_object($documentstaticline)) {
 			$documentstaticline->statut = $objp->status;
+			$documentstaticline->status = $objp->status;
 		}
 
 		print '<tr class="oddeven">';
