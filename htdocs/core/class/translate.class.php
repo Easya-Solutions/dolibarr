@@ -580,7 +580,7 @@ class Translate
 	 */
 	private function getTradFromKey($key)
 	{
-		global $conf, $db;
+		global $db;
 
 		if (!is_string($key)) {
 			//xdebug_print_function_stack('ErrorBadValueForParamNotAString');

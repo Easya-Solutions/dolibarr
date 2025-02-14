@@ -45,6 +45,7 @@ require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/discount.class.php';	// backport from Dolibarr v21 to correct the display of the remaining amount to be paid
 
 // Load translation files required by the page
 $langs->loadLangs(array('products', 'bills', 'companies', 'projects'));
@@ -1433,6 +1434,7 @@ $facturestatic = new FactureFournisseur($db);
 $supplierstatic = new Fournisseur($db);
 $projectstatic = new Project($db);
 $userstatic = new User($db);
+$discount = new DiscountAbsolute($db);	// backport from Dolibarr v21 to correct the display of the remaining amount to be paid
 
 // Loop on record
 // --------------------------------------------------------------------
@@ -1472,9 +1474,14 @@ while ($i < $imaxinloop) {
 	$facturestatic->id = $obj->facid;
 	$facturestatic->ref = $obj->ref;
 	$facturestatic->type = $obj->type;
+	// backport from Dolibarr v21 to correct the display of the remaining amount to be paid
+	$facturestatic->total_ht = $obj->total_ht;
+	$facturestatic->total_tva = $obj->total_vat;
+	$facturestatic->total_ttc = $obj->total_ttc;
 	$facturestatic->ref_supplier = $obj->ref_supplier;
 	$facturestatic->date_echeance = $db->jdate($obj->datelimite);
 	$facturestatic->statut = $obj->fk_statut;
+	$facturestatic->status = $obj->fk_statut;	// backport from Dolibarr v21 to correct the display of the remaining amount to be paid
 	$facturestatic->note_public = $obj->note_public;
 	$facturestatic->note_private = $obj->note_private;
 	$facturestatic->multicurrency_code = $obj->multicurrency_code;
@@ -1499,12 +1506,27 @@ while ($i < $imaxinloop) {
 	$totalcreditnotes = $facturestatic->getSumCreditNotesUsed();
 	$totaldeposits = $facturestatic->getSumDepositsUsed();
 	$totalpay = $paiement + $totalcreditnotes + $totaldeposits;
-	$remaintopay = $obj->total_ttc - $totalpay;
+	// backport from Dolibarr v21 to correct the display of the remaining amount to be paid
+	$remaintopay = price2num($facturestatic->total_ttc - $totalpay);
 	$multicurrency_paiement = $facturestatic->getSommePaiement(1);
 	$multicurrency_totalcreditnotes = $facturestatic->getSumCreditNotesUsed(1);
 	$multicurrency_totaldeposits = $facturestatic->getSumDepositsUsed(1);
 	$multicurrency_totalpay = $multicurrency_paiement + $multicurrency_totalcreditnotes + $multicurrency_totaldeposits;
 	$multicurrency_remaintopay = price2num($facturestatic->multicurrency_total_ttc - $multicurrency_totalpay);
+
+	// backport from Dolibarr v21 to correct the display of the remaining amount to be paid
+	if ($facturestatic->status == FactureFournisseur::STATUS_CLOSED && $facturestatic->close_code == 'discount_vat') {		// If invoice closed with discount for anticipated payment
+		$remaintopay = 0;
+		$multicurrency_remaintopay = 0;
+	}
+	if ($facturestatic->type == FactureFournisseur::TYPE_CREDIT_NOTE && $obj->paye == 1) {		// If credit note closed, we take into account the amount not yet consumed
+		$remaincreditnote = $discount->getAvailableDiscounts($thirdparty, '', 'rc.fk_facture_source='.$facturestatic->id);
+		$remaintopay = -$remaincreditnote;
+		$totalpay = price2num($facturestatic->total_ttc - $remaintopay);
+		$multicurrency_remaincreditnote = $discount->getAvailableDiscounts($thirdparty, '', 'rc.fk_facture_source='.$facturestatic->id, 0, 0, 1);
+		$multicurrency_remaintopay = -$multicurrency_remaincreditnote;
+		$multicurrency_totalpay = price2num($facturestatic->multicurrency_total_ttc - $multicurrency_remaintopay);
+	}
 
 	$facturestatic->alreadypaid = ($paiement ? $paiement : 0);
 	$facturestatic->paye = $obj->paye;

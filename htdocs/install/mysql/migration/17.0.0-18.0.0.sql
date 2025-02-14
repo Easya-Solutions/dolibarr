@@ -490,7 +490,7 @@ ALTER TABLE llx_partnership ADD COLUMN email_partnership varchar(64) after fk_me
 ALTER TABLE llx_contratdet ADD INDEX idx_contratdet_statut (statut);
 
 ALTER TABLE fk_product_price_product DROP FOREIGN KEY fk_product_price_product;
- 
+
 ALTER TABLE llx_societe_rib ADD COLUMN ext_payment_site varchar(128);
 
 -- Drop the composite unique index that exists on llx_commande_fournisseur to rebuild a new one without the fk_soc.
@@ -646,6 +646,14 @@ ALTER TABLE llx_societe_account MODIFY COLUMN site varchar(128) NOT NULL;
 ALTER TABLE llx_c_tva ADD COLUMN fk_department_buyer integer DEFAULT NULL AFTER fk_pays;
 ALTER TABLE llx_c_tva ADD INDEX idx_tva_fk_department_buyer (fk_department_buyer);
 ALTER TABLE llx_c_tva ADD CONSTRAINT fk_tva_fk_department_buyer FOREIGN KEY (fk_department_buyer) REFERENCES llx_c_departements (rowid);
+
+-- linked object
+ALTER TABLE llx_element_element MODIFY COLUMN sourcetype VARCHAR(64) NOT NULL;
+ALTER TABLE llx_element_element MODIFY COLUMN targettype VARCHAR(64) NOT NULL;
+ALTER TABLE llx_c_type_contact MODIFY COLUMN element VARCHAR(64) NOT NULL;
+
+-- delete a constant that should not be set
+DELETE FROM llx_const WHERE name = 'INVOICE_USE_RETAINED_WARRANTY' AND value = -1;
 
 -- Dispatcher for virtual products
 ALTER TABLE llx_expeditiondet ADD COLUMN fk_product integer NULL AFTER fk_origin_line;

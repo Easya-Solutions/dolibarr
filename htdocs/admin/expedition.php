@@ -456,13 +456,23 @@ if (empty($conf->global->PDF_ALLOW_HTML_FOR_FREE_TEXT)) {
 	$doleditor = new DolEditor($variablename, getDolGlobalString($variablename), '', 80, 'dolibarr_notes');
 	print $doleditor->Create();
 }
+print "<td></td>";
 print "</td></tr>\n";
 
 print '<tr><td>';
 print $form->textwithpicto($langs->trans("WatermarkOnDraftContractCards"), $htmltext, 1, 'help', '', 0, 2, 'watermarktooltip');
 print '</td><td>';
 print '<input class="flat minwidth200" type="text" name="SHIPPING_DRAFT_WATERMARK" value="'.dol_escape_htmltag(getDolGlobalString('SHIPPING_DRAFT_WATERMARK')).'">';
+print "<td></td>";
 print "</td></tr>\n";
+
+// Pre fill shipment qty option
+print '<tr class="">';
+print '<td>'.$langs->trans("DontPrefillShipmentQty");
+print '</td>';
+print '<td>';
+print ajax_constantonoff('SHIPMENT_DONT_PREFILL_QTY');
+print '</td></tr>';
 
 print '</table>';
 

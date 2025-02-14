@@ -246,7 +246,7 @@ if (empty($reshook)) {
 			$object->note_private = GETPOST('note_private', 'alpha');
 			$object->note_public				= GETPOST('note_public', 'alpha');
 			$object->fk_project					= GETPOST('projectid', 'int');
-			$object->remise_percent = price2num(GETPOST('remise_percent'), '', 2);
+			$object->remise_percent = (float) price2num(GETPOST('remise_percent'), '', 2);
 			$object->ref = GETPOST('ref', 'alpha');
 			$object->ref_customer				= GETPOST('ref_customer', 'alpha');
 			$object->ref_supplier				= GETPOST('ref_supplier', 'alpha');
@@ -425,16 +425,16 @@ if (empty($reshook)) {
 		$rang = count($object->lines) + 1;
 
 		if (GETPOST('price_ht') !== '') {
-			$price_ht = price2num(GETPOST('price_ht'), 'MU', 2);
+			$price_ht = (float) price2num(GETPOST('price_ht'), 'MU', 2);
 		}
 		if (GETPOST('multicurrency_price_ht') !== '') {
-			$price_ht_devise = price2num(GETPOST('multicurrency_price_ht'), 'CU', 2);
+			$price_ht_devise = (float) price2num(GETPOST('multicurrency_price_ht'), 'CU', 2);
 		}
 		if (GETPOST('price_ttc') !== '') {
-			$price_ttc = price2num(GETPOST('price_ttc'), 'MU', 2);
+			$price_ttc = (float) price2num(GETPOST('price_ttc'), 'MU', 2);
 		}
 		if (GETPOST('multicurrency_price_ttc') !== '') {
-			$price_ttc_devise = price2num(GETPOST('multicurrency_price_ttc'), 'CU', 2);
+			$price_ttc_devise = (float) price2num(GETPOST('multicurrency_price_ttc'), 'CU', 2);
 		}
 
 		if (GETPOST('prod_entry_mode', 'alpha') == 'free') {
@@ -450,8 +450,8 @@ if (empty($reshook)) {
 
 		$tva_tx = GETPOST('tva_tx', 'alpha');
 
-		$qty = price2num(GETPOST('qty'.$predef, 'alpha'), 'MS');
-		$remise_percent = (GETPOSTISSET('remise_percent'.$predef) ? price2num(GETPOST('remise_percent'.$predef), 2) : 0);
+		$qty = (float) price2num(GETPOST('qty'.$predef, 'alpha'), 'MS');
+		$remise_percent = (GETPOSTISSET('remise_percent'.$predef) ? (float) price2num(GETPOST('remise_percent'.$predef), 2) : 0);
 		if (empty($remise_percent)) {
 			$remise_percent = 0;
 		}
@@ -533,17 +533,17 @@ if (empty($reshook)) {
 					}
 				}
 
-				$tmpvat = price2num(preg_replace('/\s*\(.*\)/', '', $tva_tx));
-				$tmpprodvat = price2num(preg_replace('/\s*\(.*\)/', '', $prod->tva_tx));
+				$tmpvat = (float) price2num(preg_replace('/\s*\(.*\)/', '', $tva_tx));
+				$tmpprodvat = (float) price2num(preg_replace('/\s*\(.*\)/', '', $prod->tva_tx));
 
 				// Set unit price to use
 				if (!empty($price_ht) || $price_ht === '0') {
-					$pu_ht = price2num($price_ht, 'MU');
-					$pu_ttc = price2num($pu_ht * (1 + ($tmpvat / 100)), 'MU');
+					$pu_ht = (float) price2num($price_ht, 'MU');
+					$pu_ttc = (float) price2num($pu_ht * (1 + ($tmpvat / 100)), 'MU');
 					$price_base_type = 'HT';
 				} elseif (!empty($price_ttc) || $price_ttc === '0') {
-					$pu_ttc = price2num($price_ttc, 'MU');
-					$pu_ht = price2num($pu_ttc / (1 + ($tmpvat / 100)), 'MU');
+					$pu_ttc = (float) price2num($price_ttc, 'MU');
+					$pu_ht = (float) price2num($pu_ttc / (1 + ($tmpvat / 100)), 'MU');
 					$price_base_type = 'TTC';
 				}
 
@@ -562,8 +562,8 @@ if (empty($reshook)) {
 
 				$fk_unit = $prod->fk_unit;
 			} else {
-				$pu_ht = price2num($price_ht, 'MU');
-				$pu_ttc = price2num($price_ttc, 'MU');
+				$pu_ht = (float) price2num($price_ht, 'MU');
+				$pu_ttc = (float) price2num($price_ttc, 'MU');
 				$tva_npr = (preg_match('/\*/', $tva_tx) ? 1 : 0);
 				if (empty($tva_tx)) {
 					$tva_npr = 0;
@@ -571,19 +571,19 @@ if (empty($reshook)) {
 				$tva_tx = str_replace('*', '', $tva_tx);
 				$desc = $product_desc;
 				$fk_unit = GETPOST('units', 'alpha');
-				$pu_ht_devise = price2num($price_ht_devise, 'MU');
-				$pu_ttc_devise = price2num($price_ttc_devise, 'MU');
+				$pu_ht_devise = (float) price2num($price_ht_devise, 'MU');
+				$pu_ttc_devise = (float) price2num($price_ttc_devise, 'MU');
 
-				$tmpvat = price2num(preg_replace('/\s*\(.*\)/', '', $tva_tx));
+				$tmpvat = (float) price2num(preg_replace('/\s*\(.*\)/', '', $tva_tx));
 
 				// Set unit price to use
 				if (!empty($price_ht) || $price_ht === '0') {
-					$pu_ht = price2num($price_ht, 'MU');
-					$pu_ttc = price2num($pu_ht * (1 + ((float) $tmpvat / 100)), 'MU');
+					$pu_ht = (float) price2num($price_ht, 'MU');
+					$pu_ttc = (float) price2num($pu_ht * (1 + ((float) $tmpvat / 100)), 'MU');
 					$price_base_type = 'HT';
 				} elseif (!empty($price_ttc) || $price_ttc === '0') {
-					$pu_ttc = price2num($price_ttc, 'MU');
-					$pu_ht = price2num($pu_ttc / (1 + ((float) $tmpvat / 100)), 'MU');
+					$pu_ttc = (float) price2num($price_ttc, 'MU');
+					$pu_ht = (float) price2num($pu_ttc / (1 + ((float) $tmpvat / 100)), 'MU');
 					$price_base_type = 'TTC';
 				}
 			}
@@ -605,7 +605,7 @@ if (empty($reshook)) {
 			}
 
 			if (((!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance))
-				|| empty($conf->global->MAIN_USE_ADVANCED_PERMS)) && ($price_min && (price2num($pu_ht) * (1 - price2num($remise_percent) / 100) < price2num($price_min)))) {
+				|| empty($conf->global->MAIN_USE_ADVANCED_PERMS)) && ($price_min && ((float) price2num($pu_ht) * (1 - (float) price2num($remise_percent) / 100) < (float) price2num($price_min)))) {
 				$object->error = $langs->trans("CantBeLessThanMinPrice", price(price2num($price_min, 'MU'), 0, $langs, 0, 0, -1, $conf->currency));
 				$result = -1;
 			} else {
@@ -744,7 +744,7 @@ if (empty($reshook)) {
 
 			// ajout prix d'achat
 			if (GETPOST('buying_price')) {
-				$pa_ht = price2num(GETPOST('buying_price'), '', 2);
+				$pa_ht = (float) price2num(GETPOST('buying_price'), '', 2);
 			} else {
 				$pa_ht = null;
 			}
@@ -754,8 +754,8 @@ if (empty($reshook)) {
 			// update price_ht with discount
 			// TODO Use object->updateline instead objedtline->update
 
-			$price_ht =  price2num(GETPOST('elprice'), 'MU');
-			$remise_percent = price2num(GETPOST('elremise_percent'), 2);
+			$price_ht =  (float) price2num(GETPOST('elprice'), 'MU');
+			$remise_percent = (float) price2num(GETPOST('elremise_percent'), 2);
 			if ($remise_percent > 0) {
 				$remise = round(($price_ht * $remise_percent / 100), 2);
 				$price_ht = ($price_ht - $remise);
@@ -764,8 +764,8 @@ if (empty($reshook)) {
 			$objectline->fk_product = GETPOST('idprod', 'int');
 			$objectline->description = GETPOST('product_desc', 'restricthtml');
 			$objectline->price_ht = $price_ht;
-			$objectline->subprice = price2num(GETPOST('elprice'), 'MU');
-			$objectline->qty = price2num(GETPOST('elqty'), 'MS');
+			$objectline->subprice = (float) price2num(GETPOST('elprice'), 'MU');
+			$objectline->qty = (float) price2num(GETPOST('elqty'), 'MS');
 			$objectline->remise_percent = $remise_percent;
 			$objectline->tva_tx = ($txtva ? $txtva : 0); // Field may be disabled, so we use vat rate 0
 			$objectline->vat_src_code = $vat_src_code;
@@ -1095,7 +1095,7 @@ if ($action == 'create') {
 		$soc->fetch($socid);
 	}
 
-	// Initialize variable for PHP 8.2 compatibility 
+	// Initialize variable for PHP 8.2 compatibility
 	$objectsrc = null;
 	if (GETPOST('origin') && GETPOST('originid', 'int')) {
 		// Parse element/subelement (ex: project_task)

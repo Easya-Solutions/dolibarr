@@ -773,10 +773,6 @@ if ($object->id > 0 || !empty($object->ref)) {
 						print '</td>'; // Dispatch column
 						print '<td></td>'; // Warehouse column
 
-						/*$sql = "SELECT cfd.rowid, cfd.qty, cfd.fk_entrepot, cfd.batch, cfd.eatby, cfd.sellby, cfd.fk_product";
-						$sql .= " FROM ".$db->prefix()."commande_fournisseur_dispatch as cfd";
-						$sql .= " WHERE cfd.fk_commandefourndet = ".(int) $objp->rowid;*/
-
 						$sql  = "SELECT ed.rowid";
 						$sql .= ", cd.fk_product";
 						$sql .= ", ".$db->ifsql('eb.rowid IS NULL', 'ed.qty', 'eb.qty')." as qty";

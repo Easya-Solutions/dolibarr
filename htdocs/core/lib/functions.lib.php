@@ -1898,8 +1898,10 @@ function dol_syslog($message, $level = LOG_INFO, $ident = 0, $suffixinfilename =
 	if (!empty($message)) {
 		// Test log level
 		$logLevels = array(LOG_EMERG=>'EMERG', LOG_ALERT=>'ALERT', LOG_CRIT=>'CRITICAL', LOG_ERR=>'ERR', LOG_WARNING=>'WARN', LOG_NOTICE=>'NOTICE', LOG_INFO=>'INFO', LOG_DEBUG=>'DEBUG');
+
 		if (!array_key_exists($level, $logLevels)) {
-			throw new Exception('Incorrect log level');
+			dol_syslog('Error Bad Log Level '.$level, LOG_ERR);
+			$level = $logLevels[LOG_ERR];
 		}
 		if ($level > getDolGlobalInt('SYSLOG_LEVEL')) {
 			return;
@@ -9376,10 +9378,11 @@ function dol_osencode($str)
  * 		@param	string	$fieldid		Field to get
  *      @param  int		$entityfilter	Filter by entity
  *      @param	string	$filters		Filters to add. WARNING: string must be escaped for SQL and not coming from user input.
+ *      @param	bool    $useCache       If true (default), cache will be queried and updated.
  *      @return int						<0 if KO, Id of code if OK
  *      @see $langs->getLabelFromKey
  */
-function dol_getIdFromCode($db, $key, $tablename, $fieldkey = 'code', $fieldid = 'id', $entityfilter = 0, $filters = '')
+function dol_getIdFromCode($db, $key, $tablename, $fieldkey = 'code', $fieldid = 'id', $entityfilter = 0, $filters = '', $useCache = true)
 {
 	global $cache_codes;
 
@@ -9389,8 +9392,8 @@ function dol_getIdFromCode($db, $key, $tablename, $fieldkey = 'code', $fieldid =
 	}
 
 	// Check in cache
-	if (isset($cache_codes[$tablename][$key][$fieldid])) {	// Can be defined to 0 or ''
-		return $cache_codes[$tablename][$key][$fieldid]; // Found in cache
+	if ($useCache && isset($cache_codes[$tablename][$fieldkey][$fieldid][$entityfilter][$filters][$key])) {	// Can be defined to 0 or ''
+		return $cache_codes[$tablename][$fieldkey][$fieldid][$entityfilter][$filters][$key]; // Found in cache
 	}
 
 	dol_syslog('dol_getIdFromCode (value for field '.$fieldid.' from key '.$key.' not found into cache)', LOG_DEBUG);
@@ -9408,13 +9411,15 @@ function dol_getIdFromCode($db, $key, $tablename, $fieldkey = 'code', $fieldid =
 	$resql = $db->query($sql);
 	if ($resql) {
 		$obj = $db->fetch_object($resql);
+		$valuetoget = '';
 		if ($obj) {
-			$cache_codes[$tablename][$key][$fieldid] = $obj->valuetoget;
-		} else {
-			$cache_codes[$tablename][$key][$fieldid] = '';
+			$valuetoget = $obj->valuetoget;
 		}
 		$db->free($resql);
-		return $cache_codes[$tablename][$key][$fieldid];
+		if ($useCache) {
+			$cache_codes[$tablename][$fieldkey][$fieldid][$entityfilter][$filters][$key] = $valuetoget;
+		}
+		return $valuetoget;
 	} else {
 		return -1;
 	}
@@ -10648,7 +10653,7 @@ function getAdvancedPreviewUrl($modulepart, $relativepath, $alldata = 0, $param 
 
 		// We need to urlencode the parameter after the dol_escape_js($tmpurl) because  $tmpurl may contain n url with param file=abc%27def if file has a ' inside.
 		// and when we click on href with this javascript string, a urlcode is done by browser, converted the %27 of file param
-		return 'javascript:document_preview(\''.urlencode(dol_escape_js($tmpurl)).'\', \''.urlencode(dol_mimetype($relativepath)).'\', \''.urlencode(dol_escape_js($title)).'\')';
+		return 'javascript:document_preview(\''.urlencode(dol_escape_js($tmpurl)).'\', \''.urlencode(dol_mimetype($relativepath)).'\', \''.rawurlencode(dol_escape_js($title)).'\')';
 	} else {
 		return '';
 	}
@@ -11426,11 +11431,11 @@ function dolGetStatus($statusLabel = '', $statusLabelShort = '', $html = '', $st
  *                              'classOverride' => '' // to replace class attribute of the button
  *                              ],
  *                              'confirm' => [
- *                              'url' => 'http://', // Overide Url to go when user click on action btn, if empty default url is $url.?confirm=yes, for no js compatibility use $url for fallback confirm.
- *                              'title' => '', // Overide title of modal,  if empty default title use "ConfirmBtnCommonTitle" lang key
- *                              'action-btn-label' => '', // Overide label of action button,  if empty default label use "Confirm" lang key
- *                              'cancel-btn-label' => '', // Overide label of cancel button,  if empty default label use "CloseDialog" lang key
- *                              'content' => '', // Overide text of content,  if empty default content use "ConfirmBtnCommonContent" lang key
+ *                              'url' => 'http://', // Override Url to go when user click on action btn, if empty default url is $url.?confirm=yes, for no js compatibility use $url for fallback confirm.
+ *                              'title' => '', // Override title of modal,  if empty default title use "ConfirmBtnCommonTitle" lang key
+ *                              'action-btn-label' => '', // Override label of action button,  if empty default label use "Confirm" lang key
+ *                              'cancel-btn-label' => '', // Override label of cancel button,  if empty default label use "CloseDialog" lang key
+ *                              'content' => '', // Override text of content,  if empty default content use "ConfirmBtnCommonContent" lang key
  *                              'modal' => true, // true|false to display dialog as a modal (with dark background)
  *                              'isDropDrown' => false, // true|false to display dialog as a dropdown (with dark background)
  *                              ],
@@ -11906,6 +11911,26 @@ function getElementProperties($element_type)
 		$classpath = 'compta/tva/class';
 		$module = 'tax';
 		$subdir = '/vat';
+	} elseif ($element_type == 'facturerec') {
+		$classpath = 'compta/facture/class';
+		$classfile = 'facture-rec';
+		$module = 'facture';
+		$classname = 'FactureRec';
+	} elseif ($element_type == 'conferenceorbooth') {
+		$classpath = 'eventorganization/class';
+		$classfile = 'conferenceorbooth';
+		$module = 'eventorganization';
+		$classname = 'ConferenceOrBooth';
+	} elseif ($element_type == 'conferenceorboothattendee') {
+		$classpath = 'eventorganization/class';
+		$classfile = 'conferenceorboothattendee';
+		$module = 'eventorganization';
+		$classname = 'ConferenceOrBoothAttendee';
+	} elseif ($element_type == 'subscription') {
+		$classpath = 'adherents/class';
+		$classfile = 'subscription';
+		$module = 'adherents';
+		$classname = 'Subscription';
 	}
 
 	if (empty($classfile)) {

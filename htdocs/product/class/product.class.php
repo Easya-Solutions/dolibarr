@@ -5096,7 +5096,9 @@ class Product extends CommonObject
 		$res = $this->db->query($sql);
 		if ($res) {
 			$prods = array();
-			if ($this->db->num_rows($sql) > 0) $parents[] = $id;
+			if ($this->db->num_rows($res) > 0) {
+				$parents[] = $id;
+			}
 
 			while ($rec = $this->db->fetch_array($res)) {
 				if (in_array($rec['id'], $parents)) {
@@ -5117,8 +5119,7 @@ class Product extends CommonObject
 				//$prods[$this->db->escape($rec['label'])]= array(0=>$rec['id'],1=>$rec['qty'],2=>$rec['fk_product_type']);
 				//$prods[$this->db->escape($rec['label'])]= array(0=>$rec['id'],1=>$rec['qty']);
 				if (empty($firstlevelonly)) {
-					//$parents[] = $rec['rowid'];
-					$listofchilds = $this->getChildsArbo($rec['rowid'], 0, $level + 1, array_push($parents, $rec['rowid']));
+					$listofchilds = $this->getChildsArbo($rec['rowid'], 0, $level + 1, $parents);
 					foreach ($listofchilds as $keyChild => $valueChild) {
 						$prods[$rec['rowid']]['childs'][$keyChild] = $valueChild;
 					}

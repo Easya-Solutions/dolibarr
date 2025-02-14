@@ -237,6 +237,12 @@ class Categories extends DolibarrApi
 			if ($field == 'id') {
 				continue;
 			}
+			if ($field == 'array_options' && is_array($value)) {
+				foreach ($value as $index => $val) {
+					$this->category->array_options[$index] = $this->_checkValForAPI($field, $val, $this->category);
+				}
+				continue;
+			}
 			$this->category->$field = $value;
 		}
 
