@@ -25,7 +25,7 @@ create table llx_expeditiondet
   fk_expedition     integer NOT NULL,
   fk_origin_line    integer,           						-- ID of line of source object (proposal, sale order)
   fk_product        integer,  								-- ID of product. If empty, you can retrieve it using fk_element/element_type link
-  fk_parent         integer,                                -- Id of parent line
+  fk_parent         integer,                                -- ID of parent line
   qty               real,              						-- Quantity
   fk_entrepot       integer,           						-- Warehouse for departure of product
   rang              integer  DEFAULT 0
