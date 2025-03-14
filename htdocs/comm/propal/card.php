@@ -120,6 +120,10 @@ $usercanvalidate = ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $usercancr
 $usercansend = (empty($conf->global->MAIN_USE_ADVANCED_PERMS) || (!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && !empty($user->rights->propal->propal_advance->send)));
 
 $usermustrespectpricemin = ((!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance)) || empty($conf->global->MAIN_USE_ADVANCED_PERMS));
+$usercanreopen = ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $usercancreate) || (!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && !empty($user->rights->propal->propal_advance->reopen)));
+if (!empty($conf->global->PROPAL_DISALLOW_REOPEN)) {
+	$usercanreopen = false;
+}
 $usercancreateorder = $user->hasRight('commande', 'creer');
 $usercancreateinvoice = $user->hasRight('facture', 'creer');
 $usercancreatecontract = $user->hasRight('contrat', 'creer');
@@ -789,7 +793,7 @@ if (empty($reshook)) {
 				}
 			}
 		}
-	} elseif ($action == 'confirm_reopen' && $usercanclose && !GETPOST('cancel', 'alpha')) {
+	} elseif ($action == 'confirm_reopen' && ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $usercanclose) || $usercanreopen) && !GETPOST('cancel', 'alpha')) {
 		// Reopen proposal
 		// prevent browser refresh from reopening proposal several times
 		if ($object->statut == Propal::STATUS_SIGNED || $object->statut == Propal::STATUS_NOTSIGNED || $object->statut == Propal::STATUS_BILLED) {
@@ -3055,7 +3059,7 @@ if ($action == 'create') {
 				}
 
 				// ReOpen
-				if ( (( !empty($conf->global->PROPAL_REOPEN_UNSIGNED_ONLY) && $object->statut == Propal::STATUS_NOTSIGNED) || (empty($conf->global->PROPAL_REOPEN_UNSIGNED_ONLY) && ($object->statut == Propal::STATUS_SIGNED || $object->statut == Propal::STATUS_NOTSIGNED || $object->statut == Propal::STATUS_BILLED))) && $usercanclose) {
+				if ( (( !empty($conf->global->PROPAL_REOPEN_UNSIGNED_ONLY) && $object->statut == Propal::STATUS_NOTSIGNED) || (empty($conf->global->PROPAL_REOPEN_UNSIGNED_ONLY) && ($object->statut == Propal::STATUS_SIGNED || $object->statut == Propal::STATUS_NOTSIGNED || $object->statut == Propal::STATUS_BILLED))) && ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $usercanclose) || $usercanreopen)) {
 					print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=reopen&token='.newToken().(empty($conf->global->MAIN_JUMP_TAG) ? '' : '#reopen').'"';
 					print '>'.$langs->trans('ReOpen').'</a>';
 				}

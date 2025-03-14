@@ -6889,7 +6889,7 @@ abstract class CommonObject
 		// Special case that force options and type ($type can be integer, varchar, ...)
 		if (!empty($this->fields[$key]['arrayofkeyval']) && is_array($this->fields[$key]['arrayofkeyval'])) {
 			$param['options'] = $this->fields[$key]['arrayofkeyval'];
-			$type = 'select';
+			$type = (($this->fields[$key]['type'] == 'checkbox') ? $this->fields[$key]['type'] : 'select');
 		}
 
 		$label = $this->fields[$key]['label'];
@@ -7499,7 +7499,7 @@ abstract class CommonObject
 			$type = 'varchar'; // convert varchar(xx) int varchar
 		}
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
-			$type = 'select';
+			$type = (($this->fields[$key]['type'] == 'checkbox') ? $this->fields[$key]['type'] : 'select');
 		}
 		if (preg_match('/^integer:(.*):(.*)/i', $val['type'], $reg)) {
 			$type = 'link';
@@ -7629,7 +7629,7 @@ abstract class CommonObject
 			$selectkey = "rowid";
 			$keyList = 'rowid';
 
-			if (count($InfoFieldList) > 4 && !empty($InfoFieldList[4])) {
+			if (count($InfoFieldList) > 2 && !empty($InfoFieldList[2])) {
 				$selectkey = $InfoFieldList[2];
 				$keyList = $InfoFieldList[2].' as rowid';
 			}

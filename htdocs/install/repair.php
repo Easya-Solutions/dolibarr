@@ -1320,7 +1320,55 @@ if ($ok && GETPOST('force_utf8mb4_on_tables', 'alpha')) {
 		if ($force_utf8mb4_on_tables == 'confirmed') {
 			$sql = 'SET FOREIGN_KEY_CHECKS=0';
 			print '<!-- '.$sql.' -->';
+			print '<tr><td colspan="2">'.$sql.'</td></tr>';
 			$resql = $db->query($sql);
+		}
+
+		$foreignkeystorestore = array();
+
+		// First loop to delete foreign keys
+		foreach ($listoftables as $table) {
+			// do not convert llx_const if mysql encrypt/decrypt is used
+			if ($conf->db->dolibarr_main_db_encryption != 0 && preg_match('/\_const$/', $table[0])) {
+				continue;
+			}
+			if ($table[1] == 'VIEW') {
+				print '<tr><td colspan="2">'.$table[0].' is a '.$table[1].' <span class="opacitymedium">(Skipped)</span></td></tr>';
+				continue;
+			}
+
+			// Special case of tables with foreign key on varchar fields
+			$arrayofforeignkey = array(
+				'llx_accounting_account' => 'fk_accounting_account_fk_pcg_version',
+				'llx_accounting_system' => 'fk_accounting_account_fk_pcg_version',
+				'llx_c_type_contact' => 'fk_societe_commerciaux_fk_c_type_contact_code',
+				'llx_societe_commerciaux' => 'fk_societe_commerciaux_fk_c_type_contact_code',
+				// BEGIN tables specific to EASYA modules
+				'0_llx_banking4dolibarr_bank_record' => 'fk_b4d_bank_record_commission_currency',
+				'1_llx_banking4dolibarr_bank_record' => 'fk_b4d_bank_record_original_currency',
+				'0_llx_c_currencies' => 'fk_b4d_bank_record_commission_currency',
+				'1_llx_c_currencies' => 'fk_b4d_bank_record_original_currency',
+				// END tables specific to EASYA modules
+			);
+
+			foreach ($arrayofforeignkey as $tmptable => $foreignkeyname) {
+				// BEGIN EASYA replacement
+				// if ($table[0] == $tmptable) {
+				if ($table[0] == $tmptable || $table[0] == preg_replace('/^[0-9]_/', '', $tmptable)) {
+				// END EASYA replacement
+
+					print '<tr><td colspan="2">';
+					$sqltmp = "ALTER TABLE ".$db->sanitize($table[0])." DROP FOREIGN KEY ".$db->sanitize($foreignkeyname);
+					print $sqltmp;
+					if ($force_utf8mb4_on_tables == 'confirmed') {
+						$resqltmp = $db->query($sqltmp);
+					} else {
+						print ' - <span class="opacitymedium">Disabled</span>';
+					}
+					print '</td></tr>';
+					$foreignkeystorestore[$tmptable] = $foreignkeyname;
+				}
+			}
 		}
 
 		foreach ($listoftables as $table) {
@@ -1329,14 +1377,20 @@ if ($ok && GETPOST('force_utf8mb4_on_tables', 'alpha')) {
 				continue;
 			}
 			if ($table[1] == 'VIEW') {
-				print '<tr><td colspan="2">'.$table[0].' is a '.$table[1].' (Skipped)</td></tr>';
+				print '<tr><td colspan="2">'.$table[0].' is a '.$table[1].' <span class="opacitymedium">(Skipped)</span></td></tr>';
 				continue;
+			}
+
+			$collation = 'utf8mb4_unicode_ci';
+			$defaultcollation = $db->getDefaultCollationDatabase();
+			if (preg_match('/general/', $defaultcollation)) {
+				$collation = 'utf8mb4_general_ci';
 			}
 
 			print '<tr><td colspan="2">';
 			print $table[0];
-			$sql1 = "ALTER TABLE ".$table[0]." ROW_FORMAT=dynamic";
-			$sql2 = "ALTER TABLE ".$table[0]." CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+			$sql1 = "ALTER TABLE ".$db->sanitize($table[0])." ROW_FORMAT=dynamic";
+			$sql2 = "ALTER TABLE ".$db->sanitize($table[0])." CONVERT TO CHARACTER SET utf8mb4 COLLATE ".$db->sanitize($collation);
 			print '<!-- '.$sql1.' -->';
 			print '<!-- '.$sql2.' -->';
 			if ($force_utf8mb4_on_tables == 'confirmed') {
@@ -1346,11 +1400,39 @@ if ($ok && GETPOST('force_utf8mb4_on_tables', 'alpha')) {
 				} else {
 					$resql2 = false;
 				}
-				print ' - Done ('.(($resql1 && $resql2) ? 'OK' : 'KO').')';
+				print ' - Done '.(($resql1 && $resql2) ? '<span class="opacitymedium">(OK)</span>' : '<span class="error" title="'.dol_escape_htmltag($db->lasterror).'">(KO)</span>');
 			} else {
-				print ' - Disabled';
+				print ' - <span class="opacitymedium">Disabled</span>';
 			}
 			print '</td></tr>';
+			flush();
+			ob_flush();
+		}
+
+		// Restore dropped foreign keys
+		foreach ($foreignkeystorestore as $tmptable => $foreignkeyname) {
+			// BEGIN ADD Easya
+			$tmptable = preg_replace('/^[0-9]_/', '', $tmptable);
+			// END ADD Easya
+			$stringtofindinline = "ALTER TABLE .* ADD CONSTRAINT ".$db->sanitize($foreignkeyname);
+			$fileforkeys = DOL_DOCUMENT_ROOT.'/install/mysql/tables/'.$tmptable.'.key.sql';
+			//print 'Search in '.$fileforkeys.' to get '.$stringtofindinline."<br>\n";
+
+			$handle = fopen($fileforkeys, 'r');
+			if ($handle) {
+				while (($line = fgets($handle)) !== false) {
+					// Process the line read.
+					if (preg_match('/^'.$stringtofindinline.'/i', $line)) {
+						$resqltmp = $db->query($line);
+						print '<tr><td colspan="2">';
+						print $line;
+						print ' - Done '.($resqltmp ? '<span class="opacitymedium">(OK)</span>' : '<span class="error" title="'.dol_escape_htmltag($db->lasterror).'">(KO)</span>');
+						print '</td></tr>';
+						break;
+					}
+				}
+				fclose($handle);
+			}
 			flush();
 			ob_flush();
 		}
@@ -1359,6 +1441,7 @@ if ($ok && GETPOST('force_utf8mb4_on_tables', 'alpha')) {
 		if ($force_utf8mb4_on_tables == 'confirmed') {
 			$sql = 'SET FOREIGN_KEY_CHECKS=1';
 			print '<!-- '.$sql.' -->';
+			print '<tr><td colspan="2">'.$sql.'</td></tr>';
 			$resql = $db->query($sql);
 		}
 	} else {
