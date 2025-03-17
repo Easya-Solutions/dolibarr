@@ -846,7 +846,7 @@ class FormProduct
 						$label .= $arraytypes['batch'];
 						// Notice: Chrome show 1 line with value and 1 for label. Firefox show only 1 line with label
 						$optionLabel = ($conf->browser->name === 'chrome' ? '' : $arraytypes['batch']);
-						$optionLabel .= ' ('.$langs->trans('StockTotal').': '.$arraytypes['qty'];
+						$optionLabel .= ' ('.$langs->trans('TotalStock').': '.$arraytypes['qty'];
 						if (!empty($arraytypes['sellbydate'])) {
 							$optionLabel .= ' - '.$langs->trans('printSellby', $arraytypes['sellbydate']);
 						}

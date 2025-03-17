@@ -1287,7 +1287,7 @@ if ($object->id > 0 || !empty($object->ref)) {
 			$out_js_line .= '				var dataSellByDate = objBatch.sellbydate;';
 			$out_js_line .= '				var optionLabel = key+" (";';
 			$out_js_line .= '				if (selectwarehouse.val() == -1) {';
-			$out_js_line .= '					optionLabel += "'.dol_escape_js($langs->trans('StockTotal')).': "+objBatch.qty;';
+			$out_js_line .= '					optionLabel += "'.dol_escape_js($langs->trans('TotalStock')).': "+objBatch.qty;';
 			$out_js_line .= '				} else {';
 			$out_js_line .= '					 optionLabel += "'.dol_escape_js($langs->trans('Stock')).': "+objBatch.qty;';
 			$out_js_line .= '				}';
