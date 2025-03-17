@@ -74,6 +74,7 @@ SumOfProductWeights=Somme des poids des produits
 # warehouse details
 DetailWarehouseNumber= Détail de l'entrepôt
 DetailWarehouseFormat= W:%s (Qté : %d)
+DetailChildrenFormat=%s : %s (Qté: %s)
 
 ShipmentDistribution=Répartition des expéditions
 

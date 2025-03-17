@@ -76,7 +76,7 @@ SumOfProductWeights=Sum of product weights
 # warehouse details
 DetailWarehouseNumber= Warehouse details
 DetailWarehouseFormat= W:%s (Qty: %d)
-DetailChildrenFormat=%s : %s (Qty: %d)
+DetailChildrenFormat=%s : %s (Qty: %s)
 
 ShipmentDistribution=Shipment distribution
 
