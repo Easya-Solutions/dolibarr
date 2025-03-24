@@ -812,6 +812,6 @@ ALTER TABLE llx_expeditiondet ADD INDEX idx_expeditiondet_fk_parent (fk_parent);
 ALTER TABLE llx_expeditiondet ADD CONSTRAINT fk_expeditiondet_fk_product FOREIGN KEY (fk_product) REFERENCES llx_product (rowid);
 ALTER TABLE llx_expeditiondet ADD CONSTRAINT fk_expeditiondet_fk_parent FOREIGN KEY (fk_parent) REFERENCES llx_expeditiondet (rowid);
 
-UPDATE llx_expeditiondet as ed LEFT JOIN llx_commandedet as cd ON cd.rowid = ed.fk_origin_line SET ed.fk_product = cd.fk_product WHERE ed.fk_product IS NULL;
+UPDATE llx_expeditiondet as ed SET ed.fk_product = (SELECT cd.fk_product FROM llx_commandedet as cd WHERE cd.rowid = ed.fk_elementdet AND ed.element_type = 'commande') WHERE ed.fk_product IS NULL;
 ALTER TABLE llx_product_association ADD COLUMN incdec integer DEFAULT 1 AFTER qty; -- was removed on Easya 2022
 ALTER TABLE llx_expeditiondet_batch ADD COLUMN fk_warehouse integer DEFAULT NULL; -- added for compatibility
