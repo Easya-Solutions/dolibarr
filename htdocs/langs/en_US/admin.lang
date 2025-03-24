@@ -2419,3 +2419,6 @@ SpecialCharActivation=Enable the button to open a virtual keyboard to enter spec
 UrlPublicInterfaceLabelAdmin=Alternative URL for public interface
 UrlPublicInterfaceHelpAdmin=It is possible to define an alias to the web server and thus make available the public interface with another URL (the virtual host server must act as a proxy on the standard URL)
 ContactsDefaultRoles=For third parties of the "individual" type, a contact can be created simultaneously. Define here the roles that will be systematically assigned to this contact.
+WebhookTargetTypeHelp=Blocking: If an error occurs, an error message is displayed and the action is cancelled<br>No blocking: If an error occurs, the error message is only recorded in Dolibarr logs and the action is not cancelled
+Blocking=Blocking
+NoBlocking=No blocking

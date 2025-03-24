@@ -2413,3 +2413,6 @@ SpecialCharActivation=Activez le bouton pour ouvrir un clavier virtuel pour sais
 UrlPublicInterfaceLabelAdmin=URL alternative pour l'interface publique
 UrlPublicInterfaceHelpAdmin=Il est possible de définir un alias vers le serveur web et ainsi rendre l'interface publique accessible avec une autre URL (le serveur hôte virtuel doit agir comme un proxy sur l'URL standard)
 ContactsDefaultRoles=Pour les les tiers de type "particulier" un contact peut-être créé simultanément. Définissez ici les rôles qui seront systématiquement attribués à ce contact.
+WebhookTargetTypeHelp=Bloquant: Si une erreur se produit, un message d'erreur est affiché et l'action est annulée<br>Non bloquant: Si une erreur se produit, le message d'erreur est seulement enregistré dans les logs Dolibarr et l'action est n'est pas annulée
+Blocking=Bloquant
+NoBlocking=Non bloquant

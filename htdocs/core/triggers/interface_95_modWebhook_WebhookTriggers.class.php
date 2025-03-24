@@ -100,9 +100,12 @@ class InterfaceWebhookTriggers extends DolibarrTriggers
 		$errors = 0;
 		$static_object = new Target($this->db);
 		$target_url = $static_object->fetchAll();
+		if (!is_array($target_url)) {
+			return 0;
+		}
 		foreach ($target_url as $key => $tmpobject) {
 			$actionarray = explode(",", $tmpobject->trigger_codes);
-			if (is_array($actionarray) && in_array($action, $actionarray)) {
+			if ($tmpobject->status == Target::STATUS_VALIDATED && is_array($actionarray) && in_array($action, $actionarray)) {
 				// Build the answer object
 				$resobject = new stdClass();
 				$resobject->triggercode = $action;
@@ -124,9 +127,11 @@ class InterfaceWebhookTriggers extends DolibarrTriggers
 				if (empty($response['curl_error_no']) && $response['http_code'] >= 200 && $response['http_code'] < 300) {
 					$nbPosts++;
 				} else {
-					$errors++;
 					$errormsg = "The WebHook for ".$action." failed to get URL ".$tmpobject->url." with httpcode=".(!empty($response['http_code']) ? $response['http_code'] : "")." curl_error_no=".(!empty($response['curl_error_no']) ? $response['curl_error_no'] : "");
-					$this->errors[] = $errormsg;
+					if ($tmpobject->type == Target::TYPE_BLOCKING) {
+						$errors++;
+						$this->errors[] = $errormsg;
+					}
 					/*if (!empty($response['content'])) {
 						$this->errors[] = dol_trunc($response['content'], 200);
 					}*/

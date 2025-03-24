@@ -10426,7 +10426,12 @@ function natural_search($fields, $value, $mode = 0, $nofirstand = 0)
 
 	$value = preg_replace('/\s*\|\s*/', '|', $value);
 
-	$crits = explode(' ', $value);
+	//natural mode search type 3 allow spaces into search ...
+	if ($mode == 3 || $mode == -3) {
+		$crits = explode(',', $value);
+	} else {
+		$crits = explode(' ', $value);
+	}
 	$res = '';
 	if (!is_array($fields)) {
 		$fields = array($fields);
@@ -10487,7 +10492,7 @@ function natural_search($fields, $value, $mode = 0, $nofirstand = 0)
 							$listofcodes .= "'".$db->escape($val)."'";
 						}
 					}
-					$newres .= ($i2 > 0 ? ' OR ' : '').$field." ".($mode == -3 ? 'NOT ' : '')."IN (".$db->sanitize($listofcodes, 1).")";
+					$newres .= ($i2 > 0 ? ' OR ' : '').$field." ".($mode == -3 ? 'NOT ' : '')."IN (".$db->sanitize($listofcodes, 1, 0, 1).")";
 					$i2++; // a criteria for 1 more field was added to string
 				}
 				if ($mode == -3) {
