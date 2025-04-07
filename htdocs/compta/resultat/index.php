@@ -34,7 +34,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/report.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 
 // Load translation files required by the page
-$langs->loadLangs(array('compta', 'bills', 'donation', 'salaries'));
+$langs->loadLangs(array('compta', 'bills', 'donation', 'accountancy', 'salaries'));
 
 $date_startday = GETPOST('date_startday', 'int');
 $date_startmonth = GETPOST('date_startmonth', 'int');
