@@ -792,10 +792,12 @@ if ($object->id > 0 || !empty($object->ref)) {
 							while ($obj_exp = $db->fetch_object($resultsql)) {
 								$suffix = "_" . $j . "_" . $i;
 
+								$productChildrenNb = 0;
 								$expedition_line_child_list = array();
 								if (getDolGlobalInt('PRODUIT_SOUSPRODUITS')) {
 									// virtual product : find all children
-									if ($tmpproduct->hasFatherOrChild(1) > 0) {
+									$productChildrenNb = $tmpproduct->hasFatherOrChild(1);
+									if ($productChildrenNb > 0) {
 										$line_id_list = array();
 
 										// load all child as object line
@@ -1077,6 +1079,7 @@ if ($object->id > 0 || !empty($object->ref)) {
 										'i' => $i,
 										'suffix' => $suffix,
 										'objp' => $objp,
+										'objd' => $objd,
 									);
 									$reshook = $hookmanager->executeHooks(
 										'printFieldListValue',
