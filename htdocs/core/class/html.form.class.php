@@ -1760,7 +1760,7 @@ class Form
 	 */
 	public function selectcontacts($socid, $selected = '', $htmlname = 'contactid', $showempty = 0, $exclude = '', $limitto = '', $showfunction = 0, $morecss = '', $options_only = false, $showsoc = 0, $forcecombo = 0, $events = array(), $moreparam = '', $htmlid = '', $multiple = false, $disableifempty = 0)
 	{
-		global $conf, $langs, $hookmanager, $action;
+		global $conf, $langs, $hookmanager, $action, $user;
 
 		$langs->load('companies');
 
