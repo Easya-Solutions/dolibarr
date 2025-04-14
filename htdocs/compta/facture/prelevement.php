@@ -741,13 +741,14 @@ if ($object->id > 0) {
 	// For which amount ?
 
 	$sql = "SELECT SUM(pfd.amount) as amount";
-	$sql .= " FROM ".MAIN_DB_PREFIX."prelevement_demande as pfd";
+	$sql .= " FROM ".$db->prefix()."prelevement_demande as pfd";
+	$sql .= " LEFT JOIN ".$db->prefix()."prelevement_lignes as pl ON pfd.fk_prelevement_bons = pl.fk_prelevement_bons";
 	if ($type == 'bank-transfer') {
 		$sql .= " WHERE fk_facture_fourn = ".((int) $object->id);
 	} else {
 		$sql .= " WHERE fk_facture = ".((int) $object->id);
 	}
-	$sql .= " AND pfd.traite = 0";
+	$sql .= " AND (pl.statut IS NULL OR pl.statut = 0)";
 	$sql .= " AND pfd.type = 'ban'";
 	//$sql .= " AND pfd.ext_payment_id IS NULL"; // TODO CHECK
 
@@ -776,7 +777,7 @@ if ($object->id > 0) {
 	}
 
 	// Add a transfer request
-	if ($object->statut > $object::STATUS_DRAFT && $object->paye == 0 && $num == 0) {
+	if ($object->statut > $object::STATUS_DRAFT && $object->paye == 0) {
 		if ($resteapayer > 0) {
 			if ($user_perms) {
 				$remaintopaylesspendingdebit = $resteapayer - $pending;
