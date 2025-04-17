@@ -753,7 +753,6 @@ if ($object->id > 0) {
 		$sql .= " WHERE pfd.fk_facture = ".((int) $object->id);
 	}
 	$sql .= " AND pfd.traite = 0";
-	print $sql;
 	//$sql .= " AND pfd.type = 'ban'";
 	$resql = $db->query($sql);
 	if ($resql) {
