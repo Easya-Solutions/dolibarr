@@ -2470,7 +2470,7 @@ class ActionComm extends CommonObject
 		global $conf, $langs;
 
 		$this->output = '';
-		$this->error='';
+		$this->error = '';
 
 		// if (empty($conf->global->AGENDA_REMINDER_EMAIL))
 		// {
@@ -2479,67 +2479,109 @@ class ActionComm extends CommonObject
 		// return 0;
 		// }
 
+		$error = 0;
+		$error_msg = '';
 		$now = dol_now();
 
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
-		$sql_fetch = "SELECT a.id FROM ".MAIN_DB_PREFIX."actioncomm as a WHERE a.recurid IS NULL AND a.datep < '".$this->db->idate($now)."' AND a.fk_action <> 40";
-		$resql_fetch=$this->db->query($sql_fetch);
-		if ($resql_fetch) {
-			$num = $this->db->num_rows($resql_fetch);
-			$i = 0;
-			while ($i < $num) {
-				$obj = $this->db->fetch_object($resql_fetch);
+		$sql = "SELECT a.id FROM " . MAIN_DB_PREFIX . "actioncomm as a WHERE a.recurid IS NULL AND a.datep < '" . $this->db->idate($now) . "' AND a.fk_action <> 40";
+		$resql = $this->db->query($sql);
+		if (!$resql) {
+			$error_msg .= $this->db->lasterror();
+			$error++;
+		} else {
+			while ($obj = $this->db->fetch_object($resql)) {
 				$action = new ActionComm($this->db);
-				$action->fetch($obj->id);
+				$result = $action->fetch($obj->id);
+				if ($result <= 0) {
+					$error_msg .= 'Error fetch event ID ' . $obj->id;
+					dol_syslog(__METHOD__ . ' - Error fetch event ID ' . $obj->id . ' : ' . $action->errorsToString(), LOG_ERR);
+					$error++;
+					continue;
+				}
 
-				foreach($action->userassigned as $user) {
-					// Send email
-					require_once DOL_DOCUMENT_ROOT .'/core/class/CMailFile.class.php';
-
-					$subject = $action->label." est arrivé à échéance";
+				foreach ($action->userassigned as $user) {
 					$user_static = new User($this->db);
-					$user_static->fetch($user['id']);
+					$result = $user_static->fetch($user['id']);
+					if ($result <= 0) {
+						$error_msg .= 'Error fetch user ID ' . $user['id'];
+						dol_syslog(__METHOD__ . ' - Error fetch user ID ' . $user['id'] . ' : ' . $user_static->errorsToString(), LOG_ERR);
+						$error++;
+						continue;
+					}
+
+					// Send email
 					$sendto = $user_static->email;
-					$replyto = (! empty($conf->global->MAIN_MAIL_EMAIL_FROM)?$conf->global->MAIN_MAIL_EMAIL_FROM:'');
-					$message = "L'événement ".$action->label." est arrivé à échéance depuis le ".dol_print_date($action->datep, 'day');
+					$replyto = (!empty($conf->global->MAIN_MAIL_EMAIL_FROM) ? $conf->global->MAIN_MAIL_EMAIL_FROM : '');
+					$subject = $action->label . " est arrivé à échéance";
+					$message = "L'événement " . $action->label . " est arrivé à échéance depuis le " . dol_print_date($action->datep, 'day');
 					$message .= '<br/><br/>';
-					$message .= '<a href="'.dol_buildpath('/comm/action/card.php', 2).'?id='.$action->id.'">';
-					$message .= "Accéder à l'événement <b>".$action->label."</b>";
-					$message .='</a>';
-					if(!empty($sendto)) {
-						$mailfile = new CMailFile($subject,$sendto,$replyto,$message,array(),array(),array(),'','',0,-1);
-						$mailfile->sendfile();
-					}
-				}
+					$message .= '<a href="' . dol_buildpath('/comm/action/card.php', 2) . '?id=' . $action->id . '">';
+					$message .= "Accéder à l'événement <b>" . $action->label . "</b>";
+					$message .= '</a>';
+					if (!empty($sendto)) {
+						require_once DOL_DOCUMENT_ROOT . '/core/class/CMailFile.class.php';
+						$mailfile = new CMailFile($subject, $sendto, $replyto, $message, array(), array(), array(), '', '', 0, -1);
+						if ($mailfile->error) {
+							$err_msg = $mailfile->error . (is_array($mailfile->errors) ? (!empty($mailfile->error) ? ', ' : '') . join('; ', $mailfile->errors) : '');
+							dol_syslog(__METHOD__ . " - Errors when create mail file : " . $err_msg, LOG_ERR);
+							$error_msg .= $err_msg;
+							$error++;
+						} else {
+							$result = $mailfile->sendfile();
+							if ($result < 0 || !$result) {
+								$langs->load("other");
+								$mesg = '<div class="error">';
+								if (!empty($mailfile->error) || !empty($mailfile->errors)) {
+									$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($replyto), dol_escape_htmltag($sendto));
+									if (!empty($mailfile->error)) {
+										$mesg .= '<br>' . $mailfile->error;
+									}
+									if (!empty($mailfile->errors) && is_array($mailfile->errors)) {
+										$mesg .= '<br>' . implode('<br>', $mailfile->errors);
+									}
+								} else {
+									$mesg .= $langs->transnoentities('ErrorFailedToSendMail', dol_escape_htmltag($replyto), dol_escape_htmltag($sendto));
+									if (!empty($conf->global->MAIN_DISABLE_ALL_MAILS)) {
+										$mesg .= '<br>Feature is disabled by option MAIN_DISABLE_ALL_MAILS';
+									} else {
+										$mesg .= '<br>Unkown Error, please refers to your administrator';
+									}
+								}
+								$mesg .= '</div>';
 
-				$this->db->begin();
-				$sql = "UPDATE ".MAIN_DB_PREFIX."actioncomm ";
-				$sql.= " SET recurid = 1";
-				$sql.= " WHERE id=".$obj->id;
-
-				dol_syslog(get_class($this)."::update", LOG_DEBUG);
-				if ($this->db->query($sql))	{
-					if (! $error) {
-						$this->db->commit();
-						return 0;
+								$this->error = $mesg;
+								dol_syslog(__METHOD__ . " - Errors when send mail file : " . $mesg, LOG_ERR);
+								$error_msg .= $mesg;
+								$error++;
+							}
+						}
 					} else {
-						$this->db->rollback();
-						dol_syslog(get_class($this)."::update ".join(',',$this->errors),LOG_ERR);
-						return -2;
+						dol_syslog(__METHOD__ . " - Warning email user empty", LOG_WARNING);
 					}
-				} else {
-					$this->db->rollback();
-					$this->error=$this->db->lasterror();
-					return -1;
 				}
-				$i++;
+
+				$sql = "UPDATE " . MAIN_DB_PREFIX . "actioncomm ";
+				$sql .= " SET recurid = 1";
+				$sql .= " WHERE id=" . $obj->id;
+				dol_syslog(__METHOD__ . " - update recurid of event", LOG_DEBUG);
+				$resql2 = $this->db->query($sql);
+				if (!$resql2) {
+					$error_msg .= $this->db->lasterror();
+					$error++;
+				}
 			}
 		}
 
 		// Delete also very old past events (we do not keep more than 1 month record in past)
 		// $sql = "DELETE FROM ".MAIN_DB_PREFIX."actioncomm_reminder WHERE dateremind < '".$this->db->jdate($now - (3600 * 24 * 32))."'";
 		// $this->db->query($sql);
+
+		if ($error) {
+			$this->error = $error_msg;
+			return -1;
+		}
 
 		return 0;
 // Specifique Client 3194 - End
