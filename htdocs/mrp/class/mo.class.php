@@ -948,7 +948,7 @@ class Mo extends CommonObject
 		if (!empty($arrayoflines)) {
 			// If there is child lines
 			$stockmove = new MouvementStock($this->db);
-			$stockmove->setOrigin($this->element, $this->id);
+			$stockmove->setOrigin($this->element, $this->id, 0,  0, $this->fk_project);
 
 			if (!empty($fk_movement)) {
 				// The fk_movement was not recorded so we try to guess the product and quantity to restore.
@@ -1336,7 +1336,7 @@ class Mo extends CommonObject
 					$codemovementCancel = $langs->trans("StockIncrease");
 
 					$stockmove = new MouvementStock($this->db);
-					$stockmove->setOrigin($this->element, $this->id);
+					$stockmove->setOrigin($this->element, $this->id, 0,  0, $this->fk_project);
 					if ($qtytoprocess >= 0) {
 						$idstockmove = $stockmove->reception($user, $lineDetails['fk_product'], $lineDetails['fk_warehouse'], $qtytoprocess, 0, $labelmovementCancel, '', '', $lineDetails['batch'], dol_now(), 0, $codemovementCancel);
 					} else {
@@ -1374,7 +1374,7 @@ class Mo extends CommonObject
 					$codemovementCancel = $langs->trans("StockDecrease");
 
 					$stockmove = new MouvementStock($this->db);
-					$stockmove->setOrigin($this->element, $this->id);
+					$stockmove->setOrigin($this->element, $this->id, 0,  0, $this->fk_project);
 					if ($qtytoprocess >= 0) {
 						$idstockmove = $stockmove->livraison($user, $lineDetails['fk_product'], $lineDetails['fk_warehouse'], $qtytoprocess, 0, $labelmovementCancel, dol_now(), '', '', $lineDetails['batch'], 0, $codemovementCancel);
 					} else {

@@ -1027,15 +1027,17 @@ class MouvementStock extends CommonObject
 	 * @param	int		$origin_id			Id of element
 	 * @param	int		$line_id_object_src	Id line of element Source
 	 * @param	int		$line_id_object_origin	Id line of element Origin
+	 * @param	int		$project_id			Id of element project
 	 *
 	 * @return	void
 	 */
-	public function setOrigin($origin_element, $origin_id, $line_id_object_src = 0, $line_id_object_origin = 0)
+	public function setOrigin($origin_element, $origin_id, $line_id_object_src = 0, $line_id_object_origin = 0, $project_id = 0)
 	{
 		$this->origin_type = $origin_element;
 		$this->origin_id = $origin_id;
 		$this->line_id_object_src = $line_id_object_src;
 		$this->line_id_object_origin = $line_id_object_origin;
+		$this->fk_project = $project_id;
 		// For backward compatibility
 		$this->origintype = $origin_element;
 		$this->fk_origin = $origin_id;
@@ -1266,14 +1268,14 @@ class MouvementStock extends CommonObject
 	}
 
 	/**
-	 * Retrieve date of last stock movement for 
-	 * 
+	 * Retrieve date of last stock movement for
+	 *
 	 * @param     int      $fk_entrepot
 	 * @param     int      $fk_product
 	 * @param     string   $batch
 	 * @return    string   date of last stock movement if found else empty string
 	 */
-	public function getDateLastMovementProductBatch($fk_entrepot, $fk_product, $batch) 
+	public function getDateLastMovementProductBatch($fk_entrepot, $fk_product, $batch)
 	{
 		$date = '';
 
