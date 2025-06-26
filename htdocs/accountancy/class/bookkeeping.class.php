@@ -2792,7 +2792,9 @@ class BookKeeping extends CommonObject
 							}
 
 							$bookkeeping->numero_compte = $obj->numero_compte;
-							$bookkeeping->label_compte = $obj->label_compte;
+							$accountingaccount = new AccountingAccount($this->db);
+							$accountingaccount->fetch(0, $obj->numero_compte);
+							$bookkeeping->label_compte = $accountingaccount->label;
 
 							$bookkeeping->label_operation = $fiscal_period->label;
 							$bookkeeping->montant = $mt;
