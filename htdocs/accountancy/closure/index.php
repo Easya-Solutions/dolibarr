@@ -61,7 +61,7 @@ if (!is_array($fiscal_periods)) {
 }
 
 // EASYA ONLY : set upper time limit because closure time may be long
-@set_time_limit(2000);
+@set_time_limit(4000);
 
 $active_fiscal_periods = array();
 $last_fiscal_period = null;
