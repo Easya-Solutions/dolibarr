@@ -60,6 +60,9 @@ if (!is_array($fiscal_periods)) {
 	setEventMessages($object->error, $object->errors, 'errors');
 }
 
+// EASYA ONLY : set upper time limit because closure time may be long
+@set_time_limit(2000);
+
 $active_fiscal_periods = array();
 $last_fiscal_period = null;
 $current_fiscal_period = null;
