@@ -115,7 +115,7 @@ if (empty($reshook)) {
 				}
 				$paymentservice = GETPOST('paymentservice');
 
-				$result = $object->demande_prelevement($user, price2num(GETPOST('withdraw_request_amount', 'alpha')), $newtype, $sourcetype, GETPOST('iban', 'int'));
+				$result = $object->demande_prelevement($user, price2num(GETPOST('withdraw_request_amount', 'alpha')), $newtype, $sourcetype, 0, GETPOST('iban', 'int'));
 				if ($result > 0) {
 					$db->commit();
 

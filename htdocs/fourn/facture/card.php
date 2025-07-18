@@ -4006,7 +4006,16 @@ if ($action == 'create') {
 					$htmltooltip = '';
 					$params = (empty($conf->use_javascript_ajax) ? array() : array('attr' => array('class' => 'reposition')));
 					//var_dump($isErasable); var_dump($params);
-					if ($isErasable == -4) {
+					if (preg_match('/^-5(\d+)/',$isErasable, $reg)) {
+						$tmprefbon = '';
+						if ((int) $reg[1] > 0) {
+							require_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/bonprelevement.class.php';
+							$tmpbon = new BonPrelevement($db);
+							$tmpbon->fetch((int) $reg[1]);
+							$tmprefbon = '('.$tmpbon->getNomUrl(0, 'nolink', 1).')';
+						}
+						$htmltooltip = $langs->trans("DisabledBecauseInvoiceHasPrelevement", $tmprefbon);
+					}  elseif ($isErasable == -4) {
 						$htmltooltip = $langs->trans("DisabledBecausePayments");
 					} elseif ($isErasable == -3) {	// Should never happen with supplier invoice
 						$htmltooltip = $langs->trans("DisabledBecauseNotLastSituationInvoice");
