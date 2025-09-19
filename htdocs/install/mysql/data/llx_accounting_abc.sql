@@ -45,7 +45,7 @@
 --------------------------------------------------------------------------------------
 
 
--- Accounting Journals 
+-- Accounting Journals
 
 INSERT INTO llx_accounting_journal (code, label, nature, active, entity) VALUES ('VT',  'ACCOUNTING_SELL_JOURNAL',          2, 1, 1);
 INSERT INTO llx_accounting_journal (code, label, nature, active, entity) VALUES ('AC',  'ACCOUNTING_PURCHASE_JOURNAL',      3, 1, 1);
@@ -66,8 +66,10 @@ INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUE
 INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUES (  1, 'PCG14-DEV', 'The developed accountancy french plan 2014', 1);
 -- Description of chart of account FR PCG18-ASSOC
 INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUES (  1, 'PCG18-ASSOC', 'French foundation chart of accounts 2018', 1);
--- Description of chart of account FR PCGAFR14-DEV 
+-- Description of chart of account FR PCGAFR14-DEV
 INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUES (  1, 'PCGAFR14-DEV', 'The developed farm accountancy french plan 2014', 1);
+-- Description of chart of account FR PCG25-DEV
+INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUES (  1, 'PCG25-DEV', 'The developed accountancy french plan 2025', 1);
 
 -- Description of chart of account BE PCMN-BASE
 INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUES (  2, 'PCMN-BASE', 'The base accountancy belgium plan', 1);

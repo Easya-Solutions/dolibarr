@@ -575,7 +575,11 @@ UPDATE llx_paiement SET ref = rowid WHERE ref IS NULL OR ref = '';
 -- rename const WORKFLOW_EXPEDITION_CLASSIFY_CLOSED_INVOICE to WORKFLOW_RECEPTION_CLASSIFY_CLOSED_INVOICE
 UPDATE llx_const SET name = 'WORKFLOW_RECEPTION_CLASSIFY_CLOSED_INVOICE' WHERE name = 'WORKFLOW_EXPEDITION_CLASSIFY_CLOSED_INVOICE';
 
+-- ------------------------
 -- Easya 2024
+-- ------------------------
+
+
 
 -- Backport VAT by entity #24965 - Also available on Easya 2022
 -- VMYSQL4.1 DROP INDEX uk_c_tva_id on llx_c_tva;
@@ -803,6 +807,12 @@ ALTER TABLE llx_salary_extrafields CHANGE COLUMN tms tms timestamp DEFAULT CURRE
 ALTER TABLE llx_mailing_advtarget CHANGE COLUMN tms tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 ALTER TABLE llx_webhook_target ADD COLUMN type integer DEFAULT 0 NOT NULL AFTER label;
+
+-- Add accounting plan PCG25-DEV
+INSERT INTO llx_accounting_system (fk_country, pcg_version, label, active) VALUES (  1, 'PCG25-DEV', 'The developed accountancy french plan 2025', 1);
+
+-- Manage images of ticket messages
+UPDATE llx_ecm_files f INNER JOIN llx_actioncomm a ON a.id = SUBSTRING(f.filepath, 8) SET  f.src_object_type = 'ticket', f.src_object_id = a.fk_element WHERE f.filepath LIKE 'agenda/%' AND a.elementtype = 'ticket';
 
 -- default deposit % if payment term needs it on supplier
 ALTER TABLE llx_supplier_proposal ADD COLUMN deposit_percent varchar(63) DEFAULT NULL AFTER fk_cond_reglement;

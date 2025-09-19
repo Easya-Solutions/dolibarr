@@ -128,7 +128,6 @@ if ($type == 'bank-transfer') {
 }
 
 $error = 0;
-$option = "";
 $mesg = '';
 
 
@@ -511,13 +510,20 @@ if ($resql) {
 	}
 
 	$varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
-	$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
+	$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN', '')); // This also change content of $arrayfields
 	$selectedfields .= $form->showCheckAddButtons('checkforselect', 1);
 
 	print '<table class="tagtable liste">';
 
 	// Line for filters
 	print '<tr class="liste_titre_filter">';
+	// Action column
+	if (getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')) {
+		print '<td class="liste_titre center maxwidthsearch">';
+		$searchpicto = $form->showFilterButtons('left');
+		print $searchpicto;
+		print '</td>';
+	}
 	// Ref
 	if (!empty($arrayfields['f.ref']['checked'])) {
 		print '<td class="liste_titre left">';
@@ -564,11 +570,12 @@ if ($resql) {
 		print '<td class="liste_titre">&nbsp;</td>';
 	}
 	// Action column
-	print '<td class="liste_titre middle">';
-	$searchpicto = $form->showFilterButtons();
-	print $searchpicto;
-	print '</td>';
-
+	if (!getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')) {
+		print '<td class="liste_titre center maxwidthsearch">';
+		$searchpicto = $form->showFilterButtons();
+		print $searchpicto;
+		print '</td>';
+	}
 	print "</tr>\n";
 
 	print '<tr class="liste_titre">';

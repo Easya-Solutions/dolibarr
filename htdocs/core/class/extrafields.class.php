@@ -2359,4 +2359,33 @@ class ExtraFields
 
 		return 0;
 	}
+
+	/**
+	 * Return array with all possible types and labels of extrafields
+	 *
+	 * @return string[]
+	 */
+	public static function getListOfTypesLabels()
+	{
+		global $langs;
+
+		$arraytype2label = array('');
+
+		$tmptype2label = ExtraFields::$type2label;
+		foreach ($tmptype2label as $key => $val) {
+			$arraytype2label[$key] = $langs->transnoentitiesnoconv($val);
+		}
+
+		/*if (!getDolGlobalString('MAIN_USE_EXTRAFIELDS_ICON')) {
+			unset($arraytype2label['icon']);
+		}
+		if (!getDolGlobalString('MAIN_USE_GEOPHP')) {
+			unset($arraytype2label['point']);
+			unset($arraytype2label['multipts']);
+			unset($arraytype2label['linestrg']);
+			unset($arraytype2label['polygon']);
+		}*/
+
+		return $arraytype2label;
+	}
 }

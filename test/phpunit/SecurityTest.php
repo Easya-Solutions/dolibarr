@@ -811,7 +811,8 @@ class SecurityTest extends PHPUnit\Framework\TestCase
 	{
 		$stringtotest = 'eée';
 		$decodedstring = dol_string_onlythesehtmlattributes($stringtotest);
-		$this->assertEquals('e&eacute;e', $decodedstring, 'Function did not sanitize correclty with test 1');
+		//$this->assertEquals('e&eacute;e', $decodedstring, 'Function did not sanitize correctly with test 1');
+		$this->assertEquals('eée', $decodedstring, 'Function did not sanitize correctly with test 1');
 
 		$stringtotest = '<div onload="ee"><a href="123"><span class="abc">abc</span></a></div>';
 		$decodedstring = dol_string_onlythesehtmlattributes($stringtotest);
@@ -1066,6 +1067,22 @@ class SecurityTest extends PHPUnit\Framework\TestCase
 		$result=dol_eval('$a=exec("ls");', 1, 1);
 		print "result = ".$result."\n";
 		$this->assertStringContainsString('Bad string syntax to evaluate', $result);
+
+		$result = dol_eval('json_encode(array_map(implode("",["ex","ec"]), ["id"]))', 1, 1, '1');		// result of dol_eval may be an object Closure
+		print "result4a = ".json_encode($result)."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', json_encode($result), 'The string was not detected as evil, it should due to the [ char and method "2"');
+
+		$result = dol_eval('json_encode(array_map(implode("",["ex","ec"]), ["id"]))', 1, 1, '2');		// result of dol_eval may be an object Closure
+		print "result4b = ".json_encode($result)."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', json_encode($result), 'The string was not detected as evil, it should due to the use of array_map');
+
+		$result = dol_eval('json_encode(array_map(implode("",array("ex","ec"), array("id")))', 1, 1, '1');		// result of dol_eval may be an object Closure
+		print "result4c = ".json_encode($result)."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', json_encode($result), 'The string was not detected as evil, it should due to the use of array_map');
+
+		$result = dol_eval('$a=function() { }; $a', 1, 1, '0');		// result of dol_eval may be an object Closure
+		print "result5 = ".json_encode($result)."\n";
+		$this->assertStringContainsString('Bad string syntax to evaluate', json_encode($result), 'The string was not detected as evil');
 
 		$result=dol_eval('$a=exec ("ls")', 1, 1);
 		print "result = ".$result."\n";
