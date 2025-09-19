@@ -1594,8 +1594,6 @@ if ($action == 'create') {
 		$societe->fetch($socid);
 	}
 
-	$deposit_percent = GETPOST('cond_reglement_id_deposit_percent', 'alpha');
-
 	if (!empty($origin) && !empty($originid)) {
 		// Parse element/subelement (ex: project_task)
 		$element = $subelement = $origin;
@@ -1640,7 +1638,7 @@ if ($action == 'create') {
 		$soc = $objectsrc->thirdparty;
 
 		$cond_reglement_id	= (!empty($objectsrc->cond_reglement_id) ? $objectsrc->cond_reglement_id : (!empty($soc->cond_reglement_id) ? $soc->cond_reglement_id : 0));
-		$deposit_percent	= (!empty($objectsrc->deposit_percent) ? $objectsrc->deposit_percent : (!empty($soc->deposit_percent) ? $soc->deposit_percent : null));
+		$deposit_percent	= (!empty($objectsrc->deposit_percent) ? $objectsrc->deposit_percent : (!empty($soc->deposit_percent) ? $soc->deposit_percent : 0));
 		$mode_reglement_id	= (!empty($objectsrc->mode_reglement_id) ? $objectsrc->mode_reglement_id : (!empty($soc->mode_reglement_id) ? $soc->mode_reglement_id : 0));
 		$fk_account         = (!empty($objectsrc->fk_account) ? $objectsrc->fk_account : (!empty($soc->fk_account) ? $soc->fk_account : 0));
 		$availability_id	= (!empty($objectsrc->availability_id) ? $objectsrc->availability_id : (!empty($soc->availability_id) ? $soc->availability_id : 0));
@@ -1668,7 +1666,7 @@ if ($action == 'create') {
 		$srccontactslist = $objectsrc->liste_contact(-1, 'external', 1);
 	} else {
 		$cond_reglement_id 	= !empty($societe->cond_reglement_supplier_id) ? $societe->cond_reglement_supplier_id : 0;
-		$deposit_percent    = empty($societe->deposit_percent) ? $deposit_percent : $societe->deposit_percent;
+		$deposit_percent    = !empty($societe->deposit_percent) ? $societe->deposit_percent : 0;
 		$mode_reglement_id 	= !empty($societe->mode_reglement_supplier_id) ? $societe->mode_reglement_supplier_id : 0;
 
 		if (isModEnabled("multicurrency") && !empty($societe->multicurrency_code)) {
@@ -1685,6 +1683,9 @@ if ($action == 'create') {
 	}
 	if (empty($mode_reglement_id) && !empty($conf->global->SUPPLIER_ORDER_DEFAULT_PAYMENT_MODE_ID)) {
 		$mode_reglement_id = $conf->global->SUPPLIER_ORDER_DEFAULT_PAYMENT_MODE_ID;
+	}
+	if (GETPOSTISSET('cond_reglement_id_deposit_percent')) {
+		$deposit_percent = GETPOST('cond_reglement_id_deposit_percent', 'alpha');
 	}
 
 	print '<form name="add" action="'.$_SERVER["PHP_SELF"].'" method="post">';

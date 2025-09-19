@@ -1504,7 +1504,7 @@ class CommandeFournisseur extends CommonOrder
 		$sql .= ", '".$this->db->escape(getDolGlobalString('COMMANDE_SUPPLIER_ADDON_PDF'))."'";
 		$sql .= ", ".($this->mode_reglement_id > 0 ? $this->mode_reglement_id : 'null');
 		$sql .= ", ".($this->cond_reglement_id > 0 ? $this->cond_reglement_id : 'null');
-		$sql .= ", ".(!empty($this->deposit_percent) ? "'".$this->db->escape($this->deposit_percent)."'" : "null");
+		$sql .= ", ".(!empty($this->deposit_percent) ? "'" . $this->db->escape($this->deposit_percent) . "'" : "null");
 		$sql .= ", ".($this->fk_account > 0 ? $this->fk_account : 'NULL');
 		$sql .= ", ".(int) $this->fk_incoterms;
 		$sql .= ", '".$this->db->escape($this->location_incoterms)."'";
@@ -1780,7 +1780,7 @@ class CommandeFournisseur extends CommonOrder
 			if ($objsoc->fetch($socid) > 0) {
 				$this->socid = $objsoc->id;
 				$this->cond_reglement_id	= (!empty($objsoc->cond_reglement_id) ? $objsoc->cond_reglement_id : 0);
-				$this->deposit_percent		= (!empty($objsoc->deposit_percent) ? $objsoc->deposit_percent : null);
+				$this->deposit_percent		= (!empty($objsoc->deposit_percent) ? $objsoc->deposit_percent : 0);
 				$this->mode_reglement_id	= (!empty($objsoc->mode_reglement_id) ? $objsoc->mode_reglement_id : 0);
 				$this->fk_project = 0;
 				$this->fk_delivery_address = 0;

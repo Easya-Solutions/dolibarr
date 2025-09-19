@@ -2062,7 +2062,6 @@ if ($action == 'create') {
 		$soc = $objectsrc->thirdparty;
 
 		$cond_reglement_id = 0;
-		$deposit_percent = 0;
 		$mode_reglement_id = 0;
 		$fk_account = 0;
 		$remise_percent = 0;
@@ -2072,9 +2071,6 @@ if ($action == 'create') {
 		// set from object source
 		if (!empty($objectsrc->cond_reglement_id)) {
 			$cond_reglement_id = $objectsrc->cond_reglement_id;
-		}
-		if (!empty($objectsrc->deposit_percent)) {
-			$deposit_percent = $objectsrc->deposit_percent;
 		}
 		if (!empty($objectsrc->mode_reglement_id)) {
 			$mode_reglement_id = $objectsrc->mode_reglement_id;
@@ -2133,9 +2129,6 @@ if ($action == 'create') {
 				if (empty($cond_reglement_id) && !empty($soc->cond_reglement_supplier_id)) {
 					$cond_reglement_id = $soc->cond_reglement_supplier_id;
 				}
-				if (empty($deposit_percent) && !empty($soc->deposit_percent)) {
-					$deposit_percent = $soc->deposit_percent;
-				}
 				if (empty($mode_reglement_id) && !empty($soc->mode_reglement_supplier_id)) {
 					$mode_reglement_id = $soc->mode_reglement_supplier_id;
 				}
@@ -2173,7 +2166,6 @@ if ($action == 'create') {
 		$object->array_options = $objectsrc->array_options;
 	} else {
 		$cond_reglement_id = !empty($societe->cond_reglement_supplier_id) ? $societe->cond_reglement_supplier_id : 0;
-		$deposit_percent = !empty($societe->deposit_percent) ? $societe->deposit_percent : 0;
 		$mode_reglement_id = !empty($societe->mode_reglement_supplier_id) ? $societe->mode_reglement_supplier_id : 0;
 		$vat_reverse_charge = $societe->vat_reverse_charge;
 		$transport_mode_id = !empty($societe->transport_mode_supplier_id) ? $societe->transport_mode_supplier_id : 0;
@@ -2343,7 +2335,7 @@ if ($action == 'create') {
 	print $desc;
 	print '</div></div>';
 
-	if (empty($origin) || (($origin == 'supplier_proposal' || $origin == 'order_supplier') && !empty($originid))) {
+	if (empty($origin) || (($origin == 'supplier_proposal' || $origin == 'order_supplier' || $origin == 'reception') && !empty($originid))) {
 		// Deposit - Down payment
 		if (empty($conf->global->INVOICE_DISABLE_DEPOSIT)) {
 			print '<div class="tagtr listofinvoicetype"><div class="tagtd listofinvoicetype">';
@@ -2383,7 +2375,7 @@ if ($action == 'create') {
 			print '<td>';
 			print $desc;
 			print '</td>';
-			if ($origin == 'supplier_proposal' || $origin == 'order_supplier') {
+			if ($origin == 'supplier_proposal' || $origin == 'order_supplier' || $origin == 'reception') {
 				print '<td class="nowrap" style="padding-left: 15px">';
 				$arraylist = array(
 					'amount' => $langs->transnoentitiesnoconv('FixAmount', $langs->transnoentitiesnoconv('Deposit')),
@@ -2392,14 +2384,26 @@ if ($action == 'create') {
 				);
 				$typedeposit = GETPOST('typedeposit', 'aZ09');
 				$valuedeposit = GETPOST('valuedeposit', 'int');
-				if (empty($typedeposit) && !empty($objectsrc->deposit_percent)) {
+				$deposit_percent = null;
+				if ($origin == 'reception') {
+					// try to get from source of reception (supplier order)
+					if (!isset($objectsrc->supplier_order)) {
+						$objectsrc->fetch_origin();
+					}
+					if (!empty($objectsrc->commandeFournisseur)) {
+						$deposit_percent = $objectsrc->commandeFournisseur->deposit_percent;
+					}
+				} elseif (!empty($objectsrc->deposit_percent)) {
+					$deposit_percent = $objectsrc->deposit_percent;
+				}
+				if (empty($typedeposit) && !empty($deposit_percent)) {
 					$origin_payment_conditions_deposit_percent = getDictionaryValue('c_payment_term', 'deposit_percent', $objectsrc->cond_reglement_id);
 					if (!empty($origin_payment_conditions_deposit_percent)) {
 						$typedeposit = 'variable';
 					}
 				}
-				if (empty($valuedeposit) && $typedeposit == 'variable' && !empty($objectsrc->deposit_percent)) {
-					$valuedeposit = $objectsrc->deposit_percent;
+				if (empty($valuedeposit) && $typedeposit == 'variable' && !empty($deposit_percent)) {
+					$valuedeposit = $deposit_percent;
 				}
 				print $form->selectarray('typedeposit', $arraylist, $typedeposit, 0, 0, 0, '', 1);
 				print '</td>';

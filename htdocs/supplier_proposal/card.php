@@ -1121,7 +1121,7 @@ if (empty($reshook)) {
 		// Delivery delay
 		$result = $object->availability(GETPOST('availability_id'));
 	} elseif ($action == 'setconditions' && $usercancreate) {
-		// Terms of payment
+		// Terms of payments
 		$sql = "SELECT code ";
 		$sql .= "FROM " . $db->prefix() . "c_payment_term";
 		$sql .= " WHERE rowid = " . ((int) GETPOST('cond_reglement_id', 'int'));
@@ -1206,8 +1206,6 @@ if ($action == 'create') {
 		$res = $soc->fetch($socid);
 	}
 
-	$deposit_percent = GETPOST('cond_reglement_id_deposit_percent', 'alpha');
-
 	// Load objectsrc
 	if (!empty($origin) && !empty($originid)) {
 		$element = $subelement = GETPOST('origin');
@@ -1239,6 +1237,7 @@ if ($action == 'create') {
 		$soc = $objectsrc->thirdparty;
 
 		$cond_reglement_id 	= (!empty($objectsrc->cond_reglement_id) ? $objectsrc->cond_reglement_id : (!empty($soc->cond_reglement_id) ? $soc->cond_reglement_id : 0)); // TODO maybe add default value option
+		$deposit_percent 	= (!empty($objectsrc->deposit_percent) ? $objectsrc->deposit_percent : (!empty($soc->deposit_percent) ? $soc->deposit_percent : 0));
 		$mode_reglement_id 	= (!empty($objectsrc->mode_reglement_id) ? $objectsrc->mode_reglement_id : (!empty($soc->mode_reglement_id) ? $soc->mode_reglement_id : 0));
 		$remise_percent 	= (!empty($objectsrc->remise_percent) ? $objectsrc->remise_percent : (!empty($soc->remise_supplier_percent) ? $soc->remise_supplier_percent : 0));
 		$remise_absolue 	= (!empty($objectsrc->remise_absolue) ? $objectsrc->remise_absolue : (!empty($soc->remise_absolue) ? $soc->remise_absolue : 0));
@@ -1257,11 +1256,14 @@ if ($action == 'create') {
 		}
 	} else {
 		$cond_reglement_id 	= $soc->cond_reglement_supplier_id;
-		$deposit_percent    = empty($soc->deposit_percent) ? $deposit_percent : $soc->deposit_percent;
+		$deposit_percent    = !empty($soc->deposit_percent) ? $soc->deposit_percent : 0;
 		$mode_reglement_id 	= $soc->mode_reglement_supplier_id;
 		if (isModEnabled("multicurrency") && !empty($soc->multicurrency_code)) {
 			$currency_code = $soc->multicurrency_code;
 		}
+	}
+	if (GETPOSTISSET('cond_reglement_id_deposit_percent')) {
+		$deposit_percent = GETPOST('cond_reglement_id_deposit_percent', 'alpha');
 	}
 
 	$object = new SupplierProposal($db);

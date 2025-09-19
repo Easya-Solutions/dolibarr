@@ -964,7 +964,7 @@ class SupplierProposal extends CommonObject
 		$sql .= ", '".$this->db->escape($this->note_public)."'";
 		$sql .= ", '".$this->db->escape($this->model_pdf)."'";
 		$sql .= ", ".($this->cond_reglement_id > 0 ? ((int) $this->cond_reglement_id) : 'NULL');
-		$sql .= ", ".(!empty($this->deposit_percent) ? "'".$this->db->escape($this->deposit_percent)."'" : 'NULL');
+		$sql .= ", ".(!empty($this->deposit_percent) ? "'" . $this->db->escape($this->deposit_percent) . "'" : 'NULL');
 		$sql .= ", ".($this->mode_reglement_id > 0 ? ((int) $this->mode_reglement_id) : 'NULL');
 		$sql .= ", ".($this->fk_account > 0 ? ((int) $this->fk_account) : 'NULL');
 		$sql .= ", ".($delivery_date ? "'".$this->db->idate($delivery_date)."'" : "null");
@@ -1140,7 +1140,7 @@ class SupplierProposal extends CommonObject
 			if ($objsoc->fetch($fromid) > 0) {
 				$this->socid = $objsoc->id;
 				$this->cond_reglement_id	= (!empty($objsoc->cond_reglement_id) ? $objsoc->cond_reglement_id : 0);
-				$this->deposit_percent = (!empty($objsoc->deposit_percent) ? $objsoc->deposit_percent : null);
+				$this->deposit_percent = (!empty($objsoc->deposit_percent) ? $objsoc->deposit_percent : 0);
 				$this->mode_reglement_id	= (!empty($objsoc->mode_reglement_id) ? $objsoc->mode_reglement_id : 0);
 				$this->fk_project = '';
 			}
@@ -1279,6 +1279,7 @@ class SupplierProposal extends CommonObject
 				$this->shipping_method_id   = ($obj->fk_shipping_method > 0) ? $obj->fk_shipping_method : null;
 
 				$this->mode_reglement_id    = $obj->fk_mode_reglement;
+				$this->deposit_percent		= $obj->deposit_percent;
 				$this->mode_reglement_code  = $obj->mode_reglement_code;
 				$this->mode_reglement       = $obj->mode_reglement;
 				$this->fk_account           = ($obj->fk_account > 0) ? $obj->fk_account : null;
@@ -1286,7 +1287,6 @@ class SupplierProposal extends CommonObject
 				$this->cond_reglement_code  = $obj->cond_reglement_code;
 				$this->cond_reglement       = $obj->cond_reglement;
 				$this->cond_reglement_doc   = $obj->cond_reglement_libelle_doc;
-				$this->deposit_percent      = $obj->deposit_percent;
 
 				$this->extraparams = (array) json_decode($obj->extraparams, true);
 
