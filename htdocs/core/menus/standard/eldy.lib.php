@@ -2378,7 +2378,7 @@ function get_left_menu_tools($mainmenu, &$newmenu, $usemenuhider = 1, $leftmenu 
 	global $user, $conf, $langs;
 
 	if ($mainmenu == 'tools') {
-		if (empty($user->socid)) { // limit to internal users
+		if ($user->admin || $user->hasRight('user', 'email_templates', 'read')) {
 			$langs->load("mails");
 			$newmenu->add("/admin/mails_templates.php?leftmenu=email_templates", $langs->trans("EMailTemplates"), 0, 1, '', $mainmenu, 'email_templates', 0, '', '', '', img_picto('', 'email', 'class="paddingright pictofixedwidth"'));
 		}
