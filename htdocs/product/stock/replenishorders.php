@@ -124,13 +124,13 @@ $commandestatic = new CommandeFournisseur($db);
 $sql = 'SELECT s.rowid as socid, s.nom as name, cf.date_creation as dc,';
 $sql .= ' cf.rowid, cf.ref, cf.fk_statut, cf.total_ttc, cf.fk_user_author,';
 $sql .= ' u.login';
-$sql .= ' FROM '.MAIN_DB_PREFIX.'societe as s, '.MAIN_DB_PREFIX.'commande_fournisseur as cf';
+$sql .= ' FROM '.MAIN_DB_PREFIX.'societe as s';
+$sql .= ' INNER JOIN '.MAIN_DB_PREFIX.'commande_fournisseur as cf ON cf.fk_soc = c.rowid';
 $sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'user as u ON cf.fk_user_author = u.rowid';
 if (empty($user->rights->societe->client->voir) && !$socid) {
 	$sql .= ', '.MAIN_DB_PREFIX.'societe_commerciaux as sc';
 }
-$sql .= ' WHERE cf.fk_soc = s.rowid ';
-$sql .= ' AND cf.entity = '.$conf->entity;
+$sql .= ' WHERE cf.entity = '.$conf->entity;
 if (!empty($conf->global->STOCK_CALCULATE_ON_SUPPLIER_VALIDATE_ORDER)) {
 	$sql .= ' AND cf.fk_statut < 3';
 } elseif (!empty($conf->global->STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER) || !empty($conf->global->STOCK_CALCULATE_ON_RECEPTION) || !empty($conf->global->STOCK_CALCULATE_ON_RECEPTION_CLOSE)) {
