@@ -71,16 +71,25 @@ class OrderListController extends Controller
 		$context->menu_active[] = 'order_list';
 
 		// set form list
-		$formListWebPortal = new FormListWebPortal($this->db);
-		$formListWebPortal->init('order');
+		$this->formList = new FormListWebPortal($this->db);
+		$this->formList->init($this, 'order');
 
 		// hook for action
 		$hookRes = $this->hookDoAction();
 		if (empty($hookRes)) {
-			$formListWebPortal->doActions();
+			$this->formList->doActions();
 		}
 
-		$this->formList = $formListWebPortal;
+		$this->formList->setSqlRequest();
+
+		// filter on logged third-party
+		$this->formList->sql_body .= " AND t.fk_soc = " . ((int) $context->logged_thirdparty->id);
+		// discard record with status draft
+		$this->formList->sql_body .= " AND t.fk_statut <> 0";
+
+		$this->formList->loadRecords();
+		$this->formList->setParams();
+		$this->formList->setColumnsVisibility();
 
 		return 1;
 	}
@@ -106,7 +115,7 @@ class OrderListController extends Controller
 		if (empty($hookRes)) {
 			print '<main class="container">';
 			//print '<figure>';
-			print $this->formList->elementList($context);
+			$this->loadTemplate('list');
 			//print '</figure>';
 			print '</main>';
 		}
