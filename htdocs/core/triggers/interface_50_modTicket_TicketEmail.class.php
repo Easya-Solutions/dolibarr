@@ -24,6 +24,7 @@
  *  \brief      File of trigger for ticket module
  */
 require_once DOL_DOCUMENT_ROOT.'/core/triggers/dolibarrtriggers.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
 
 
 /**
@@ -156,11 +157,21 @@ class InterfaceTicketEmail extends DolibarrTriggers
 				$body_assignee = 'TicketAssignedEmailBody';
 				$see_ticket_assignee = 'SeeThisTicketIntomanagementInterface';
 
+				// We send files that were just uploaded because they were not moved to ticket document directory
+				//@see Ticket::copyFilesForTicket()
+				//@see ticket/card.php call to Ticket::copyFilesForTicket()
+				$formmail = new FormMail($this->db);
+				$formmail->trackid = ('');
+				$attachedfiles = $formmail->get_attached_files();
+				$filepaths = $attachedfiles['paths'];
+				$filenames = $attachedfiles['names'];
+				$mimetypes = $attachedfiles['mimes'];
+
 				// Send email to notification email
 				if (!empty($conf->global->TICKET_NOTIFICATION_EMAIL_TO) && empty($object->context['disableticketemail'])) {
 					$sendto = empty($conf->global->TICKET_NOTIFICATION_EMAIL_TO) ? '' : $conf->global->TICKET_NOTIFICATION_EMAIL_TO;
 					if ($sendto) {
-						$this->composeAndSendAdminMessage($sendto, $subject_admin, $body_admin, $object, $langs);
+						$this->composeAndSendAdminMessage($sendto, $subject_admin, $body_admin, $object, $langs, $filepaths, $mimetypes, $filenames);
 					}
 				}
 
@@ -179,7 +190,7 @@ class InterfaceTicketEmail extends DolibarrTriggers
 							}
 
 							if (!empty($sendto)) {
-								$this->composeAndSendAssigneeMessage($sendto, $subject_assignee, $body_assignee, $see_ticket_assignee, $object, $langs);
+								$this->composeAndSendAssigneeMessage($sendto, $subject_assignee, $body_assignee, $see_ticket_assignee, $object, $langs, $filepaths, $mimetypes, $filenames);
 							}
 
 							if (!getDolUserString('TICKET_DISABLE_MAIL_AUTOCOPY_TO')) {
@@ -214,7 +225,7 @@ class InterfaceTicketEmail extends DolibarrTriggers
 					}
 
 					if ($sendto) {
-						$this->composeAndSendCustomerMessage($sendto, $subject_customer, $body_customer, $see_ticket_customer, $object, $langs);
+						$this->composeAndSendCustomerMessage($sendto, $subject_customer, $body_customer, $see_ticket_customer, $object, $langs, $filepaths, $mimetypes, $filenames);
 					}
 				}
 
@@ -305,16 +316,12 @@ class InterfaceTicketEmail extends DolibarrTriggers
 	 * @param string 	$body			email body (first line). Non-translated string.
 	 * @param Ticket 	$object			the ticket thet the email refers to
 	 * @param Translate $langs			the translation object
+	 * @param Array 	$files			['filepath' => [], 'filename' => [''], 'mimetype' => ['']]
 	 * @return void
 	 */
-	private function composeAndSendAdminMessage($sendto, $base_subject, $body, Ticket $object, Translate $langs)
+	private function composeAndSendAdminMessage($sendto, $base_subject, $body, Ticket $object, Translate $langs, $filepaths = array(), $mimetypes = array(), $filenames = array())
 	{
 		global $conf;
-
-		// Init to avoid errors
-		$filepath = array();
-		$filename = array();
-		$mimetype = array();
 
 		/* Send email to admin */
 		$subject = '['.$conf->global->MAIN_INFO_SOCIETE_NOM.'] '.$langs->transnoentities($base_subject, $object->ref, $object->track_id);
@@ -355,7 +362,7 @@ class InterfaceTicketEmail extends DolibarrTriggers
 			$conf->global->MAIN_MAIL_AUTOCOPY_TO = '';
 		}
 		include_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
-		$mailfile = new CMailFile($subject, $sendto, $from, $message_admin, $filepath, $mimetype, $filename, '', '', 0, -1, '', '', $trackid, '', 'ticket');
+		$mailfile = new CMailFile($subject, $sendto, $from, $message_admin, $filepaths, $mimetypes, $filenames, '', '', 0, -1, '', '', $trackid, '', 'ticket');
 		if ($mailfile->error) {
 			dol_syslog($mailfile->error, LOG_DEBUG);
 		} else {
@@ -375,16 +382,12 @@ class InterfaceTicketEmail extends DolibarrTriggers
 	 * @param string 	$see_ticket		string indicating the ticket public address
 	 * @param Ticket 	$object			the ticket thet the email refers to
 	 * @param Translate $langs			the translation object
+	 * @param Array 	$files			['filepath' => [], 'filename' => [''], 'mimetype' => ['']]
 	 * @return void
 	 */
-	private function composeAndSendCustomerMessage($sendto, $base_subject, $body, $see_ticket, Ticket $object, Translate $langs)
+	private function composeAndSendCustomerMessage($sendto, $base_subject, $body, $see_ticket, Ticket $object, Translate $langs, $filepaths = array(), $mimetypes = array(), $filenames = array())
 	{
 		global $conf, $user;
-
-		// Init to avoid errors
-		$filepath = array();
-		$filename = array();
-		$mimetype = array();
 
 		$subject = '['.$conf->global->MAIN_INFO_SOCIETE_NOM.'] '.$langs->transnoentities($base_subject);
 		$message_customer = $langs->transnoentities($body, $object->track_id).'<br>';
@@ -446,7 +449,7 @@ class InterfaceTicketEmail extends DolibarrTriggers
 		}
 
 		include_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
-		$mailfile = new CMailFile($subject, $sendto, $from, $message_customer, $filepath, $mimetype, $filename, '', '', 0, -1, '', '', $trackid, '', 'ticket');
+		$mailfile = new CMailFile($subject, $sendto, $from, $message_customer, $filepaths, $mimetypes, $filenames, '', '', 0, -1, '', '', $trackid, '', 'ticket');
 		if ($mailfile->error) {
 			dol_syslog($mailfile->error, LOG_DEBUG);
 		} else {
@@ -472,16 +475,12 @@ class InterfaceTicketEmail extends DolibarrTriggers
 	 * @param string 	$see_ticket		string indicating the ticket public address
 	 * @param Ticket 	$object			the ticket thet the email refers to
 	 * @param Translate $langs			the translation object
+	 * @param Array 	$files			['filepath' => [], 'filename' => [''], 'mimetype' => ['']]
 	 * @return void
 	 */
-	private function composeAndSendAssigneeMessage($sendto, $base_subject, $body, $see_ticket, Ticket $object, Translate $langs)
+	private function composeAndSendAssigneeMessage($sendto, $base_subject, $body, $see_ticket, Ticket $object, Translate $langs, $filepaths = array(), $mimetypes = array(), $filenames = array())
 	{
 		global $conf, $user, $mysoc;
-
-		// Init to avoid errors
-		$filepath = array();
-		$filename = array();
-		$mimetype = array();
 
 		// Send email to assigned user
 		$appli = $mysoc->name;
@@ -514,7 +513,7 @@ class InterfaceTicketEmail extends DolibarrTriggers
 		}
 
 		include_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
-		$mailfile = new CMailFile($subject, $sendto, $from, $message, $filepath, $mimetype, $filename, '', '', 0, -1);
+		$mailfile = new CMailFile($subject, $sendto, $from, $message, $filepaths, $mimetypes, $filenames, '', '', 0, -1);
 		if ($mailfile->error) {
 			setEventMessages($mailfile->error, $mailfile->errors, 'errors');
 		} else {
