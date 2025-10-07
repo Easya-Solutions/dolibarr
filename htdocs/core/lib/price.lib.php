@@ -191,7 +191,7 @@ function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocalt
 	}
 
 	// initialize total (may be HT or TTC depending on price_base_type)
-	$tot_sans_remise = $pu * $qty * $progress / 100;
+	$tot_sans_remise = $pu * $qty * abs($progress / 100);
 	$tot_avec_remise_ligne = $tot_sans_remise * (1 - ((float) $remise_percent_ligne / 100));
 	$tot_avec_remise       = $tot_avec_remise_ligne * (1 - ((float) $remise_percent_global / 100));
 
