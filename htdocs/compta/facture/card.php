@@ -5860,10 +5860,9 @@ if ($action == 'create') {
 				}
 			}
 
-			// For situation invoice with excess received
+			// For situation invoice
 			if ($object->statut > Facture::STATUS_DRAFT
 				&& $object->type == Facture::TYPE_SITUATION
-				&& ($object->total_ttc - $totalpaid - $totalcreditnotes - $totaldeposits) > 0
 				&& $usercancreate
 				&& !$objectidnext
 				&& $object->is_last_in_cycle()
