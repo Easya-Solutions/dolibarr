@@ -164,8 +164,8 @@ $borderradius = getDolGlobalString('THEME_ELDY_USEBORDERONTABLE') ? getDolGlobal
 /* ============================================================================== */
 
 :root {
-	--colorbackhmenu1: rgb(<?php print $colorbackhmenu1; ?>);
-	--colorbackvmenu1: rgb(<?php print $colorbackvmenu1; ?>);
+	--colorbackhmenu1: rgb(<?php print (getDolGlobalInt('MAIN_MENU_INVERT') ? $colorbackvmenu1 : $colorbackhmenu1); ?>);
+	--colorbackvmenu1: rgb(<?php print (getDolGlobalInt('MAIN_MENU_INVERT') ? $colorbackhmenu1 : $colorbackvmenu1); ?>);
 	--colorbacktitle1: rgb(<?php print $colorbacktitle1; ?>);
 	--colorbacktabcard1: rgb(<?php print $colorbacktabcard1; ?>);
 	--colorbacktabactive: rgb(<?php print $colorbacktabactive; ?>);
@@ -3523,7 +3523,7 @@ div.login_block {
 	<?php } ?>
 }
 div.login_block a {
-	color: var(--colortextbackhmenu);
+	color: var(<?php print (getDolGlobalInt('MAIN_MENU_INVERT') ? '--colortextbackvmenu' : '--colortextbackhmenu') ?>);
 	display: inline-block;
 }
 div.login_block a .atoploginusername {
@@ -3533,7 +3533,7 @@ div.login_block a .atoploginusername {
 	text-overflow: ellipsis;
 }
 div.login_block span.aversion {
-	color: var(--colortextbackhmenu);
+	color: var(<?php print (getDolGlobalInt('MAIN_MENU_INVERT') ? '--colortextbackvmenu' : '--colortextbackhmenu') ?>) !important;
 	filter: contrast(0.7);
 }
 div.login_block table {
@@ -3586,7 +3586,7 @@ div.login_block_user {
 	height: 25px;
 }
 .atoplogin, .atoplogin:hover {
-	color: var(--colortextbackhmenu) !important;
+	color: var(<?php print (getDolGlobalInt('MAIN_MENU_INVERT') ? '--colortextbackvmenu' : '--colortextbackhmenu') ?>) !important;
 }
 .login_block_getinfo {
 	text-align: center;
