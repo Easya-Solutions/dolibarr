@@ -218,6 +218,11 @@ if (!isset($conf->global->THEME_ELDY_TOPMENU_BACK1)) {
 if (!isset($conf->global->THEME_ELDY_VERMENU_BACK1)) {
 	$conf->global->THEME_ELDY_VERMENU_BACK1 = $colorbackvmenu1;
 }
+if (getDolGlobalInt('MAIN_MENU_INVERT')) {
+	$save_THEME_ELDY_TOPMENU_BACK1 = getDolGlobalString('THEME_ELDY_TOPMENU_BACK1');
+	$conf->global->THEME_ELDY_TOPMENU_BACK1 = getDolGlobalString('THEME_ELDY_VERMENU_BACK1');
+	$conf->global->THEME_ELDY_VERMENU_BACK1 = $save_THEME_ELDY_TOPMENU_BACK1;
+}
 if (!isset($conf->global->THEME_ELDY_BACKTITLE1)) {
 	$conf->global->THEME_ELDY_BACKTITLE1 = $colorbacktitle1;
 }
