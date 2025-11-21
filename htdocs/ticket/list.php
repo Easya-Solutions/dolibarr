@@ -65,7 +65,7 @@ $search_dateread_start = dol_mktime(0, 0, 0, GETPOST('search_dateread_startmonth
 $search_dateread_end = dol_mktime(23, 59, 59, GETPOST('search_dateread_endmonth', 'int'), GETPOST('search_dateread_endday', 'int'), GETPOST('search_dateread_endyear', 'int'));
 $search_dateclose_start = dol_mktime(0, 0, 0, GETPOST('search_dateclose_startmonth', 'int'), GETPOST('search_dateclose_startday', 'int'), GETPOST('search_dateclose_startyear', 'int'));
 $search_dateclose_end = dol_mktime(23, 59, 59, GETPOST('search_dateclose_endmonth', 'int'), GETPOST('search_dateclose_endday', 'int'), GETPOST('search_dateclose_endyear', 'int'));
-
+$search_categ = GETPOST('search_categ', 'int');
 
 // Load variable for pagination
 $limit = GETPOST('limit', 'int') ?GETPOST('limit', 'int') : $conf->liste_limit;
@@ -224,6 +224,7 @@ if (empty($reshook)) {
 		$search_dateread_end = '';
 		$search_dateclose_start = '';
 		$search_dateclose_end = '';
+		$search_categ = 0;
 	}
 	if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')
 		|| GETPOST('button_search_x', 'alpha') || GETPOST('button_search.x', 'alpha') || GETPOST('button_search', 'alpha')) {
@@ -330,6 +331,7 @@ if (empty($reshook)) {
 
 $form = new Form($db);
 $formTicket = new FormTicket($db);
+$formother = new FormOther($db);
 
 $now = dol_now();
 
@@ -417,6 +419,36 @@ foreach ($search as $key => $val) {
 	// $search[$key] can be an array of values, or a string. We add filter if array not empty or if it is a string.
 	if ((is_array($search[$key]) && !empty($search[$key])) || (!is_array($search[$key]) && $search[$key] != '')) {
 		$sql .= natural_search($tmpkey, $search[$key], $mode_search);
+	}
+}
+$searchCategoryList = $search_categ ? array($search_categ) : array();
+$searchCategoryOperator = 0;
+// Search for tag/category ($searchCategoryList is an array of ID)
+if (!empty($searchCategoryList)) {
+	$searchCategorySqlList = array();
+	$listofcategoryid = '';
+	foreach ($searchCategoryList as $searchCategory) {
+		if (intval($searchCategory) == -2) {
+			$searchCategorySqlList[] = "NOT EXISTS (SELECT ck.fk_ticket FROM ".MAIN_DB_PREFIX."categorie_ticket as ck WHERE s.rowid = ck.fk_ticket)";
+		} elseif (intval($searchCategory) > 0) {
+			if ($searchCategoryOperator == 0) {
+				$searchCategorySqlList[] = " EXISTS (SELECT ck.fk_ticket FROM ".MAIN_DB_PREFIX."categorie_ticket as ck WHERE s.rowid = ck.fk_ticket AND ck.fk_categorie = ".((int) $searchCategory).")";
+			} else {
+				$listofcategoryid .= ($listofcategoryid ? ', ' : '') .((int) $searchCategory);
+			}
+		}
+	}
+	if ($listofcategoryid) {
+		$searchCategorySqlList[] = " EXISTS (SELECT ck.fk_ticket FROM ".MAIN_DB_PREFIX."categorie_ticket as ck WHERE s.rowid = ck.fk_ticket AND ck.fk_categorie IN (".$db->sanitize($listofcategoryid)."))";
+	}
+	if ($searchCategoryOperator == 1) {
+		if (!empty($searchCategorySqlList)) {
+			$sql .= " AND (".implode(' OR ', $searchCategorySqlList).")";
+		}
+	} else {
+		if (!empty($searchCategorySqlList)) {
+			$sql .= " AND (".implode(' AND ', $searchCategorySqlList).")";
+		}
 	}
 }
 if ($search_all) {
@@ -799,6 +831,16 @@ $moreforfilter = '';
 /*$moreforfilter.='<div class="divsearchfield">';
 $moreforfilter.= $langs->trans('MyFilter') . ': <input type="text" name="search_myfield" value="'.dol_escape_htmltag($search_myfield).'">';
 $moreforfilter.= '</div>';*/
+
+
+if (isModEnabled('categorie') && $user->hasRight("categorie", "lire")) {
+	require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
+	$moreforfilter .= '<div class="divsearchfield">';
+	$tmptitle = $langs->trans('Categories');
+	$moreforfilter .= img_picto($tmptitle, 'category', 'class="pictofixedwidth"');
+	$moreforfilter .= $formother->select_categories('ticket', $search_categ, 'search_categ', 1);
+	$moreforfilter .= '</div>';
+}
 
 $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
